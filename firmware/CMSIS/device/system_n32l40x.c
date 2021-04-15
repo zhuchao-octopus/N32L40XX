@@ -28,7 +28,7 @@
 /**
  * @file system_n32l40x.c
  * @author Nations
- * @version v1.0.0
+ * @version v1.0.1
  *
  * @copyright Copyright (c) 2019, Nations Technologies Inc. All rights reserved.
  */
@@ -82,7 +82,8 @@
 
 #define PLL_DIV2_DISABLE 0x00000000
 #define PLL_DIV2_ENABLE 0x00000002
-
+#define SRAM_VOL   (__IO unsigned*)(0x40001800 + 0x20)
+#define ConfigSRAMVoltage(vale) do{(*SRAM_VOL ) &= (~(uint32_t)(1 <<25));(*SRAM_VOL ) |= (uint32_t)(vale <<25);}while(0) //vale only equal to 0,1 
 #if SYSCLK_SRC == SYSCLK_USE_MSI
     
     #if (SYSCLK_FREQ == MSI_VALUE_L0)
@@ -235,7 +236,7 @@ void SystemInit(void)
     RCC->CFG2 = 0x00000000;
 
     /* Reset CFG3 register */
-    RCC->CFG3 = 0x00000000;
+    RCC->CFG3 = 0x00003800;
 
     /* Reset RDCTRL register */
     RCC->RDCTRL = 0x00000000;
@@ -249,8 +250,10 @@ void SystemInit(void)
     /* Enable ex mode */
     RCC->APB1PCLKEN |= RCC_APB1PCLKEN_PWREN;
     
-    PWR->CTRL1 &= (uint32_t)(~PWR_CTRL1_MRSEL);
-    PWR->CTRL1 |= PWR_CTRL1_MRSEL2;
+    if((PWR->CTRL1 & PWR_CTRL1_MRSEL2) == PWR_CTRL1_MRSEL2)
+    {
+        ConfigSRAMVoltage(1);
+    }
     /* Enable ICACHE and Prefetch Buffer */
     FLASH->AC |= (uint32_t)(FLASH_AC_ICAHEN | FLASH_AC_PRFTBFEN);
     
@@ -405,6 +408,25 @@ void SystemCoreClockUpdate(void)
 }
 
 /**
+ * @brief  Configures the System PWR level to 1.0V
+ * .
+ */
+void ConfigMRVoltage1V(void)
+{
+
+    ConfigSRAMVoltage(1);                  //SRAM read margin setting switch in 0.9/lprun mode: use low voltage mode settings and 1.0v use normal mode
+    PWR->CTRL1 &= (uint32_t)(~PWR_CTRL1_MRSEL);
+    PWR->CTRL1 |= PWR_CTRL1_MRSEL2;        //MR=1.0V
+    while((PWR->STS2 &0X2) != 0)           // wait VOSF to be 0 first
+    {
+    }
+    while((PWR->STS2 &0X2) != 2)           // wait VOSF to be 1 then
+    {
+    }
+
+
+}
+/**
  * @brief  Configures the System clock frequency, HCLK, PCLK2 and PCLK1
  * prescalers.
  */
@@ -483,13 +505,7 @@ static void SetSysClock(void)
     }
 #endif
 
-    /* Check PWR->CTRL1.MRSEL configuration */
-    if((PWR->CTRL1 & ((uint32_t)PWR_CTRL1_MRSEL)) != ((uint32_t)PWR_CTRL1_MRSEL2))
-    {
-        /* Config 1.0V */
-		PWR->CTRL1 |= (uint32_t)(PWR_CTRL1_MRSEL);
-        PWR->CTRL1 &= (uint32_t)(~PWR_CTRL1_MRSEL_bit0);
-    }
+    ConfigMRVoltage1V();
 
     /* Flash wait state
         0: HCLK <= 32M

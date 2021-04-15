@@ -28,7 +28,7 @@
 /**
  * @file n32l40x_rcc.h
  * @author Nations
- * @version v1.0.0
+ * @version v1.0.1
  *
  * @copyright Copyright (c) 2019, Nations Technologies Inc. All rights reserved.
  */
@@ -472,29 +472,51 @@ typedef struct
 #define IS_RCC_TRNG1MCLK_SRC(TRNG1MCLK)                                                                                \
     (((TRNG1MCLK) == RCC_TRNG1MCLK_SRC_HSI) || ((TRNG1MCLK) == RCC_TRNG1MCLK_SRC_HSE))
 
+#define RCC_TRNG1MCLK_DIV1  ((uint32_t)0x00000000)
 #define RCC_TRNG1MCLK_DIV2  ((uint32_t)0x00000800)
-#define RCC_TRNG1MCLK_DIV4  ((uint32_t)0x00001800)
-#define RCC_TRNG1MCLK_DIV6  ((uint32_t)0x00002800)
-#define RCC_TRNG1MCLK_DIV8  ((uint32_t)0x00003800)
-#define RCC_TRNG1MCLK_DIV10 ((uint32_t)0x00004800)
-#define RCC_TRNG1MCLK_DIV12 ((uint32_t)0x00005800)
-#define RCC_TRNG1MCLK_DIV14 ((uint32_t)0x00006800)
-#define RCC_TRNG1MCLK_DIV16 ((uint32_t)0x00007800)
-#define RCC_TRNG1MCLK_DIV18 ((uint32_t)0x00008800)
-#define RCC_TRNG1MCLK_DIV20 ((uint32_t)0x00009800)
-#define RCC_TRNG1MCLK_DIV22 ((uint32_t)0x0000A800)
-#define RCC_TRNG1MCLK_DIV24 ((uint32_t)0x0000B800)
-#define RCC_TRNG1MCLK_DIV26 ((uint32_t)0x0000C800)
-#define RCC_TRNG1MCLK_DIV28 ((uint32_t)0x0000D800)
-#define RCC_TRNG1MCLK_DIV30 ((uint32_t)0x0000E800)
-#define RCC_TRNG1MCLK_DIV32 ((uint32_t)0x0000F800)
+#define RCC_TRNG1MCLK_DIV4  ((uint32_t)0x00001000)
+#define RCC_TRNG1MCLK_DIV6  ((uint32_t)0x00001800)
+#define RCC_TRNG1MCLK_DIV8  ((uint32_t)0x00002000)
+#define RCC_TRNG1MCLK_DIV10 ((uint32_t)0x00002800)
+#define RCC_TRNG1MCLK_DIV12 ((uint32_t)0x00003000)
+#define RCC_TRNG1MCLK_DIV14 ((uint32_t)0x00003800)
+#define RCC_TRNG1MCLK_DIV16 ((uint32_t)0x00004000)
+#define RCC_TRNG1MCLK_DIV18 ((uint32_t)0x00004800)
+#define RCC_TRNG1MCLK_DIV20 ((uint32_t)0x00005000)
+#define RCC_TRNG1MCLK_DIV22 ((uint32_t)0x00005800)
+#define RCC_TRNG1MCLK_DIV24 ((uint32_t)0x00006000)
+#define RCC_TRNG1MCLK_DIV26 ((uint32_t)0x00006800)
+#define RCC_TRNG1MCLK_DIV28 ((uint32_t)0x00007000)
+#define RCC_TRNG1MCLK_DIV30 ((uint32_t)0x00007800)
+#define RCC_TRNG1MCLK_DIV32 ((uint32_t)0x00008000)
+#define RCC_TRNG1MCLK_DIV34 ((uint32_t)0x00008800)
+#define RCC_TRNG1MCLK_DIV36 ((uint32_t)0x00009000)
+#define RCC_TRNG1MCLK_DIV38 ((uint32_t)0x00009800)
+#define RCC_TRNG1MCLK_DIV40 ((uint32_t)0x0000A000)
+#define RCC_TRNG1MCLK_DIV42 ((uint32_t)0x0000A800)
+#define RCC_TRNG1MCLK_DIV44 ((uint32_t)0x0000B000)
+#define RCC_TRNG1MCLK_DIV46 ((uint32_t)0x0000B800)
+#define RCC_TRNG1MCLK_DIV48 ((uint32_t)0x0000C000)
+#define RCC_TRNG1MCLK_DIV50 ((uint32_t)0x0000C800)
+#define RCC_TRNG1MCLK_DIV52 ((uint32_t)0x0000D000)
+#define RCC_TRNG1MCLK_DIV54 ((uint32_t)0x0000D800)
+#define RCC_TRNG1MCLK_DIV56 ((uint32_t)0x0000E000)
+#define RCC_TRNG1MCLK_DIV58 ((uint32_t)0x0000E800)
+#define RCC_TRNG1MCLK_DIV60 ((uint32_t)0x0000F000)
+#define RCC_TRNG1MCLK_DIV62 ((uint32_t)0x0000F800)
 #define IS_RCC_TRNG1MCLKPRE(VAL)                                                                                       \
-    (((VAL) == RCC_TRNG1MCLK_DIV2) || ((VAL) == RCC_TRNG1MCLK_DIV4) || ((VAL) == RCC_TRNG1MCLK_DIV6)                   \
+    (((VAL) == RCC_TRNG1MCLK_DIV1)                                                                                     \
+     || ((VAL) == RCC_TRNG1MCLK_DIV2) || ((VAL) == RCC_TRNG1MCLK_DIV4) || ((VAL) == RCC_TRNG1MCLK_DIV6)                \
      || ((VAL) == RCC_TRNG1MCLK_DIV8) || ((VAL) == RCC_TRNG1MCLK_DIV10) || ((VAL) == RCC_TRNG1MCLK_DIV12)              \
      || ((VAL) == RCC_TRNG1MCLK_DIV14) || ((VAL) == RCC_TRNG1MCLK_DIV16) || ((VAL) == RCC_TRNG1MCLK_DIV18)             \
      || ((VAL) == RCC_TRNG1MCLK_DIV20) || ((VAL) == RCC_TRNG1MCLK_DIV22) || ((VAL) == RCC_TRNG1MCLK_DIV24)             \
      || ((VAL) == RCC_TRNG1MCLK_DIV26) || ((VAL) == RCC_TRNG1MCLK_DIV28) || ((VAL) == RCC_TRNG1MCLK_DIV30)             \
-     || ((VAL) == RCC_TRNG1MCLK_DIV32))
+     || ((VAL) == RCC_TRNG1MCLK_DIV32) || ((VAL) == RCC_TRNG1MCLK_DIV34) || ((VAL) == RCC_TRNG1MCLK_DIV36)             \
+     || ((VAL) == RCC_TRNG1MCLK_DIV38) || ((VAL) == RCC_TRNG1MCLK_DIV40) || ((VAL) == RCC_TRNG1MCLK_DIV42)             \
+     || ((VAL) == RCC_TRNG1MCLK_DIV44) || ((VAL) == RCC_TRNG1MCLK_DIV46) || ((VAL) == RCC_TRNG1MCLK_DIV48)             \
+     || ((VAL) == RCC_TRNG1MCLK_DIV50) || ((VAL) == RCC_TRNG1MCLK_DIV52) || ((VAL) == RCC_TRNG1MCLK_DIV54)             \
+     || ((VAL) == RCC_TRNG1MCLK_DIV56) || ((VAL) == RCC_TRNG1MCLK_DIV58) || ((VAL) == RCC_TRNG1MCLK_DIV60)             \
+     || ((VAL) == RCC_TRNG1MCLK_DIV62))
 
 #define RCC_UCDR_ENABLE  ((uint32_t)0x00000080)
 #define RCC_UCDR_DISABLE ((uint32_t)0xFFFFFF7F)

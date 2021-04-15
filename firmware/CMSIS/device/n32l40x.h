@@ -28,7 +28,7 @@
 /**
  * @file n32l40x.h
  * @author Nations
- * @version v1.0.0
+ * @version v1.0.2
  *
  * @copyright Copyright (c) 2019, Nations Technologies Inc. All rights reserved.
  */
@@ -313,8 +313,8 @@ typedef struct
     __IO uint32_t WINMODE;
     __IO uint32_t LOCK;
     COMP_SingleType Cmp1;
-    COMP_SingleType Cmp2;
     __IO uint32_t RES;
+    COMP_SingleType Cmp2;
     __IO uint32_t CMP2OSEL;
     __IO uint32_t VREFSCL;
     __IO uint32_t TEST;
@@ -1674,38 +1674,38 @@ typedef struct
 #define RCC_CFG3_TRNG1MPRES_3 ((uint32_t)0x00004000) /*!< Bit 3 */
 #define RCC_CFG3_TRNG1MPRES_4 ((uint32_t)0x00008000) /*!< Bit 4 */
 
-#define RCC_CFG3_TRNG1MPRES_VAL1  ((uint32_t)0x00000000) /*!< TRNG 1M source clock is divided by 2 */
+#define RCC_CFG3_TRNG1MPRES_VAL1  ((uint32_t)0x00000000) /*!< TRNG 1M source clock is divided by 1 */
 #define RCC_CFG3_TRNG1MPRES_VAL2  ((uint32_t)0x00000800) /*!< TRNG 1M source clock is divided by 2 */
 #define RCC_CFG3_TRNG1MPRES_VAL3  ((uint32_t)0x00001000) /*!< TRNG 1M source clock is divided by 4 */
-#define RCC_CFG3_TRNG1MPRES_VAL4  ((uint32_t)0x00001800) /*!< TRNG 1M source clock is divided by 4 */
-#define RCC_CFG3_TRNG1MPRES_VAL5  ((uint32_t)0x00002000) /*!< TRNG 1M source clock is divided by 6 */
-#define RCC_CFG3_TRNG1MPRES_VAL6  ((uint32_t)0x00002800) /*!< TRNG 1M source clock is divided by 6 */
-#define RCC_CFG3_TRNG1MPRES_VAL7  ((uint32_t)0x00003000) /*!< TRNG 1M source clock is divided by 8 */
-#define RCC_CFG3_TRNG1MPRES_VAL8  ((uint32_t)0x00003800) /*!< TRNG 1M source clock is divided by 8 */
-#define RCC_CFG3_TRNG1MPRES_VAL9  ((uint32_t)0x00004000) /*!< TRNG 1M source clock is divided by 10 */
-#define RCC_CFG3_TRNG1MPRES_VAL10 ((uint32_t)0x00004800) /*!< TRNG 1M source clock is divided by 10 */
-#define RCC_CFG3_TRNG1MPRES_VAL11 ((uint32_t)0x00005000) /*!< TRNG 1M source clock is divided by 12 */
-#define RCC_CFG3_TRNG1MPRES_VAL12 ((uint32_t)0x00005800) /*!< TRNG 1M source clock is divided by 12 */
-#define RCC_CFG3_TRNG1MPRES_VAL13 ((uint32_t)0x00006000) /*!< TRNG 1M source clock is divided by 14 */
-#define RCC_CFG3_TRNG1MPRES_VAL14 ((uint32_t)0x00006800) /*!< TRNG 1M source clock is divided by 14 */
-#define RCC_CFG3_TRNG1MPRES_VAL15 ((uint32_t)0x00007000) /*!< TRNG 1M source clock is divided by 16 */
-#define RCC_CFG3_TRNG1MPRES_VAL16 ((uint32_t)0x00007800) /*!< TRNG 1M source clock is divided by 16 */
-#define RCC_CFG3_TRNG1MPRES_VAL17 ((uint32_t)0x00008000) /*!< TRNG 1M source clock is divided by 18 */
-#define RCC_CFG3_TRNG1MPRES_VAL18 ((uint32_t)0x00008800) /*!< TRNG 1M source clock is divided by 18 */
-#define RCC_CFG3_TRNG1MPRES_VAL19 ((uint32_t)0x00009000) /*!< TRNG 1M source clock is divided by 20 */
-#define RCC_CFG3_TRNG1MPRES_VAL20 ((uint32_t)0x00009800) /*!< TRNG 1M source clock is divided by 20 */
-#define RCC_CFG3_TRNG1MPRES_VAL21 ((uint32_t)0x0000A000) /*!< TRNG 1M source clock is divided by 22 */
-#define RCC_CFG3_TRNG1MPRES_VAL22 ((uint32_t)0x0000A800) /*!< TRNG 1M source clock is divided by 22 */
-#define RCC_CFG3_TRNG1MPRES_VAL23 ((uint32_t)0x0000B000) /*!< TRNG 1M source clock is divided by 24 */
-#define RCC_CFG3_TRNG1MPRES_VAL24 ((uint32_t)0x0000B800) /*!< TRNG 1M source clock is divided by 24 */
-#define RCC_CFG3_TRNG1MPRES_VAL25 ((uint32_t)0x0000C000) /*!< TRNG 1M source clock is divided by 26 */
-#define RCC_CFG3_TRNG1MPRES_VAL26 ((uint32_t)0x0000C800) /*!< TRNG 1M source clock is divided by 26 */
-#define RCC_CFG3_TRNG1MPRES_VAL27 ((uint32_t)0x0000D000) /*!< TRNG 1M source clock is divided by 28 */
-#define RCC_CFG3_TRNG1MPRES_VAL28 ((uint32_t)0x0000D800) /*!< TRNG 1M source clock is divided by 28 */
-#define RCC_CFG3_TRNG1MPRES_VAL29 ((uint32_t)0x0000E000) /*!< TRNG 1M source clock is divided by 30 */
-#define RCC_CFG3_TRNG1MPRES_VAL30 ((uint32_t)0x0000E800) /*!< TRNG 1M source clock is divided by 30 */
-#define RCC_CFG3_TRNG1MPRES_VAL31 ((uint32_t)0x0000F000) /*!< TRNG 1M source clock is divided by 32 */
-#define RCC_CFG3_TRNG1MPRES_VAL32 ((uint32_t)0x0000F800) /*!< TRNG 1M source clock is divided by 32 */
+#define RCC_CFG3_TRNG1MPRES_VAL4  ((uint32_t)0x00001800) /*!< TRNG 1M source clock is divided by 6 */
+#define RCC_CFG3_TRNG1MPRES_VAL5  ((uint32_t)0x00002000) /*!< TRNG 1M source clock is divided by 8 */
+#define RCC_CFG3_TRNG1MPRES_VAL6  ((uint32_t)0x00002800) /*!< TRNG 1M source clock is divided by 10 */
+#define RCC_CFG3_TRNG1MPRES_VAL7  ((uint32_t)0x00003000) /*!< TRNG 1M source clock is divided by 12 */
+#define RCC_CFG3_TRNG1MPRES_VAL8  ((uint32_t)0x00003800) /*!< TRNG 1M source clock is divided by 14 */
+#define RCC_CFG3_TRNG1MPRES_VAL9  ((uint32_t)0x00004000) /*!< TRNG 1M source clock is divided by 16 */
+#define RCC_CFG3_TRNG1MPRES_VAL10 ((uint32_t)0x00004800) /*!< TRNG 1M source clock is divided by 18 */
+#define RCC_CFG3_TRNG1MPRES_VAL11 ((uint32_t)0x00005000) /*!< TRNG 1M source clock is divided by 20 */
+#define RCC_CFG3_TRNG1MPRES_VAL12 ((uint32_t)0x00005800) /*!< TRNG 1M source clock is divided by 22 */
+#define RCC_CFG3_TRNG1MPRES_VAL13 ((uint32_t)0x00006000) /*!< TRNG 1M source clock is divided by 24 */
+#define RCC_CFG3_TRNG1MPRES_VAL14 ((uint32_t)0x00006800) /*!< TRNG 1M source clock is divided by 26 */
+#define RCC_CFG3_TRNG1MPRES_VAL15 ((uint32_t)0x00007000) /*!< TRNG 1M source clock is divided by 28 */
+#define RCC_CFG3_TRNG1MPRES_VAL16 ((uint32_t)0x00007800) /*!< TRNG 1M source clock is divided by 30 */
+#define RCC_CFG3_TRNG1MPRES_VAL17 ((uint32_t)0x00008000) /*!< TRNG 1M source clock is divided by 32 */
+#define RCC_CFG3_TRNG1MPRES_VAL18 ((uint32_t)0x00008800) /*!< TRNG 1M source clock is divided by 34 */
+#define RCC_CFG3_TRNG1MPRES_VAL19 ((uint32_t)0x00009000) /*!< TRNG 1M source clock is divided by 36 */
+#define RCC_CFG3_TRNG1MPRES_VAL20 ((uint32_t)0x00009800) /*!< TRNG 1M source clock is divided by 38 */
+#define RCC_CFG3_TRNG1MPRES_VAL21 ((uint32_t)0x0000A000) /*!< TRNG 1M source clock is divided by 40 */
+#define RCC_CFG3_TRNG1MPRES_VAL22 ((uint32_t)0x0000A800) /*!< TRNG 1M source clock is divided by 42 */
+#define RCC_CFG3_TRNG1MPRES_VAL23 ((uint32_t)0x0000B000) /*!< TRNG 1M source clock is divided by 44 */
+#define RCC_CFG3_TRNG1MPRES_VAL24 ((uint32_t)0x0000B800) /*!< TRNG 1M source clock is divided by 46 */
+#define RCC_CFG3_TRNG1MPRES_VAL25 ((uint32_t)0x0000C000) /*!< TRNG 1M source clock is divided by 48 */
+#define RCC_CFG3_TRNG1MPRES_VAL26 ((uint32_t)0x0000C800) /*!< TRNG 1M source clock is divided by 50 */
+#define RCC_CFG3_TRNG1MPRES_VAL27 ((uint32_t)0x0000D000) /*!< TRNG 1M source clock is divided by 52 */
+#define RCC_CFG3_TRNG1MPRES_VAL28 ((uint32_t)0x0000D800) /*!< TRNG 1M source clock is divided by 54 */
+#define RCC_CFG3_TRNG1MPRES_VAL29 ((uint32_t)0x0000E000) /*!< TRNG 1M source clock is divided by 56 */
+#define RCC_CFG3_TRNG1MPRES_VAL30 ((uint32_t)0x0000E800) /*!< TRNG 1M source clock is divided by 58 */
+#define RCC_CFG3_TRNG1MPRES_VAL31 ((uint32_t)0x0000F000) /*!< TRNG 1M source clock is divided by 60 */
+#define RCC_CFG3_TRNG1MPRES_VAL32 ((uint32_t)0x0000F800) /*!< TRNG 1M source clock is divided by 62 */
 
 /*!< TRNG1MSEL configuration */
 #define RCC_CFG3_TRNG1MSEL ((uint32_t)0x00020000) /*!< TRNG_1M clock source select */

@@ -266,10 +266,10 @@ void LPTIM_Disable(LPTIM_Module *LPTIMx)
       LPTIMx->COMPx = tmpCMP;
 
       /* Polling on CMP write ok status after above restore operation */
-      do
-      {
-        rcc_clock.SysclkFreq--; /* Used for timeout */
-      } while (((LPTIM_IsActiveFlag_CMPOK(LPTIMx) != 1UL)) && ((rcc_clock.SysclkFreq) > 0UL));
+      //do
+      //{
+      //  rcc_clock.SysclkFreq--; /* Used for timeout */
+      //} while (((LPTIM_IsActiveFlag_CMPOK(LPTIMx) != 1UL)) && ((rcc_clock.SysclkFreq) > 0UL));
 
       LPTIM_ClearFlag_CMPOK(LPTIMx);
     }
@@ -281,10 +281,10 @@ void LPTIM_Disable(LPTIM_Module *LPTIMx)
 
       RCC_GetClocksFreqValue(&rcc_clock);
       /* Polling on ARR write ok status after above restore operation */
-      do
-      {
-        rcc_clock.SysclkFreq--; /* Used for timeout */
-      } while (((LPTIM_IsActiveFlag_ARROK(LPTIMx) != 1UL)) && ((rcc_clock.SysclkFreq) > 0UL));
+      //do
+      //{
+      // rcc_clock.SysclkFreq--; /* Used for timeout */
+      //} while (((LPTIM_IsActiveFlag_ARROK(LPTIMx) != 1UL)) && ((rcc_clock.SysclkFreq) > 0UL));
 
       LPTIM_ClearFlag_ARROK(LPTIMx);
     }

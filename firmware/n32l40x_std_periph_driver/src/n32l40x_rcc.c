@@ -28,7 +28,7 @@
 /**
  * @file n32l40x_rcc.c
  * @author Nations
- * @version v1.0.0
+ * @version v1.0.1
  *
  * @copyright Copyright (c) 2019, Nations Technologies Inc. All rights reserved.
  */
@@ -927,12 +927,13 @@ void RCC_ConfigAdcHclk(uint32_t RCC_ADCHCLKPrescaler)
  *
  * @param RCC_TRNG1MPrescaler specifies the TRNG1M prescaler.
  *   This parameter can be on of the following values:
+ *     @arg RCC_TRNG1MCLK_DIV1 TRNG1M clock = RCC_TRNG1MCLKSource_xxx/1
  *     @arg RCC_TRNG1MCLK_DIV2 TRNG1M clock = RCC_TRNG1MCLKSource_xxx/2
  *     @arg RCC_TRNG1MCLK_DIV4 TRNG1M clock = RCC_TRNG1MCLKSource_xxx/4
  *     @arg RCC_TRNG1MCLK_DIV6 TRNG1M clock = RCC_TRNG1MCLKSource_xxx/6
  *               ...
- *     @arg RCC_TRNG1MCLK_DIV30 TRNG1M clock = RCC_TRNG1MCLKSource_xxx/30
- *     @arg RCC_TRNG1MCLK_DIV32 TRNG1M clock = RCC_TRNG1MCLKSource_xxx/32
+ *     @arg RCC_TRNG1MCLK_DIV60 TRNG1M clock = RCC_TRNG1MCLKSource_xxx/60
+ *     @arg RCC_TRNG1MCLK_DIV62 TRNG1M clock = RCC_TRNG1MCLKSource_xxx/62
  */
 void RCC_ConfigTrng1mClk(uint32_t RCC_TRNG1MCLKSource, uint32_t RCC_TRNG1MPrescaler)
 {
