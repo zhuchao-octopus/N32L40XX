@@ -135,7 +135,7 @@ extern void Voltage_Error_Detect(void)
 	{
 		--BUTimerOut;
 	}
-	ADC_current = adc_channel_sample(AD_BATT_DET_GRP, AD_BATT_DET);
+	ADC_current = adc_channel_sample(AD_BATT_DET);
 	g_batt_adc_val = ADC_current;
 
 	if (ADC_current<LOW_VOLT_PROTECT_OFF)

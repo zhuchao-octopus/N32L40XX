@@ -141,7 +141,7 @@ extern uint8_t i2c_wait_ack(void);
 extern void i2c_send_byte(uint8_t data);
 extern uint8_t i2c_read_byte(unsigned char ack);
 
-extern uint8_t adc_channel_sample(ADC_TypeDef* adcx, uint8_t channel);
+extern uint8_t adc_channel_sample(uint8_t channel);
 
 extern void ak_memcpy(uint8_t *to, uint8_t *from, uint16_t length);
 extern void ak_flash_save_info(void);

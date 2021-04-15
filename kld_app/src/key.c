@@ -43,7 +43,7 @@ void encoder_key_main(void)
 		return;
 	}
 
-	ad_value = adc_channel_sample(AD_VOL_ENCODER_GRP, AD_VOL_ENCODER);
+	ad_value = adc_channel_sample(AD_VOL_ENCODER);
 
 	if(MAX(ad_value, ENC1_AD_0)-MIN(ad_value, ENC1_AD_0)<=3) {
 		ad_value = ENC1_AD_0;
@@ -409,18 +409,18 @@ static void panel_key_do_scan(u8 adc_ch)
 		switch (adc_ch) {
 			case AD_CAR_SWC_DET_1:
 			case AD_CAR_SWC_DET_2:
-				adc_value = adc_channel_sample(AD_CAR_SWC_DET_GRP, adc_ch);
+				adc_value = adc_channel_sample(adc_ch);
 				break;
 			case AD_PANEL_KEY_DET_1:
-				adc_value = adc_channel_sample(AD_PANEL_KEY_DET_GRP, AD_PANEL_KEY_DET_2);
+				adc_value = adc_channel_sample(AD_PANEL_KEY_DET_2);
 				break;
 			case AD_PANEL_KEY_DET_2:
-				adc_value = adc_channel_sample(AD_PANEL_KEY_DET_GRP, AD_PANEL_KEY_DET_1);
+				adc_value = adc_channel_sample(AD_PANEL_KEY_DET_1);
 				break;
 		}
 	} else {
 //#if AD_PANEL_KEY_DET_GRP==AD_CAR_SWC_DET_GRP
-		adc_value = adc_channel_sample(AD_PANEL_KEY_DET_GRP, adc_ch);
+		adc_value = adc_channel_sample(adc_ch);
 //#else
 //#error "AD_PANEL_KEY_DET_GRP != AD_CAR_SWC_DET_GRP"
 //#endif
@@ -520,18 +520,18 @@ static void panel_key_do_study_det(u8 adc_ch)
 		switch (adc_ch) {
 			case AD_CAR_SWC_DET_1:
 			case AD_CAR_SWC_DET_2:
-				adc_value = adc_channel_sample(AD_CAR_SWC_DET_GRP, adc_ch);
+				adc_value = adc_channel_sample(adc_ch);
 				break;
 			case AD_PANEL_KEY_DET_1:
-				adc_value = adc_channel_sample(AD_PANEL_KEY_DET_GRP, AD_PANEL_KEY_DET_2);
+				adc_value = adc_channel_sample(AD_PANEL_KEY_DET_2);
 				break;
 			case AD_PANEL_KEY_DET_2:
-				adc_value = adc_channel_sample(AD_PANEL_KEY_DET_GRP, AD_PANEL_KEY_DET_1);
+				adc_value = adc_channel_sample(AD_PANEL_KEY_DET_1);
 				break;
 		}
 	} else {
 //#if (AD_PANEL_KEY_DET_GRP==AD_CAR_SWC_DET_GRP)
-		adc_value = adc_channel_sample(AD_PANEL_KEY_DET_GRP, adc_ch);
+		adc_value = adc_channel_sample(adc_ch);
 //#else
 //#error "AD_PANEL_KEY_DET_GRP != AD_CAR_SWC_DET_GRP"
 //#endif
@@ -648,7 +648,7 @@ static bool panel_key_swc_adc_idle_value_setup(void)
 		g_key_handler.study_swc_pu_type = KEY_STUDY_SWC_PU_TINY;
 		do_swc_pu(g_key_handler.study_swc_pu_type);
 
-		adc_value = adc_channel_sample(AD_CAR_SWC_DET_GRP, AD_CAR_SWC_DET_1);
+		adc_value = adc_channel_sample(AD_CAR_SWC_DET_1);
 		if (!is_adc_value_equal(adc_value, g_key_handler.swc_adc1_idle_tiny)) {
 			g_key_handler.swc_adc1_idle_tiny = adc_value;
 		} else {
@@ -656,7 +656,7 @@ static bool panel_key_swc_adc_idle_value_setup(void)
 			temp += adc_value;
 			g_key_handler.swc_adc1_idle_tiny = (u8)(temp>>1);
 		}
-		adc_value = adc_channel_sample(AD_CAR_SWC_DET_GRP, AD_CAR_SWC_DET_2);
+		adc_value = adc_channel_sample(AD_CAR_SWC_DET_2);
 		if (!is_adc_value_equal(adc_value, g_key_handler.swc_adc2_idle_tiny)) {
 			g_key_handler.swc_adc2_idle_tiny = adc_value;
 		} else {
@@ -669,7 +669,7 @@ static bool panel_key_swc_adc_idle_value_setup(void)
 		g_key_handler.study_swc_pu_type = KEY_STUDY_SWC_PU_SMALL;
 		do_swc_pu(g_key_handler.study_swc_pu_type);
 
-		adc_value = adc_channel_sample(AD_CAR_SWC_DET_GRP, AD_CAR_SWC_DET_1);
+		adc_value = adc_channel_sample(AD_CAR_SWC_DET_1);
 		if (adc_value < (SWC_ADC_RETRY_VALUE-10)) {
 			adc_value = IDLE_ADC_VALUE;
 		}
@@ -680,7 +680,7 @@ static bool panel_key_swc_adc_idle_value_setup(void)
 			temp += adc_value;
 			g_key_handler.swc_adc1_idle_small = (u8)(temp>>1);
 		}
-		adc_value = adc_channel_sample(AD_CAR_SWC_DET_GRP, AD_CAR_SWC_DET_2);
+		adc_value = adc_channel_sample(AD_CAR_SWC_DET_2);
 		if (adc_value < (SWC_ADC_RETRY_VALUE-10)) {
 			adc_value = IDLE_ADC_VALUE;
 		}
@@ -696,7 +696,7 @@ static bool panel_key_swc_adc_idle_value_setup(void)
 		g_key_handler.study_swc_pu_type = KEY_STUDY_SWC_PU_LARGE;
 		do_swc_pu(g_key_handler.study_swc_pu_type);
 
-		adc_value = adc_channel_sample(AD_CAR_SWC_DET_GRP, AD_CAR_SWC_DET_1);
+		adc_value = adc_channel_sample(AD_CAR_SWC_DET_1);
 		if (adc_value < (SWC_ADC_RETRY_VALUE-10)) {
 			adc_value = IDLE_ADC_VALUE;
 		}
@@ -707,7 +707,7 @@ static bool panel_key_swc_adc_idle_value_setup(void)
 			temp += adc_value;
 			g_key_handler.swc_adc1_idle_large = (u8)(temp>>1);
 		}
-		adc_value = adc_channel_sample(AD_CAR_SWC_DET_GRP, AD_CAR_SWC_DET_2);
+		adc_value = adc_channel_sample(AD_CAR_SWC_DET_2);
 		if (adc_value < (SWC_ADC_RETRY_VALUE-10)) {
 			adc_value = IDLE_ADC_VALUE;
 		}

@@ -6,25 +6,25 @@ static void do_beep(void)
 	switch (g_beep_info.mode) {
 		case BEEP_MODE_SHORT:
 			if (0 == g_beep_info.timer) {
-				TIM_SetCmp3(TIMER_BEEP, 36);
+				TIM_SetCmp3(TIMER_BEEP, 32);
 			} else if (g_beep_info.timer > T36MS_12) {
 				g_beep_info.mode = BEEP_MODE_NONE;
 			}
 			break;
 		case BEEP_MODE_DOUBLE:
 			if (0 == g_beep_info.timer) {
-				TIM_SetCmp3(TIMER_BEEP, 36);
+				TIM_SetCmp3(TIMER_BEEP, 32);
 			} else if ( T50MS_12 == g_beep_info.timer) {
 				TIM_SetCmp3(TIMER_BEEP, 0);
 			} else if ( T100MS_12 == g_beep_info.timer) {
-				TIM_SetCmp3(TIMER_BEEP, 36);
+				TIM_SetCmp3(TIMER_BEEP, 32);
 			} else if (g_beep_info.timer > T120MS_12) {
 				g_beep_info.mode = BEEP_MODE_NONE;
 			}
 			break;
 		case BEEP_MODE_LONG:
 			if (0 == g_beep_info.timer) {
-				TIM_SetCmp3(TIMER_BEEP, 36);
+				TIM_SetCmp3(TIMER_BEEP, 32);
 			} else if (g_beep_info.timer > T500MS_12) {
 				g_beep_info.mode = BEEP_MODE_NONE;
 			}

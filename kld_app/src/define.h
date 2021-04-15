@@ -13,12 +13,6 @@ typedef uchar EVENT_ID ;
 typedef void (* pfunction) (uchar);            
 
 
-typedef enum
-{
-  FALSE = 0,
-  TRUE = !FALSE
-}
-bool;
 
 #define SetBit(Var,Place) (Var|=(uchar)((1<<(Place%8))))
 #define ClrBit(Var,Place) (Var&=(uchar)((1<<(Place%8))^255))

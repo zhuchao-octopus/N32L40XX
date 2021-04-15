@@ -52,8 +52,6 @@ void systick_config(void)
         while (1){
         }
     }
-    /* configure the systick handler priority */
-    NVIC_SetPriority(SysTick_IRQn, 0x00U);
 }
 
 /*!
@@ -70,7 +68,7 @@ void delay_1ms(uint32_t count)
     }
 }
 
-void SysTick_Handler(void)
+void delay_decrement(void)
 {
 	++g_counter_ms;
 	if(g_counter_ms%4==0)
@@ -142,15 +140,15 @@ GPIO_InitType  g_gpio_i2c_input;
 void i2c_init(void){
 	GPIO_InitStruct(&g_gpio_i2c_output);
 	g_gpio_i2c_output.GPIO_Mode      = GPIO_Mode_Out_PP;
-	g_gpio_i2c_output.GPIO_Speed = GPIO_Speed_50MHz;
+	g_gpio_i2c_output.GPIO_Current      = GPIO_DC_4mA;
 	GPIO_InitStruct(&g_gpio_i2c_input);
-	g_gpio_i2c_input.GPIO_Mode      = GPIO_Mode_IPU;
-	g_gpio_i2c_input.GPIO_Speed = GPIO_Speed_50MHz;
+	g_gpio_i2c_input.GPIO_Mode      = GPIO_Mode_Input;
+	g_gpio_i2c_input.GPIO_Pull = GPIO_Pull_Up;
 
 	iic_sda_high();  
 	iic_scl_high();
 
-	g_gpio_i2c_output.GPIO_Pin = GPIO_I2C_SCL_PIN|GPIO_I2C_SDA_PIN;
+	g_gpio_i2c_output.Pin = GPIO_I2C_SCL_PIN|GPIO_I2C_SDA_PIN;
 	GPIO_InitPeripheral(GPIO_I2C_GRP, &g_gpio_i2c_output);
 	
 	iic_sda_out();
@@ -271,18 +269,18 @@ uint8_t i2c_read_byte(unsigned char ack)
 	return receive;
 }
 
-uint8_t adc_channel_sample(ADC_TypeDef* adcx, uint8_t channel)
+uint8_t adc_channel_sample(uint8_t channel)
 {
 	u16 adc_val_12b;
-	ADC_ConfigRegularChannel(adcx, channel, 1, ADC_SAMP_TIME_41CYCLES5); 
+	ADC_ConfigRegularChannel(ADC, channel, 1, ADC_SAMP_TIME_41CYCLES5); 
 
-	ADC_EnableSoftwareStartConv(adcx, ENABLE);
+	ADC_EnableSoftwareStartConv(ADC, ENABLE);
 
-	while(ADC_GetFlagStatus(adcx, ADC_FLAG_ENDC)==0){
+	while(ADC_GetFlagStatus(ADC, ADC_FLAG_ENDC)==0){
 	}
-	ADC_ClearFlag(adcx,ADC_FLAG_ENDC);
-	ADC_ClearFlag(adcx,ADC_FLAG_STR);
-	adc_val_12b = ADC_GetDat(adcx);
+	ADC_ClearFlag(ADC,ADC_FLAG_ENDC);
+	ADC_ClearFlag(ADC,ADC_FLAG_STR);
+	adc_val_12b = ADC_GetDat(ADC);
 	
 	return ( (adc_val_12b>>4) & 0xFF);
 }

@@ -12,21 +12,23 @@ static u8 g_first_love;
 static void rtc_config(void)
 {
 	RTC_InitType RTC_InitStructure;
-	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_PWR | RCC_APB1_PERIPH_BKP, ENABLE);
+	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_PWR, ENABLE);
 	PWR_BackupAccessEnable(ENABLE);
-	BKP_DeInit();
+
 	RCC_EnableRtcClk(DISABLE);
 	RCC_EnableLsi(ENABLE);
-	while (RCC_GetFlagStatus(RCC_FLAG_LSIRD) == RESET) {}
+	while (RCC_GetFlagStatus(RCC_CTRLSTS_FLAG_LSIRD) == RESET) {}
 	RCC_ConfigRtcClk(RCC_RTCCLK_SRC_LSI);
 	RCC_EnableRtcClk(ENABLE);
 	RTC_WaitForSynchro();
 
 	RTC_InitStructure.RTC_AsynchPrediv = 0x7F;
-	RTC_InitStructure.RTC_SynchPrediv  = 0x136; // 39.64928KHz  
+	RTC_InitStructure.RTC_SynchPrediv  = 0x14A; // 41828Hz
 	RTC_InitStructure.RTC_HourFormat   = RTC_24HOUR_FORMAT;
 
 	RTC_Init(&RTC_InitStructure);
+
+	rtc_reset();
 }
 
 static void rcu_config(void)
@@ -40,7 +42,9 @@ static void rcu_config(void)
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_USART1, ENABLE);
 	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_USART2, ENABLE);
 	
-	RCC_EnableAHBPeriphClk(RCC_AHB_PERIPH_ADC2, ENABLE);
+	RCC_EnableAHBPeriphClk(RCC_AHB_PERIPH_ADC, ENABLE);
+	ADC_ConfigClk(ADC_CTRL3_CKMOD_AHB, RCC_ADCHCLK_DIV16);
+	RCC_ConfigAdc1mClk(RCC_ADC1MCLK_SRC_HSE, RCC_ADC1MCLK_DIV8);
 
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_TIM1, ENABLE);
 	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM4, ENABLE);
@@ -53,19 +57,21 @@ static void gpio_config(void)
 	GPIO_InitType  gpio_init_input_pull_up;
 	GPIO_InitType  gpio_init_input_float;
 	GPIO_InitType  gpio_init_ain;
-	
-	gpio_init_output.GPIO_Mode = GPIO_Mode_Out_PP;
-	gpio_init_output.GPIO_Speed = GPIO_Speed_50MHz;
-	gpio_init_output_af.GPIO_Mode = GPIO_Mode_AF_PP;
-	gpio_init_output_af.GPIO_Speed = GPIO_Speed_50MHz;
-	gpio_init_input_float.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	gpio_init_input_float.GPIO_Speed = GPIO_Speed_50MHz;
-	gpio_init_input_pull_up.GPIO_Mode = GPIO_Mode_IPU;
-	gpio_init_input_pull_up.GPIO_Speed = GPIO_Speed_50MHz;
-	gpio_init_ain.GPIO_Mode = GPIO_Mode_AIN;
-	gpio_init_ain.GPIO_Speed = GPIO_Speed_50MHz;
 
-	GPIO_ConfigPinRemap(GPIO_RMP_SW_JTAG_SW_ENABLE, ENABLE);
+	GPIO_InitStruct(&gpio_init_output);
+	gpio_init_output.GPIO_Mode = GPIO_Mode_Out_PP;
+	gpio_init_output.GPIO_Current = GPIO_DC_4mA;
+	GPIO_InitStruct(&gpio_init_output_af);
+	gpio_init_output_af.GPIO_Mode = GPIO_Mode_AF_PP;
+	gpio_init_output_af.GPIO_Current = GPIO_DC_4mA;
+	GPIO_InitStruct(&gpio_init_input_float);
+	gpio_init_input_float.GPIO_Mode = GPIO_Mode_Input;
+	gpio_init_input_float.GPIO_Pull = GPIO_No_Pull;
+	GPIO_InitStruct(&gpio_init_input_pull_up);
+	gpio_init_input_pull_up.GPIO_Mode = GPIO_Mode_Input;
+	gpio_init_input_pull_up.GPIO_Pull = GPIO_Pull_Up;
+	GPIO_InitStruct(&gpio_init_ain);
+	gpio_init_ain.GPIO_Mode = GPIO_Mode_Analog;
 
 	/* MUTE control */
 	gpio_init_output.Pin = GPIO_MUTE_PIN;
@@ -98,15 +104,23 @@ static void gpio_config(void)
 
 	/* UART HOST */
 	gpio_init_output_af.Pin = GPIO_HOST_UART_TX_PIN;
+	gpio_init_output_af.GPIO_Alternate = GPIO_AF4_USART1;
+	gpio_init_output_af.GPIO_Pull = GPIO_No_Pull;
 	GPIO_InitPeripheral(GPIO_HOST_UART_TX_GRP, &gpio_init_output_af);
-	gpio_init_input_float.Pin = GPIO_HOST_UART_RX_PIN;
-	GPIO_InitPeripheral(GPIO_HOST_UART_RX_GRP, &gpio_init_input_float);
+	gpio_init_output_af.Pin = GPIO_HOST_UART_RX_PIN;
+	gpio_init_output_af.GPIO_Alternate = GPIO_AF4_USART1;
+	gpio_init_output_af.GPIO_Pull = GPIO_Pull_Up;
+	GPIO_InitPeripheral(GPIO_HOST_UART_RX_GRP, &gpio_init_output_af);
 
 	/* UART CAN */
 	gpio_init_output_af.Pin = GPIO_CAN_UART_TX_PIN;
+	gpio_init_output_af.GPIO_Alternate = GPIO_AF4_USART2;
+	gpio_init_output_af.GPIO_Pull = GPIO_No_Pull;
 	GPIO_InitPeripheral(GPIO_CAN_UART_TX_GRP, &gpio_init_output_af);
-	gpio_init_input_float.Pin = GPIO_CAN_UART_RX_PIN;
-	GPIO_InitPeripheral(GPIO_CAN_UART_RX_GRP, &gpio_init_input_float);
+	gpio_init_output_af.Pin = GPIO_CAN_UART_RX_PIN;
+	gpio_init_output_af.GPIO_Alternate = GPIO_AF4_USART2;
+	gpio_init_output_af.GPIO_Pull = GPIO_Pull_Up;
+	GPIO_InitPeripheral(GPIO_CAN_UART_RX_GRP, &gpio_init_output_af);
 
 	
 	/* ACC */
@@ -196,10 +210,14 @@ static void gpio_config(void)
 	GPIO_InitPeripheral(GPIO_AD_VOL_GRP, &gpio_init_ain);
 	gpio_init_ain.Pin = GPIO_AD_PANEL_KEY_DET_1_PIN|GPIO_AD_PANEL_KEY_DET_2_PIN;
 	GPIO_InitPeripheral(GPIO_AD_PANEL_KEY_DET_GRP, &gpio_init_ain);
+	gpio_init_ain.Pin = GPIO_AD_SWC_KEY_DET_1_PIN|GPIO_AD_SWC_KEY_DET_2_PIN;
+	GPIO_InitPeripheral(GPIO_AD_SWC_KEY_DET_GRP, &gpio_init_ain);
 
 
 	/* LED control */
 	gpio_init_output_af.Pin = GPIO_LED_B_PIN|GPIO_LED_G_PIN|GPIO_LED_R_PIN;
+	gpio_init_output_af.GPIO_Alternate = GPIO_AF6_TIM8;
+	gpio_init_output_af.GPIO_Pull = GPIO_No_Pull;
 	GPIO_InitPeripheral(GPIO_LED_GRP, &gpio_init_output_af);
 	gpio_init_output.Pin = GPIO_LED_EN_PIN;
 	GPIO_InitPeripheral(GPIO_LED_GRP, &gpio_init_output);
@@ -221,11 +239,15 @@ static void gpio_config(void)
 
 	/* VCOM */
 	gpio_init_output_af.Pin = GPIO_VCOM_PIN;
+	gpio_init_output_af.GPIO_Alternate = GPIO_AF2_TIM1;
+	gpio_init_output_af.GPIO_Pull = GPIO_No_Pull;
 	GPIO_InitPeripheral(GPIO_VCOM_GRP, &gpio_init_output_af);
 
 
 	/* BEEP */
 	gpio_init_output_af.Pin = GPIO_BEEP_PIN;
+	gpio_init_output_af.GPIO_Alternate = GPIO_AF2_TIM4;
+	gpio_init_output_af.GPIO_Pull = GPIO_No_Pull;
 	GPIO_InitPeripheral(GPIO_BEEP_GRP, &gpio_init_output_af);
 
 
@@ -235,10 +257,12 @@ static void uart_config(void)
 	USART_InitType USART_InitStructure;
 	NVIC_InitType NVIC_InitStructure;
 
+	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
+
 	/* UART for HOST comm */
 	NVIC_InitStructure.NVIC_IRQChannel = HOST_COMM_UART_IRQ;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=1;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
     
@@ -256,8 +280,8 @@ static void uart_config(void)
 
 	/* UART for CAN comm */
 	NVIC_InitStructure.NVIC_IRQChannel = CAN_COMM_UART_IRQ;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
     
@@ -270,19 +294,18 @@ static void adc_config(void)
 {
 	ADC_InitType  ADC_InitStructure;
 
-	ADC_DeInit(ADC2);
-	ADC_InitStructure.WorkMode       = ADC_WORKMODE_INDEPENDENT;
+	ADC_DeInit(ADC);
 	ADC_InitStructure.MultiChEn      = DISABLE;
 	ADC_InitStructure.ContinueConvEn = DISABLE;
 	ADC_InitStructure.ExtTrigSelect  = ADC_EXT_TRIGCONV_NONE;
 	ADC_InitStructure.DatAlign       = ADC_DAT_ALIGN_R;
 	ADC_InitStructure.ChsNumber      = 1;
-	ADC_Init(ADC2, &ADC_InitStructure);
+	ADC_Init(ADC, &ADC_InitStructure);
 
-	ADC_Enable(ADC2, ENABLE);
-	while(ADC_GetFlagStatusNew(ADC2,ADC_FLAG_RDY) == RESET);
-	ADC_StartCalibration(ADC2);
-	while (ADC_GetCalibrationStatus(ADC2));
+	ADC_Enable(ADC, ENABLE);
+	while(ADC_GetFlagStatusNew(ADC, ADC_FLAG_RDY) == RESET);
+	ADC_StartCalibration(ADC);
+	while (ADC_GetCalibrationStatus(ADC));
 
 }
 
@@ -294,7 +317,7 @@ static void timer_config(void)
 	/* VCOM */
 	TIM_InitTimBaseStruct(&TIM_TimeBaseStructure);
 	TIM_TimeBaseStructure.Period    = 999;
-	TIM_TimeBaseStructure.Prescaler = 8;
+	TIM_TimeBaseStructure.Prescaler = 3;
 	TIM_TimeBaseStructure.ClkDiv    = TIM_CLK_DIV1;
 	TIM_TimeBaseStructure.CntMode   = TIM_CNT_MODE_UP;
 	TIM_InitTimeBase(TIMER_VCOM, &TIM_TimeBaseStructure);
@@ -311,7 +334,7 @@ static void timer_config(void)
 	TIM_Enable(TIMER_VCOM, ENABLE);
 
 	/* Beep */
-	TIM_TimeBaseStructure.Period    = 144;
+	TIM_TimeBaseStructure.Period    = 63;
 	TIM_TimeBaseStructure.Prescaler = 999;
 	TIM_InitTimeBase(TIMER_BEEP, &TIM_TimeBaseStructure);
 
@@ -527,8 +550,9 @@ static void mcu_stay_in_sleep(void)
 	EXTI_InitType EXTI_InitStructure;
 
 	/* shutdown unused mcu pin & clock & power */
-	gpio_init_input_float.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	gpio_init_input_float.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStruct(&gpio_init_input_float);
+	gpio_init_input_float.GPIO_Mode = GPIO_Mode_Input;
+	gpio_init_input_float.GPIO_Pull = GPIO_No_Pull;
 
 	/* UART HOST */
 	gpio_init_input_float.Pin = GPIO_HOST_UART_TX_PIN;
@@ -628,7 +652,7 @@ static void mcu_stay_in_sleep(void)
 	USART_Enable(CAN_COMM_UART, DISABLE);
 
 	/* ADC */
-	ADC_Enable(ADC2, DISABLE);
+	ADC_Enable(ADC, DISABLE);
 
 	/* Timer */
 	TIM_Enable(TIMER_VCOM, DISABLE);
@@ -638,7 +662,7 @@ static void mcu_stay_in_sleep(void)
 	/* Clock */
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_USART1, DISABLE);
 	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_USART2, DISABLE);
-	RCC_EnableAHBPeriphClk(RCC_AHB_PERIPH_ADC2, DISABLE);
+	RCC_EnableAHBPeriphClk(RCC_AHB_PERIPH_ADC, DISABLE);
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_TIM1, DISABLE);
 	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM4, DISABLE);
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_TIM8, DISABLE);
@@ -682,14 +706,14 @@ static void mcu_stay_in_sleep(void)
 		EXTI_InitPeripheral(&EXTI_InitStructure);
 
 		NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=2;
-		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;
+		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 		NVIC_Init(&NVIC_InitStructure);
 
 		EXTI_ClrITPendBit(EXTI_LINE0);
 
-		PWR_EnterStopState(PWR_REGULATOR_ON, PWR_STOPENTRY_WFI);
+		PWR_EnterSTOP2Mode(PWR_STOPENTRY_WFI, PWR_CTRL3_RAM1RET);
 	}
 
 	AUDIO_HW_MUTE;

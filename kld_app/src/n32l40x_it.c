@@ -33,7 +33,7 @@
  * @copyright Copyright (c) 2019, Nations Technologies Inc. All rights reserved.
  */
 #include "n32l40x_it.h"
-#include "main.h"
+#include "public.h"
 
 /** @addtogroup N32L40x_StdPeriph_Template
  * @{
@@ -113,6 +113,7 @@ void DebugMon_Handler(void)
  */
 void SysTick_Handler(void)
 {
+	delay_decrement();
 }
 
 /******************************************************************************/
@@ -121,6 +122,40 @@ void SysTick_Handler(void)
 /*  available peripheral interrupt handler's name please refer to the startup */
 /*  file (startup_n32l40x.s).                                                 */
 /******************************************************************************/
+
+
+void EXTI0_IRQHandler(void)
+{
+    if (EXTI_GetITStatus(EXTI_LINE0) != RESET)
+    {
+        /* Clear the Key Button EXTI line pending bit */
+        EXTI_ClrITPendBit(EXTI_LINE0);
+    }
+}
+
+void USART1_IRQHandler(void)
+{
+	if (USART_GetIntStatus(HOST_COMM_UART, USART_INT_RXDNE) != RESET)
+	{
+		host_rx_data(USART_ReceiveData(HOST_COMM_UART)&0xFF);
+	}
+	if (USART_GetIntStatus(HOST_COMM_UART, USART_INT_OREF) != RESET)
+	{
+		USART_ReceiveData(HOST_COMM_UART);
+	}
+}
+
+void USART2_IRQHandler(void)
+{
+	if (USART_GetIntStatus(CAN_COMM_UART, USART_INT_RXDNE) != RESET)
+	{
+		canbox_rx(USART_ReceiveData(CAN_COMM_UART)&0xFF);
+	}
+	if (USART_GetIntStatus(CAN_COMM_UART, USART_INT_OREF) != RESET)
+	{
+		USART_ReceiveData(CAN_COMM_UART);
+	}
+}
 
 /**
  * @brief  This function handles PPP interrupt request.

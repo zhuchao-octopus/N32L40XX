@@ -2,7 +2,7 @@
 #ifndef _PUBLIC_H_
 #define _PUBLIC_H_
 
-#include "HAL_device.h"
+#include "n32l40x.h"
 
 #ifdef	ROOT
 #define	EXT 
@@ -13,6 +13,10 @@
 #endif
 
 #include <stdio.h>
+
+#define bool _Bool
+#define TRUE 1
+#define FALSE 0
 
 
 typedef struct BitChar {
