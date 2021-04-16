@@ -49,7 +49,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>.\Objects\</OutputDirectory>
-          <OutputName>kld_app</OutputName>
+          <OutputName>kld_updater</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
@@ -81,9 +81,9 @@
           </BeforeMake>
           <AfterMake>
             <RunUserProg1>1</RunUserProg1>
-            <RunUserProg2>1</RunUserProg2>
-            <UserProg1Name>fromelf --bin --output=.\kld_app.bin .\Objects\kld_app.axf</UserProg1Name>
-            <UserProg2Name>.\tools\make_ak_bin.bat</UserProg2Name>
+            <RunUserProg2>0</RunUserProg2>
+            <UserProg1Name>fromelf --bin --output=.\kld_updater.bin .\Objects\kld_updater.axf</UserProg1Name>
+            <UserProg2Name></UserProg2Name>
             <UserProg1Dos16Mode>0</UserProg1Dos16Mode>
             <UserProg2Dos16Mode>0</UserProg2Dos16Mode>
             <nStopA1X>0</nStopA1X>
@@ -273,8 +273,8 @@
               </OCR_RVCT3>
               <OCR_RVCT4>
                 <Type>1</Type>
-                <StartAddress>0x8000000</StartAddress>
-                <Size>0x1d800</Size>
+                <StartAddress>0x801d800</StartAddress>
+                <Size>0x2000</Size>
               </OCR_RVCT4>
               <OCR_RVCT5>
                 <Type>1</Type>
@@ -457,6 +457,11 @@
           <GroupName>USER</GroupName>
           <Files>
             <File>
+              <FileName>iap.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\iap.c</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\main.c</FilePath>
@@ -467,124 +472,9 @@
               <FilePath>..\src\n32l40x_it.c</FilePath>
             </File>
             <File>
-              <FileName>audio_driver.c</FileName>
+              <FileName>systick.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\src\audio_driver.c</FilePath>
-            </File>
-            <File>
-              <FileName>audio_eq.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\audio_eq.c</FilePath>
-            </File>
-            <File>
-              <FileName>bd37534.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\bd37534.c</FilePath>
-            </File>
-            <File>
-              <FileName>beep.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\beep.c</FilePath>
-            </File>
-            <File>
-              <FileName>bu32107.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\bu32107.c</FilePath>
-            </File>
-            <File>
-              <FileName>Canbox.C</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\Canbox.C</FilePath>
-            </File>
-            <File>
-              <FileName>channel.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\channel.c</FilePath>
-            </File>
-            <File>
-              <FileName>clock.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\clock.c</FilePath>
-            </File>
-            <File>
-              <FileName>Customer.C</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\Customer.C</FilePath>
-            </File>
-            <File>
-              <FileName>dvd.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\dvd.c</FilePath>
-            </File>
-            <File>
-              <FileName>Event.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\Event.c</FilePath>
-            </File>
-            <File>
-              <FileName>hal.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\hal.c</FilePath>
-            </File>
-            <File>
-              <FileName>io.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\io.c</FilePath>
-            </File>
-            <File>
-              <FileName>key.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\key.c</FilePath>
-            </File>
-            <File>
-              <FileName>led.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\led.c</FilePath>
-            </File>
-            <File>
-              <FileName>LinUart_Wince.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\LinUart_Wince.c</FilePath>
-            </File>
-            <File>
-              <FileName>power.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\power.c</FilePath>
-            </File>
-            <File>
-              <FileName>radio_driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\radio_driver.c</FilePath>
-            </File>
-            <File>
-              <FileName>rds.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\rds.c</FilePath>
-            </File>
-            <File>
-              <FileName>remote.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\remote.c</FilePath>
-            </File>
-            <File>
-              <FileName>system.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\system.c</FilePath>
-            </File>
-            <File>
-              <FileName>tea668x.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\tea668x.c</FilePath>
-            </File>
-            <File>
-              <FileName>USART_Driver.C</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\USART_Driver.C</FilePath>
-            </File>
-            <File>
-              <FileName>videochip.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\src\videochip.c</FilePath>
+              <FilePath>..\src\systick.c</FilePath>
             </File>
           </Files>
         </Group>
