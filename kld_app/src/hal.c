@@ -117,7 +117,7 @@ void delay_us(u8 us)
 {
 	uint8_t i;
 	for (;us>0;us--) {
-		for (i=0; i<3; i++) {
+		for (i=0; i<10; i++) {
 		}
 	}
 }

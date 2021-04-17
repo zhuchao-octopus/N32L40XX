@@ -331,6 +331,7 @@ static void timer_config(void)
 
 	TIM_ConfigOc1Preload(TIMER_VCOM, TIM_OC_PRE_LOAD_ENABLE);
 	TIM_ConfigArPreload(TIMER_VCOM, ENABLE);
+	TIM_EnableCtrlPwmOutputs(TIMER_VCOM, ENABLE);
 	TIM_Enable(TIMER_VCOM, ENABLE);
 
 	/* Beep */
@@ -360,6 +361,7 @@ static void timer_config(void)
 	TIM_ConfigOc3Preload(TIMER_LED, TIM_OC_PRE_LOAD_ENABLE);
 	TIM_ConfigArPreload(TIMER_LED, ENABLE);
 
+	TIM_EnableCtrlPwmOutputs(TIMER_LED, ENABLE);
 	TIM_Enable(TIMER_LED, ENABLE);
 }
 
