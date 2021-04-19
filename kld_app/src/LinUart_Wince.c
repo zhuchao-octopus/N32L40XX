@@ -949,9 +949,11 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					}
 					break;
 				case SUBID_VOL_CTRL_WHEN_REVERSE:
-					if (*Read_Lin_Ptr != g_sys_info_store.vol_ctrl_when_reverse) {
-						audio_set_vol_ctrl_when_reverse(*Read_Lin_Ptr);
-						ak_flash_save_info();
+					if (*Read_Lin_Ptr <= 100) {
+						if (*Read_Lin_Ptr != g_sys_info_store.vol_ctrl_when_reverse) {
+							audio_set_vol_ctrl_when_reverse(*Read_Lin_Ptr);
+							ak_flash_save_info();
+						}
 					}
 					PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOL_CTRL_INFO_WHEN_REVERSE, NONE);
 					break;

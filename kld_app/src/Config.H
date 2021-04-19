@@ -117,7 +117,7 @@
 #define TUNER_MODEL  TUNER_NXP_TEA668X	// 收音IC定义
 #define RADIO_DEFAULT_REGION   	RADIO_AREA_EUROPE//默认收音区域选择
 #define RDS_FUNCTION		1//RDS开关
-#define TEA668X_V205
+//#define TEA668X_V205
 #ifndef TEA668X_V205
 #define TEA668X_V102
 #endif

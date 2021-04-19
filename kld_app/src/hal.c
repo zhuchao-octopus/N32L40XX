@@ -294,6 +294,10 @@ void ak_flash_save_info(void)
 	uint32_t page_address;
 	uint32_t *data;
 
+	if(FLASH_HSICLOCK_DISABLE == FLASH_ClockInit()) {
+		while(1);
+	}
+
 	FLASH_Unlock();
 	
 	/* erase all the area */

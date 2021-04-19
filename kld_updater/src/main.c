@@ -48,7 +48,7 @@ OF SUCH DAMAGE.
 int main(void)
 {
 
-// TODO 	NVIC_SetVectorTable(NVIC_VECTTAB_FLASH, 0xE000);
+	NVIC_SetVectorTable(NVIC_VectTab_FLASH, 0x1D800);
 	
 	iap_init();
 	

@@ -43,6 +43,10 @@ void iap_do_erase(void)
 
 	iap_uart_ctrl(0);
 
+	if(FLASH_HSICLOCK_DISABLE == FLASH_ClockInit()) {
+		while(1);
+	}
+
 	FLASH_Unlock();
 	for(i = 0; i < TOTAL_ERASE_PAGE_NUM; i++){
 		FLASH_EraseOnePage(page_address);
