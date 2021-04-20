@@ -553,7 +553,7 @@ static void mcu_stay_in_sleep(void)
 
 	/* shutdown unused mcu pin & clock & power */
 	GPIO_InitStruct(&gpio_init_input_float);
-	gpio_init_input_float.GPIO_Mode = GPIO_Mode_Input;
+	gpio_init_input_float.GPIO_Mode = GPIO_Mode_Analog;
 	gpio_init_input_float.GPIO_Pull = GPIO_No_Pull;
 
 	/* UART HOST */
