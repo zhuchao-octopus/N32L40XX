@@ -596,13 +596,14 @@ extern void PowerManage(void)           //12ms÷¥––“ª¥Œ
 				audio_set_mute(AUDIO_MUTE_SYSTEM, FALSE);
 				F_SystemStandBy=1;
 				nPowerState=POWER_SUPER_SAVE;
-				g_mcu_in_sleep = 1;
 			}
 			break;
 		case POWER_SUPER_SAVE:
 			if(Get_ACC_Det_Flag==1 && !IS_POWER_OUT_OF_RANGE)
 			{
 				nPowerState=POWER_SYSTEM_STANDBY;
+			} else {
+				g_mcu_in_sleep = 1;
 			}
 			break;
 		case POWER_ACC_OFF:

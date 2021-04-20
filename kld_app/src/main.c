@@ -546,8 +546,8 @@ void VariableInit(void)
 static void mcu_stay_in_sleep(void)
 {
 	GPIO_InitType  gpio_init_input_float;
-	u8 acc_on = 0;
-	u16 cnt;
+	u16 acc_on = 0;
+	u16 acc_off = 0;
 	NVIC_InitType NVIC_InitStructure;
 	EXTI_InitType EXTI_InitStructure;
 
@@ -630,8 +630,8 @@ static void mcu_stay_in_sleep(void)
 	/* LED control */
 	gpio_init_input_float.Pin = GPIO_LED_B_PIN|GPIO_LED_G_PIN|GPIO_LED_R_PIN;
 	GPIO_InitPeripheral(GPIO_LED_GRP, &gpio_init_input_float);
-	gpio_init_input_float.Pin = GPIO_LED_EN_PIN;
-	GPIO_InitPeripheral(GPIO_LED_GRP, &gpio_init_input_float);
+//	gpio_init_input_float.Pin = GPIO_LED_EN_PIN;
+//	GPIO_InitPeripheral(GPIO_LED_GRP, &gpio_init_input_float);
 
 	/* HOST recovery key */
 	gpio_init_input_float.Pin = GPIO_HOST_REC_KEY_PIN;
@@ -669,34 +669,28 @@ static void mcu_stay_in_sleep(void)
 	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM4, DISABLE);
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_TIM8, DISABLE);
 
-	acc_on = 0;
 	while(1) {
-		if (acc_on) {
-			for (cnt=0; cnt<10000; cnt++) {
-				if (Bit_RESET==GPIO_ReadInputDataBit(GPIO_ACC_GRP,GPIO_ACC_PIN)) {
-					break;
-				}
-				delay_us(5);
+		acc_on = 0;
+		acc_off = 0;
+		for(;;) {
+			delay_us(2);
+			if (Bit_RESET==GPIO_ReadInputDataBit(GPIO_ACC_GRP,GPIO_ACC_PIN)) {
+				acc_on++;
+				acc_off=0;
+			} else {
+				acc_on=0;
+				acc_off++;
 			}
-			if (cnt >= 10000) {
-				acc_on = 0;
+			if (acc_on>10000) {
+				break;
 			}
-		} else {
-			for (cnt=0; cnt<10000; cnt++) {
-				if (Bit_SET==GPIO_ReadInputDataBit(GPIO_ACC_GRP,GPIO_ACC_PIN)) {
-					break;
-				}
-				delay_us(5);
-			}
-			if (cnt >= 10000) {
-				acc_on = 1;
+			if (acc_off>10000) {
+				break;
 			}
 		}
-		if (0!=acc_on) {
+		if (acc_on>10000) {
 			break;
 		}
-
-		delay_us(1);
 
 		GPIO_ConfigEXTILine(GPIOA_PORT_SOURCE, GPIO_PIN_SOURCE0);
 		EXTI_InitStructure.EXTI_Line = EXTI_LINE0;
@@ -712,8 +706,9 @@ static void mcu_stay_in_sleep(void)
 
 //		DBG_ConfigPeriph(DBG_STOP, ENABLE);
 
+GPIO_ResetBits(GPIO_LED_GRP, GPIO_LED_EN_PIN);
 		PWR_EnterSTOP2Mode(PWR_STOPENTRY_WFI, PWR_CTRL3_RAM1RET);
-
+GPIO_SetBits(GPIO_LED_GRP, GPIO_LED_EN_PIN);
 //		SystemInit();
 
 		// we already exit the sleep mode
