@@ -698,35 +698,32 @@ static void mcu_stay_in_sleep(void)
 
 		delay_us(1);
 
-
 		GPIO_ConfigEXTILine(GPIOA_PORT_SOURCE, GPIO_PIN_SOURCE0);
-
 		EXTI_InitStructure.EXTI_Line = EXTI_LINE0;
 		EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;
 		EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
 		EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 		EXTI_InitPeripheral(&EXTI_InitStructure);
-
 		NVIC_InitStructure.NVIC_IRQChannel = EXTI0_IRQn;
 		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;
 		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 		NVIC_Init(&NVIC_InitStructure);
 
-		EXTI_ClrITPendBit(EXTI_LINE0);
+//		DBG_ConfigPeriph(DBG_STOP, ENABLE);
 
 		PWR_EnterSTOP2Mode(PWR_STOPENTRY_WFI, PWR_CTRL3_RAM1RET);
+
+//		SystemInit();
+
+		// we already exit the sleep mode
+		EXTI_InitStructure.EXTI_LineCmd = DISABLE;
+		EXTI_InitPeripheral(&EXTI_InitStructure);
+		NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
+		NVIC_Init(&NVIC_InitStructure);
 	}
 
 	AUDIO_HW_MUTE;
-
-	// we already exit the sleep mode
-	EXTI_InitStructure.EXTI_LineCmd = DISABLE;
-	EXTI_InitPeripheral(&EXTI_InitStructure);
-	NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
-	NVIC_Init(&NVIC_InitStructure);
-
-	SystemInit();
 
 	systick_config();
 
