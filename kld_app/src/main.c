@@ -708,7 +708,6 @@ static void mcu_stay_in_sleep(void)
 
 GPIO_ResetBits(GPIO_LED_GRP, GPIO_LED_EN_PIN);
 		PWR_EnterSTOP2Mode(PWR_STOPENTRY_WFI, PWR_CTRL3_RAM1RET);
-GPIO_SetBits(GPIO_LED_GRP, GPIO_LED_EN_PIN);
 //		SystemInit();
 
 		// we already exit the sleep mode
@@ -716,6 +715,7 @@ GPIO_SetBits(GPIO_LED_GRP, GPIO_LED_EN_PIN);
 		EXTI_InitPeripheral(&EXTI_InitStructure);
 		NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
 		NVIC_Init(&NVIC_InitStructure);
+GPIO_SetBits(GPIO_LED_GRP, GPIO_LED_EN_PIN);
 	}
 
 	AUDIO_HW_MUTE;
