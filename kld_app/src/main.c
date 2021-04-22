@@ -709,6 +709,7 @@ static void mcu_stay_in_sleep(void)
 GPIO_ResetBits(GPIO_LED_GRP, GPIO_LED_EN_PIN);
 		PWR_EnterSTOP2Mode(PWR_STOPENTRY_WFI, PWR_CTRL3_RAM1RET);
 //		SystemInit();
+	AUDIO_HW_MUTE;
 
 		// we already exit the sleep mode
 		EXTI_InitStructure.EXTI_LineCmd = DISABLE;
@@ -718,7 +719,6 @@ GPIO_ResetBits(GPIO_LED_GRP, GPIO_LED_EN_PIN);
 GPIO_SetBits(GPIO_LED_GRP, GPIO_LED_EN_PIN);
 	}
 
-	AUDIO_HW_MUTE;
 
 	systick_config();
 
