@@ -157,6 +157,48 @@ void USART2_IRQHandler(void)
 	}
 }
 
+
+__IO uint16_t IC3ReadValue1 = 0, IC3ReadValue2 = 0;
+__IO uint16_t CaptureNumber   = 0;
+__IO uint32_t Capture         = 0;
+__IO uint32_t g_rtc_calib_timer_freq        = 0;
+
+void TIM9_IRQHandler(void)
+{
+	if (TIM_GetIntStatus(TIM9, TIM_INT_CC3) == SET)
+	{
+		/* Clear TIM3 Capture compare interrupt pending bit */
+		TIM_ClrIntPendingBit(TIM9, TIM_INT_CC3);
+		if (CaptureNumber == 0)
+		{
+			/* Get the Input Capture value */
+			IC3ReadValue1 = TIM_GetCap3(TIM9);
+			if (IC3ReadValue1>0) {
+				CaptureNumber = 1;
+			}
+		}
+		else if (CaptureNumber == 1)
+		{
+			/* Get the Input Capture value */
+			IC3ReadValue2 = TIM_GetCap3(TIM9);
+
+			/* Capture computation */
+			if (IC3ReadValue2 > IC3ReadValue1)
+			{
+				Capture = (IC3ReadValue2 - IC3ReadValue1);
+			}
+			else
+			{
+				Capture = ((0xFFFF - IC3ReadValue1) + IC3ReadValue2);
+			}
+			/* Frequency computation */
+			g_rtc_calib_timer_freq      = (uint32_t)(SystemCoreClock / 2) / Capture;
+
+			CaptureNumber = 2;
+		}
+	}
+}
+
 /**
  * @brief  This function handles PPP interrupt request.
  */

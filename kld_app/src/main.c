@@ -9,9 +9,73 @@ uint32_t JumpAddress = 0;
 
 static u8 g_first_love;
 
+
+void RTCCalibration(void)
+{
+	NVIC_InitType NVIC_InitStructure;
+	TIM_ICInitType TIM_ICInitStructure;
+	RTC_InitType RTC_InitStructure;
+
+	g_rtc_calib_timer_freq = 0;
+	
+	/* System Clocks Configuration */
+	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM9, ENABLE);
+
+	/* NVIC configuration */
+
+	/* Enable the TIM3 global Interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel                   = TIM9_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 1;
+	NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+	TIM_ICInitStructure.Channel     = TIM_CH_3;
+	TIM_ICInitStructure.IcPolarity  = TIM_IC_POLARITY_RISING;
+	TIM_ICInitStructure.IcSelection = TIM_IC_SELECTION_DIRECTTI;
+	TIM_ICInitStructure.IcPrescaler = TIM_IC_PSC_DIV1;
+	TIM_ICInitStructure.IcFilter    = 0x0;
+
+	TIM_ICInit(TIM9, &TIM_ICInitStructure);
+	TIM9->CTRL1 |= TIM_CTRL1_C3SEL;
+
+	/* TIM enable counter */
+	TIM_Enable(TIM9, ENABLE);
+
+	/* Enable the CC3 Interrupt Request */
+	TIM_ConfigInt(TIM9, TIM_INT_CC3, ENABLE);
+
+	/* wait calibration finished */
+	for(;;)
+	{
+		if (0!=g_rtc_calib_timer_freq) {
+			/* TIM enable counter */
+			TIM_Enable(TIM9, DISABLE);
+			/* Enable the CC3 Interrupt Request */
+			TIM_ConfigInt(TIM9, TIM_INT_CC3, DISABLE);
+
+			g_rtc_async_div = 0x7F;  // value range: 0-7F
+			g_rtc_sync_div  = g_rtc_calib_timer_freq / g_rtc_async_div; // TIM3Freq
+			RTC_InitStructure.RTC_AsynchPrediv = g_rtc_async_div;
+			RTC_InitStructure.RTC_SynchPrediv  = g_rtc_sync_div;
+			RTC_InitStructure.RTC_HourFormat   = RTC_24HOUR_FORMAT;
+			RTC_Init(&RTC_InitStructure);
+
+			NVIC_InitStructure.NVIC_IRQChannel                   = TIM9_IRQn;
+			NVIC_InitStructure.NVIC_IRQChannelCmd                = DISABLE;
+			NVIC_Init(&NVIC_InitStructure);
+
+			break;
+		}
+	}
+
+}
+
 static void rtc_config(void)
 {
-	RTC_InitType RTC_InitStructure;
+	g_rtc_async_div = 0x7F;
+	g_rtc_sync_div = 0x14A;
+	
 	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_PWR, ENABLE);
 	PWR_BackupAccessEnable(ENABLE);
 
@@ -22,13 +86,9 @@ static void rtc_config(void)
 	RCC_EnableRtcClk(ENABLE);
 	RTC_WaitForSynchro();
 
-	RTC_InitStructure.RTC_AsynchPrediv = 0x7F;
-	RTC_InitStructure.RTC_SynchPrediv  = 0x14A; // 41828Hz
-	RTC_InitStructure.RTC_HourFormat   = RTC_24HOUR_FORMAT;
-
-	RTC_Init(&RTC_InitStructure);
-
 	rtc_reset();
+
+	RTCCalibration();
 }
 
 static void rcu_config(void)
@@ -377,11 +437,11 @@ static void mcu_init(void)
 	systick_config();
 
 	rcu_config();
+	rtc_config();
 	gpio_config();
 	adc_config();
 	timer_config();
 	uart_config();
-	rtc_config();
 	
 	i2c_init();
 	hal_init();

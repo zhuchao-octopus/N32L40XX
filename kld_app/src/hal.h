@@ -148,6 +148,10 @@ extern void ak_flash_save_info(void);
 
 extern void hal_init(void);
 
+ext uint32_t g_rtc_async_div;
+ext uint32_t g_rtc_sync_div;
+extern __IO uint32_t g_rtc_calib_timer_freq;
+
 void rtc_reset(void);
 uint32_t rtc_get_seconds(void);
 
