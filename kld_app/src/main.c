@@ -766,19 +766,17 @@ static void mcu_stay_in_sleep(void)
 
 //		DBG_ConfigPeriph(DBG_STOP, ENABLE);
 
-GPIO_ResetBits(GPIO_LED_GRP, GPIO_LED_EN_PIN);
 		PWR_EnterSTOP2Mode(PWR_STOPENTRY_WFI, PWR_CTRL3_RAM1RET);
 //		SystemInit();
-	AUDIO_HW_MUTE;
 
 		// we already exit the sleep mode
 		EXTI_InitStructure.EXTI_LineCmd = DISABLE;
 		EXTI_InitPeripheral(&EXTI_InitStructure);
 		NVIC_InitStructure.NVIC_IRQChannelCmd = DISABLE;
 		NVIC_Init(&NVIC_InitStructure);
-GPIO_SetBits(GPIO_LED_GRP, GPIO_LED_EN_PIN);
 	}
 
+	AUDIO_HW_MUTE;
 
 	systick_config();
 
