@@ -54,8 +54,8 @@ void RTCCalibration(void)
 			/* Enable the CC3 Interrupt Request */
 			TIM_ConfigInt(TIM9, TIM_INT_CC3, DISABLE);
 
-			g_rtc_async_div = 0x7F;  // value range: 0-7F
-			g_rtc_sync_div  = g_rtc_calib_timer_freq / g_rtc_async_div; // TIM3Freq
+			g_rtc_async_div = 1;  // value range: 0-7F
+			g_rtc_sync_div  = (g_rtc_calib_timer_freq / (g_rtc_async_div+1)) - 1;
 			RTC_InitStructure.RTC_AsynchPrediv = g_rtc_async_div;
 			RTC_InitStructure.RTC_SynchPrediv  = g_rtc_sync_div;
 			RTC_InitStructure.RTC_HourFormat   = RTC_24HOUR_FORMAT;
