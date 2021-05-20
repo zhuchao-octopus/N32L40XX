@@ -311,7 +311,7 @@ void Video_Main(void)
 /***************** VCOM control *****************/
 void vcom_update_level(void)
 {
-	TIM_SetCmp1(TIMER_VCOM, 85+g_sys_info_store.vcom_value/2);
+	TIM_SetCmp1(TIMER_VCOM, g_sys_info_store.vcom_value*10);
 }
 void vcom_set_level(u8 level)
 {
