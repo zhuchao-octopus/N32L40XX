@@ -9,86 +9,29 @@ uint32_t JumpAddress = 0;
 
 static u8 g_first_love;
 
-
-void RTCCalibration(void)
-{
-	NVIC_InitType NVIC_InitStructure;
-	TIM_ICInitType TIM_ICInitStructure;
-	RTC_InitType RTC_InitStructure;
-
-	g_rtc_calib_timer_freq = 0;
-	
-	/* System Clocks Configuration */
-	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM9, ENABLE);
-
-	/* NVIC configuration */
-
-	/* Enable the TIM3 global Interrupt */
-	NVIC_InitStructure.NVIC_IRQChannel                   = TIM9_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority        = 1;
-	NVIC_InitStructure.NVIC_IRQChannelCmd                = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
-
-	TIM_ICInitStructure.Channel     = TIM_CH_3;
-	TIM_ICInitStructure.IcPolarity  = TIM_IC_POLARITY_RISING;
-	TIM_ICInitStructure.IcSelection = TIM_IC_SELECTION_DIRECTTI;
-	TIM_ICInitStructure.IcPrescaler = TIM_IC_PSC_DIV1;
-	TIM_ICInitStructure.IcFilter    = 0x0;
-
-	TIM_ICInit(TIM9, &TIM_ICInitStructure);
-	TIM9->CTRL1 |= TIM_CTRL1_C3SEL;
-
-	/* TIM enable counter */
-	TIM_Enable(TIM9, ENABLE);
-
-	/* Enable the CC3 Interrupt Request */
-	TIM_ConfigInt(TIM9, TIM_INT_CC3, ENABLE);
-
-	/* wait calibration finished */
-	for(;;)
-	{
-		if (0!=g_rtc_calib_timer_freq) {
-			/* TIM enable counter */
-			TIM_Enable(TIM9, DISABLE);
-			/* Enable the CC3 Interrupt Request */
-			TIM_ConfigInt(TIM9, TIM_INT_CC3, DISABLE);
-
-			g_rtc_async_div = 1;  // value range: 0-7F
-			g_rtc_sync_div  = (g_rtc_calib_timer_freq / (g_rtc_async_div+1)) - 1;
-			RTC_InitStructure.RTC_AsynchPrediv = g_rtc_async_div;
-			RTC_InitStructure.RTC_SynchPrediv  = g_rtc_sync_div;
-			RTC_InitStructure.RTC_HourFormat   = RTC_24HOUR_FORMAT;
-			RTC_Init(&RTC_InitStructure);
-
-			NVIC_InitStructure.NVIC_IRQChannel                   = TIM9_IRQn;
-			NVIC_InitStructure.NVIC_IRQChannelCmd                = DISABLE;
-			NVIC_Init(&NVIC_InitStructure);
-
-			break;
-		}
-	}
-
-}
-
 static void rtc_config(void)
 {
-	g_rtc_async_div = 0x7F;
-	g_rtc_sync_div = 0x14A;
+	RTC_InitType RTC_InitStructure;
 	
 	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_PWR, ENABLE);
 	PWR_BackupAccessEnable(ENABLE);
-
+	
 	RCC_EnableRtcClk(DISABLE);
-	RCC_EnableLsi(ENABLE);
-	while (RCC_GetFlagStatus(RCC_CTRLSTS_FLAG_LSIRD) == RESET) {}
-	RCC_ConfigRtcClk(RCC_RTCCLK_SRC_LSI);
+	RCC_EnableLsi(DISABLE);
+	RCC_ConfigHse(RCC_HSE_ENABLE);
+	while (RCC_WaitHseStable() == ERROR) {}
+	RCC_ConfigRtcClk(RCC_RTCCLK_SRC_HSE_DIV32);
+
 	RCC_EnableRtcClk(ENABLE);
 	RTC_WaitForSynchro();
 
+	RTC_InitStructure.RTC_AsynchPrediv = 99;
+	RTC_InitStructure.RTC_SynchPrediv  = 2499;
+	RTC_InitStructure.RTC_HourFormat   = RTC_24HOUR_FORMAT;
+	RTC_Init(&RTC_InitStructure);
+
 	rtc_reset();
 
-	RTCCalibration();
 }
 
 static void rcu_config(void)
@@ -603,6 +546,112 @@ void VariableInit(void)
 // todo	g_rtc_cntr = 0;
 }
 
+void SetSysClockToHSE(void)
+{
+    ErrorStatus HSEStartUpStatus;
+
+    /* SYSCLK, HCLK, PCLK2 and PCLK1 configuration
+     * -----------------------------*/
+
+    uint32_t msi_ready_flag = RESET;
+
+    /* Enable HSE */
+    RCC_ConfigHse(RCC_HSE_ENABLE);
+
+    /* Wait till HSE is ready */
+    HSEStartUpStatus = RCC_WaitHseStable();
+
+    if (HSEStartUpStatus == SUCCESS)
+    {
+        /* Enable Prefetch Buffer */
+        FLASH_PrefetchBufSet(FLASH_PrefetchBuf_EN);
+
+        
+        if(((*(__IO uint8_t*)((UCID_BASE + 0x2))) == 0x01)
+        || ((*(__IO uint8_t*)((UCID_BASE + 0x2))) == 0x11)
+        || ((*(__IO uint8_t*)((UCID_BASE + 0x2))) == 0xFF))
+        {
+            /* Cheak if MSI is Ready */
+            if(RESET == RCC_GetFlagStatus(RCC_CTRLSTS_FLAG_MSIRD))
+            {
+                /* Enable MSI and Config Clock */
+                RCC_ConfigMsi(RCC_MSI_ENABLE, RCC_MSI_RANGE_4M);
+                /* Waits for MSI start-up */
+                while(SUCCESS != RCC_WaitMsiStable());
+
+                msi_ready_flag = SET;
+            }
+
+            /* Select MSI as system clock source */
+            RCC_ConfigSysclk(RCC_SYSCLK_SRC_MSI);
+
+            /* Disable PLL */
+            RCC_EnablePll(DISABLE);
+
+            RCC_ConfigPll(RCC_PLL_SRC_HSE_DIV2, RCC_PLL_MUL_2, RCC_PLLDIVCLK_DISABLE);
+
+            /* Enable PLL */
+            RCC_EnablePll(ENABLE);
+
+            /* Wait till PLL is ready */
+            while (RCC_GetFlagStatus(RCC_CTRL_FLAG_PLLRDF) == RESET);
+
+            /* Select PLL as system clock source */
+            RCC_ConfigSysclk(RCC_SYSCLK_SRC_PLLCLK);
+
+            /* Wait till PLL is used as system clock source */
+            while (RCC_GetSysclkSrc() != 0x0C);
+
+            if(msi_ready_flag == SET)
+            {
+                /* MSI oscillator OFF */
+                RCC_ConfigMsi(RCC_MSI_DISABLE, RCC_MSI_RANGE_4M);
+            }
+        }
+        else
+        {
+            /* Select HSE as system clock source */
+            RCC_ConfigSysclk(RCC_SYSCLK_SRC_HSE);
+
+            /* Wait till HSE is used as system clock source */
+            while (RCC_GetSysclkSrc() != 0x08)
+            {
+            }
+        }
+
+        if (HSE_Value <= 32000000)
+        {
+            /* Flash 0 wait state */
+            FLASH_SetLatency(FLASH_LATENCY_0);
+        }
+        else
+        {
+            /* Flash 1 wait state */
+            FLASH_SetLatency(FLASH_LATENCY_1);
+        }
+
+        /* HCLK = SYSCLK */
+        RCC_ConfigHclk(RCC_SYSCLK_DIV512);
+
+        /* PCLK2 = HCLK */
+        RCC_ConfigPclk2(RCC_HCLK_DIV16);
+
+        /* PCLK1 = HCLK */
+        RCC_ConfigPclk1(RCC_HCLK_DIV16);
+    }
+    else
+    {
+        /* If HSE fails to start-up, the application will have wrong clock
+           configuration. User can add here some code to deal with this error */
+
+        /* Go to infinite loop */
+//        while (1)
+//        {
+//        }
+    }
+}
+
+
 static void mcu_stay_in_sleep(void)
 {
 	GPIO_InitType  gpio_init_input_float;
@@ -765,10 +814,22 @@ static void mcu_stay_in_sleep(void)
 		NVIC_Init(&NVIC_InitStructure);
 
 //		DBG_ConfigPeriph(DBG_STOP, ENABLE);
+#if 1
+		SysTick->CTRL  = 0;
 
+		// lower the system clock
+		SetSysClockToHSE();
+
+		// sleep
+		PWR_EnterSLEEPMode(SLEEP_OFF_EXIT, PWR_SLEEPENTRY_WFI);
+
+		// recovery system clock
+		SystemInit();
+		
+#else
 		PWR_EnterSTOP2Mode(PWR_STOPENTRY_WFI, PWR_CTRL3_RAM1RET);
 //		SystemInit();
-
+#endif
 		// we already exit the sleep mode
 		EXTI_InitStructure.EXTI_LineCmd = DISABLE;
 		EXTI_InitPeripheral(&EXTI_InitStructure);
