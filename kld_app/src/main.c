@@ -814,22 +814,24 @@ static void mcu_stay_in_sleep(void)
 		NVIC_Init(&NVIC_InitStructure);
 
 //		DBG_ConfigPeriph(DBG_STOP, ENABLE);
-#if 1
-		SysTick->CTRL  = 0;
 
-		// lower the system clock
-		SetSysClockToHSE();
+		if (0!=g_acc_wait_timeout) {
+			SysTick->CTRL  = 0;
 
-		// sleep
-		PWR_EnterSLEEPMode(SLEEP_OFF_EXIT, PWR_SLEEPENTRY_WFI);
+			// lower the system clock
+			SetSysClockToHSE();
 
-		// recovery system clock
-		SystemInit();
-		
-#else
-		PWR_EnterSTOP2Mode(PWR_STOPENTRY_WFI, PWR_CTRL3_RAM1RET);
-//		SystemInit();
-#endif
+			// sleep
+			PWR_EnterSLEEPMode(SLEEP_OFF_EXIT, PWR_SLEEPENTRY_WFI);
+
+			// recovery system clock
+			SystemInit();
+			
+		} else {
+			PWR_EnterSTOP2Mode(PWR_STOPENTRY_WFI, PWR_CTRL3_RAM1RET);
+	//		SystemInit();
+		}
+
 		// we already exit the sleep mode
 		EXTI_InitStructure.EXTI_LineCmd = DISABLE;
 		EXTI_InitPeripheral(&EXTI_InitStructure);
