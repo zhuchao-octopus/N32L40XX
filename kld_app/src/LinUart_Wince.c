@@ -613,7 +613,10 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					switch(*Read_Lin_Ptr)
 					{
 						case 0x00:	
-							PostEvent(WINCE_MODULE, TX_TO_GUI_MCU_VERSION,NONE );
+							PostEvent(WINCE_MODULE, TX_TO_GUI_MCU_VERSION, 0);
+							break;
+						case 0x66:
+							PostEvent(WINCE_MODULE, TX_TO_GUI_MCU_VERSION, 0x66);
 							break;
 						default:
 							break;						
@@ -2038,6 +2041,12 @@ ext void LinTxWince_Service(void)
 				u8 cnt, len;
 				char* p=MCU_VERSION;
 				len = sizeof(MCU_VERSION);
+#ifdef MCU_FIXED_VERSION
+				if (0==nEvt->prm) {
+					p = MCU_FIXED_VERSION;
+					len = sizeof(MCU_FIXED_VERSION);
+				}
+#endif
 				length = 0;
 				for (cnt=0; cnt<len; cnt++) {
 					if (' '==p[cnt]) {
@@ -2046,6 +2055,7 @@ ext void LinTxWince_Service(void)
 						buff[length++]=p[cnt];
 					}
 				}
+#ifndef MCU_FIXED_VERSION
 #ifdef TEA668X_V205
 				length--;
 				buff[length++]='_';
@@ -2068,6 +2078,7 @@ ext void LinTxWince_Service(void)
 					buff[length++]='x';
 				}
 				buff[length++]='\0';
+#endif
 #endif
 			}
 			break;

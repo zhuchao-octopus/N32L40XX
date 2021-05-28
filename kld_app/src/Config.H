@@ -154,13 +154,9 @@
 	Version 
 ******************************
 ******************************/
-//#define MCU_FIXED_VERSION_BASE "Dec 6 2018_11:44:09"
+//#define MCU_FIXED_VERSION "CSN2_04282021_173906_V308"
 
-#ifdef MCU_FIXED_VERSION_BASE
-#define MCU_VERSION_BASE   MCU_FIXED_VERSION_BASE
-#else
 #define MCU_VERSION_BASE   __DATE__ "_" __TIME__
-#endif
 
 #if !defined(MCU_VERSION_BASE)
 #error "MCU_VERSION_BASE must be defined!"
