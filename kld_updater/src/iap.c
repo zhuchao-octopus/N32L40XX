@@ -164,9 +164,11 @@ void iap_rx_handler(void)
 					break;
 				}
 				if ( 0x59 != g_iap_rx_buffer[6] ) {
+					iap_do_reset();
 					break;
 				}
 				if ( 0xB1 != g_iap_rx_buffer[7] ) {
+					iap_do_reset();
 					break;
 				}
 				// do IAP flash erasing
