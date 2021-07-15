@@ -3,6 +3,8 @@
 
 #if ASP_MODEL==ASP_BU32107
 
+#define SPDIF_OUT_ENABLE
+
 #include "bu32107.h"
 
 static BU32107_REG_INFO g_regs[BU32107_REG_NUMS] = 
@@ -80,12 +82,12 @@ static BU32107_REG_INFO g_regs[BU32107_REG_NUMS] =
 	{0x0202, 0x00, FALSE},		// BU32107_DIG_IO_SEL3
 };
 
-#define BU32107_UPDATE_REG(id, val) do {	\
-		if (val != g_regs[id].value) {		\
-			g_regs[id].value = val;		\
-			g_regs[id].changed = TRUE;	\
-		}								\
-	} while(0);
+static void BU32107_UPDATE_REG(uint8_t id, uint8_t val) {
+	if (val != g_regs[id].value) {
+		g_regs[id].value = val;
+		g_regs[id].changed = TRUE;
+	}
+}
 
 static const s8 g_bu32107_gains[] = {
 	-79,	/* volume 0 */
@@ -100,32 +102,41 @@ static const u8 g_bu32107_atten_table[8] = {0, 3, 6, 9, 12, 16, 20, 63};
 
 static void bu32107_write(u16 addr, u8 value)
 {
-	I2c1_Start();
-	I2c1_SendByte(BU32107_I2C_W_ADDR);
-	I2c1_SendByte(MSB(addr));
-	I2c1_SendByte(LSB(addr));
-	I2c1_SendByte(value);
-	I2c1_Stop();
+	i2c_start();
+	i2c_send_byte(BU32107_I2C_W_ADDR);
+	i2c_wait_ack();
+	i2c_send_byte(MSB(addr));
+	i2c_wait_ack();
+	i2c_send_byte(LSB(addr));
+	i2c_wait_ack();
+	i2c_send_byte(value);
+	i2c_wait_ack();
+	i2c_stop();
 }
 static u8 bu32107_read(u16 addr)
 {
 	u8 value;
 	
-	I2c1_Start();
-	I2c1_SendByte(BU32107_I2C_W_ADDR);
-	I2c1_SendByte(0xD0);
-	I2c1_SendByte(0x00);
-	I2c1_SendByte(MSB(addr));
-	I2c1_SendByte(LSB(addr));
-	I2c1_Stop();
+	i2c_start();
+	i2c_send_byte(BU32107_I2C_W_ADDR);
+	i2c_wait_ack();
+	i2c_send_byte(0xD0);
+	i2c_wait_ack();
+	i2c_send_byte(0x00);
+	i2c_wait_ack();
+	i2c_send_byte(MSB(addr));
+	i2c_wait_ack();
+	i2c_send_byte(LSB(addr));
+	i2c_wait_ack();
+	i2c_stop();
 
-	Wait10us(2); // do a delay to make sure data available
+	delay_us(20); // do a delay to make sure data available
 	
-	I2c1_Start();
-	I2c1_SendByte(BU32107_I2C_R_ADDR);
-	value = I2c1_ReadByte();
-	I2c1_Nack();
-	I2c1_Stop();
+	i2c_start();
+	i2c_send_byte(BU32107_I2C_R_ADDR);
+	i2c_wait_ack();
+	value = i2c_read_byte(0);
+	i2c_stop();
 	
 	return value;
 }
@@ -192,7 +203,7 @@ bool audio_dev_init(void)
 	// reset
 	bu32107_write(0xFEFE, 0x81);
 
-	Delay_ms(20);
+	delay_1ms(20);
 
 	// through
 	bu32107_write(0x0001, 0x1C);
@@ -324,6 +335,13 @@ bool audio_dev_init(void)
 	bu32107_write(0x0A03, 0x80);		// mute RR
 	bu32107_write(0x0A04, 0x80);		// mute SL
 	bu32107_write(0x0A05, 0xA0);		// 0dB
+
+#ifdef SPDIF_OUT_ENABLE
+	bu32107_write(0x0016, 0x0C);
+	bu32107_write(0x0017, 0x00);
+	bu32107_write(0x0018, 0x00);
+	bu32107_write(0x0201, 0x40);
+#endif
 
 	// setup IIR A/IIR B coef
 	bu32107_write(0x0709, 0x80);		// IIR A/IIR B coef

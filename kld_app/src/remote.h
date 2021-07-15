@@ -4,40 +4,41 @@
 
 /***********************************************************************/
 //Global Variables and functions defined in REMOTE module
-#if 0	// todo later
 
-void Rem_Isr();
+void ir_tx_init(void);
+void Rem_Isr(void);
 uchar Rem_SendDTVTouch(u8 x, u8 y);
+u8 ir_send_tv_code(u8 custom1, u8 custom2, u8 cmd1, u8 cmd2);
 
 
 /*
-2250            // ¡°1¡±Êı×ÖÂö³å±ê×¼¿í¶È£¨2250Î¢Ãë£©¡£
-250             // ¡°1¡±Êı×ÖÂö¿íÎó²îÈİÏŞ¡£
-1125            // ¡°0¡±Êı×ÖÂö³å±ê×¼¿í¶È£¨1125Î¢Ãë£©
-250             // ¡°0¡±Êı×ÖÂö¿íÎó²îÈİÏŞ¡£
-13500           // ¡°Start¡±ĞÅºÅÂö³å±ê×¼¿í¶È¡£(13500Î¢Ãë)
-500             // ¡°Start¡±ĞÅºÅÂö¿íÎó²îÈİÏŞ¡£
-15000           // ¡°Repeat¡±ĞÅºÅÂö³å±ê×¼¿í¶È¡£(11250Î¢Ãë)
-500             // ¡°Repeat¡±ĞÅºÅÂö¿íÎó²îÈİÏŞ¡£
-10800		// Ò»Ö¡Ò£¿ØÆ÷ĞÅºÅ¼ä¸ô±ê×¼¿í¶È¡£   (108ºÁÃë)
+2250            // â€œ1â€æ•°å­—è„‰å†²æ ‡å‡†å®½åº¦ï¼ˆ2250å¾®ç§’ï¼‰ã€‚
+250             // â€œ1â€æ•°å­—è„‰å®½è¯¯å·®å®¹é™ã€‚
+1125            // â€œ0â€æ•°å­—è„‰å†²æ ‡å‡†å®½åº¦ï¼ˆ1125å¾®ç§’ï¼‰
+250             // â€œ0â€æ•°å­—è„‰å®½è¯¯å·®å®¹é™ã€‚
+13500           // â€œStartâ€ä¿¡å·è„‰å†²æ ‡å‡†å®½åº¦ã€‚(13500å¾®ç§’)
+500             // â€œStartâ€ä¿¡å·è„‰å®½è¯¯å·®å®¹é™ã€‚
+15000           // â€œRepeatâ€ä¿¡å·è„‰å†²æ ‡å‡†å®½åº¦ã€‚(11250å¾®ç§’)
+500             // â€œRepeatâ€ä¿¡å·è„‰å®½è¯¯å·®å®¹é™ã€‚
+10800		// ä¸€å¸§é¥æ§å™¨ä¿¡å·é—´éš”æ ‡å‡†å®½åº¦ã€‚   (108æ¯«ç§’)
 */
 
 //########## The following define base 2uS timer ################
 
-// ¡°0¡±Êı×ÖÂö³å±ê×¼¿í¶È¡££¨1125Î¢Ãë£©(0.56ms:0.56ms)
+// â€œ0â€æ•°å­—è„‰å†²æ ‡å‡†å®½åº¦ã€‚ï¼ˆ1125å¾®ç§’ï¼‰(0.56ms:0.56ms)
 #define IR_RX_ZERO_PERIOD_MIN		281	//562-281
 #define IR_RX_ZERO_PERIOD_MAX		843	//562+281
 
-// ¡°1¡±Êı×ÖÂö³å±ê×¼¿í¶È¡££¨2250Î¢Ãë£©(0.56ms:1.68ms)
+// â€œ1â€æ•°å­—è„‰å†²æ ‡å‡†å®½åº¦ã€‚ï¼ˆ2250å¾®ç§’ï¼‰(0.56ms:1.68ms)
 #define IR_RX_ONE_PERIOD_MIN          788	//1125-337
 #define IR_RX_ONE_PERIOD_MAX         1462 //1125+337
 
-// ¡°Repeat¡±ĞÅºÅÂö³å±ê×¼¿í¶È¡£(11250Î¢Ãë)(9ms:2.25ms)
+// â€œRepeatâ€ä¿¡å·è„‰å†²æ ‡å‡†å®½åº¦ã€‚(11250å¾®ç§’)(9ms:2.25ms)
 #define IR_RX_REPEAT_PERIOD_MIN          5000 //5625-625
 #define IR_RX_REPEAT_PERIOD_MAX         6250 //5625+625
 
 
-// ¡°Start¡±ĞÅºÅÂö³å±ê×¼¿í¶È¡£(13500Î¢Ãë)(9ms:4.5ms)
+// â€œStartâ€ä¿¡å·è„‰å†²æ ‡å‡†å®½åº¦ã€‚(13500å¾®ç§’)(9ms:4.5ms)
 #define IR_RX_START_PERIOD_MIN         5750 //6750-1000
 #define IR_RX_START_PERIOD_MAX        7750 // 6750+1000
 
@@ -69,7 +70,6 @@ typedef struct
 	bool key_sent;
 }IR_RX_INFO;
 ext IR_RX_INFO g_ir_rx_info;
-ext IR_RX_INFO g_can_ir_info;
 
 typedef struct
 {
@@ -78,9 +78,12 @@ typedef struct
 }IR_RX_KEY_MAP;
 
 void ir_rx_handler(void);
-void can_ir_handler(void);
+void ir_rx_init(void);
 void ir_rx_main(void);
 
+#if 0	// todo later
+ext IR_RX_INFO g_can_ir_info;
+void can_ir_handler(void);
 #endif
 
 #endif	//_REMOTE_H

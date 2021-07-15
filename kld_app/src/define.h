@@ -68,8 +68,14 @@ typedef enum
 #define Opening                 1
 #define Closing                   0
 
+//#define ENABLE_WWDG
+
 #define BEGIN_WATCHDOG		
+#ifdef ENABLE_WWDG
+#define CLEAR_WATCHDOG  WWDG_SetCnt(127);
+#else
 #define CLEAR_WATCHDOG	 	
+#endif
 #define DI
 #define EI
 

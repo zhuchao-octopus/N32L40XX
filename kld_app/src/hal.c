@@ -108,6 +108,7 @@ void delay_decrement(void)
 	}
 
 	if (0U != delay){
+		CLEAR_WATCHDOG;
 		delay--;
 	}
 }
@@ -185,6 +186,7 @@ void i2c_stop(void)
 uint8_t i2c_wait_ack(void)
 {
 	uint16_t ucErrTime=0;
+	CLEAR_WATCHDOG;
 	iic_sda_high();
 	iic_sda_in();     
   	delay_us(1);
@@ -193,7 +195,7 @@ uint8_t i2c_wait_ack(void)
 	while(read_sda_())
 	{
 		ucErrTime++;
-		if(ucErrTime>25000)
+		if(ucErrTime>12000)
 		{
 			i2c_stop();
 			return 1;
@@ -231,6 +233,7 @@ void IIC_NAck(void)
 void i2c_send_byte(uint8_t data)
 {                        
 	uint8_t t;    
+	CLEAR_WATCHDOG;
 	iic_scl_low();  
 	iic_sda_out();	    
 	delay_us(2);
@@ -252,6 +255,7 @@ void i2c_send_byte(uint8_t data)
 uint8_t i2c_read_byte(unsigned char ack)
 {
 	unsigned char i,receive=0;
+	CLEAR_WATCHDOG;
 	iic_sda_in();
 	for(i=0;i<8;i++ )
 	{
@@ -272,6 +276,9 @@ uint8_t i2c_read_byte(unsigned char ack)
 uint8_t adc_channel_sample(uint8_t channel)
 {
 	u16 adc_val_12b;
+
+	CLEAR_WATCHDOG;
+	
 	ADC_ConfigRegularChannel(ADC, channel, 1, ADC_SAMP_TIME_41CYCLES5); 
 
 	ADC_EnableSoftwareStartConv(ADC, ENABLE);
@@ -304,6 +311,7 @@ void ak_flash_save_info(void)
 	len = FLASH_SIZE_SAVE_INFO/FMC_PAGE_SIZE;
 	page_address = FLASH_ADDR_SAVE_INFO;
 	for(cnt = 0; cnt < len; cnt++){
+		CLEAR_WATCHDOG;
 		FLASH_EraseOnePage(page_address);
 		page_address = page_address + FMC_PAGE_SIZE;
 	}
@@ -313,6 +321,7 @@ void ak_flash_save_info(void)
 	page_address = FLASH_ADDR_KEY_STORE;
 	data = (uint32_t *)&g_key_info_store;
 	for (cnt=0; cnt<len; cnt++) {
+		CLEAR_WATCHDOG;
 		FLASH_ProgramWord(page_address, data[cnt]);
 		page_address = page_address + 4; 
 	}
@@ -322,6 +331,7 @@ void ak_flash_save_info(void)
 	page_address = FLASH_ADDR_SYSTEM_INFO;
 	data = (uint32_t *)&g_sys_info_store;
 	for (cnt=0; cnt<len; cnt++) {
+		CLEAR_WATCHDOG;
 		FLASH_ProgramWord(page_address, data[cnt]);
 		page_address = page_address + 4; 
 	}

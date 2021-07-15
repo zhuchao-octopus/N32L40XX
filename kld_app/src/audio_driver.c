@@ -699,11 +699,10 @@ void audio_save_eq_user_mode(u8 id)
 				break;
 			default:
 				return;
-				break;
 		}
 	}		
 
-	g_audio_info.eq_mode = id;
+	g_audio_info.eq_mode = (EQ_MODE)id;
 #endif
 }
 

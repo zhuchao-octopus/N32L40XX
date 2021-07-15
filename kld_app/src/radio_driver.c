@@ -94,6 +94,7 @@ static u8 _get_fm_step_for_russia(u16 freq)
 			if (IS_RUSSIA_RADIO()) {	\
 				n = _correct_fm_freq_for_russia(n);	\
 			} else {	\
+				if ((n) == 0)  (n) = FM_MIN_FREQ; \
 				if ((n-FM_MIN_FREQ)%FM_STEP) n=n-((n-FM_MIN_FREQ)%FM_STEP);			\
 				if ((n) > FM_MAX_FREQ)  (n) = FM_MIN_FREQ; \
 				if ((n) < FM_MIN_FREQ)  (n) = FM_MAX_FREQ; \
@@ -1415,7 +1416,7 @@ void radio_main(void)
 		if (!IS_PANEL_PWR_ON) {
 			return;
 		}
-		if (g_radio_info.pwr_timer < T200MS_12) {
+		if (g_radio_info.pwr_timer < T1S_12) {
 			++g_radio_info.pwr_timer;
 			return;
 		}

@@ -2,7 +2,6 @@
 #include "public.h"
 
 //#define SUPPORT_IR_RX_01FE
-#if 0	// todo later
 typedef enum {
      REM_IDLE,
      REM_START_H,
@@ -14,46 +13,45 @@ typedef enum {
 Def_REM RemState;
 uchar Rem_Data[4];
 
-void Rem_Isr()
+void Rem_Isr(void)
 {
-	volatile UCharInt temp;
+	volatile u16 temp;
 	static u8 bitIndex;
 	static u8 byteIndex;
-	temp.byte[0]=TIM2_CCR2H;
-	temp.byte[1]=TIM2_CCR2L;
-	
+
+	temp = TIM_GetCap1(TIMER_IR_RX);
+
 	switch(RemState)
 	{    
 		case REM_IDLE:
-			GPIO_ResetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
+			GPIO_SetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
 			break;
 		case REM_START_H:
-			temp.byte[0]=TIM2_CNTRH;
-			temp.byte[1]=TIM2_CNTRL;
-			temp.Dbyte+=4500;
-			GPIO_SetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
+			temp = TIM_GetCnt(TIMER_IR_RX);
+			temp += 4500;
+			GPIO_ResetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
 			RemState = REM_START_L;	   
 			break;
 		case REM_START_L:
-			temp.Dbyte+=2250;
-			GPIO_ResetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
+			temp += 2250;
+			GPIO_SetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
 			bitIndex = 0x01;
 			byteIndex = 0;
 			RemState = REM_SYSTEM_CUSTEM_CODE_H;
 			break;
 		case REM_SYSTEM_CUSTEM_CODE_H:
-			GPIO_SetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
-			temp.Dbyte+=280;         
+			GPIO_ResetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
+			temp+=280;
 			RemState = REM_SYSTEM_CUSTEM_CODE_L;
 			break;
 		case REM_SYSTEM_CUSTEM_CODE_L:
-			GPIO_ResetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
+			GPIO_SetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
 			if(bitIndex > 0 && byteIndex <= 3)
 			{
 				if(Rem_Data[byteIndex] & bitIndex)
-					temp.Dbyte+=845;    
+					temp+=845;
 				else
-					temp.Dbyte+=282;    
+					temp+=282;
 				bitIndex = bitIndex<<1;
 				if(bitIndex > 0)
 				{
@@ -75,20 +73,19 @@ void Rem_Isr()
 			}
 			else
 			{
-				temp.Dbyte+=282;    
+				temp+=282;
 				RemState = REM_STOP;
 			}
 			break;         
 		case REM_STOP:
-			GPIO_SetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
-			temp.Dbyte+=280;    
+			GPIO_ResetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
+			temp+=280;
 			RemState = REM_IDLE;
 			break;
 		default:
 			break;
 	}
-	TIM2_CCR2H=temp.byte[0];
-	TIM2_CCR2L=temp.byte[1];
+	TIM_SetCmp1(TIMER_IR_RX, temp);
 }
 
 #define DTV_CUSTOM_CODE	0x55AA
@@ -102,8 +99,8 @@ uchar Rem_SendDTVTouch(u8 x, u8 y)
 		 Rem_Data[1] = MSB(DTV_CUSTOM_CODE);
 		 Rem_Data[2] = x;
 		 Rem_Data[3] = y;
-		 RemState = REM_START_H;		  
-		TIM2_EGR_CC2G = 1; 
+		 RemState = REM_START_H;
+		TIM_GenerateEvent(TIMER_IR_RX, TIM_EVT_SRC_CC1);
 		 return 1;
 	}
 }
@@ -119,7 +116,7 @@ u8 ir_send_tv_code(u8 custom1, u8 custom2, u8 cmd1, u8 cmd2)
 		 Rem_Data[2] = cmd1;
 		 Rem_Data[3] = cmd2;
 		 RemState = REM_START_H;		  
-		TIM2_EGR_CC2G = 1; 
+		TIM_GenerateEvent(TIMER_IR_RX, TIM_EVT_SRC_CC1);
 		 return 1;
 	}
 }
@@ -127,9 +124,8 @@ u8 ir_send_tv_code(u8 custom1, u8 custom2, u8 cmd1, u8 cmd2)
 void ir_tx_init(void)
 {
 	RemState = REM_IDLE;
+	GPIO_SetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
 }
-#endif
-#if 0 //todo later
 
 static const IR_RX_KEY_MAP g_ir_rx_key_map_f708[] = {
 	{0x0B, UICC_FAKE_POWER_OFF},
@@ -241,7 +237,7 @@ void ir_rx_init(void)
 
 void ir_rx_handler(void)
 {
-	u16 tmp_timer;
+	u32 tmp_timer;
 
 	if (!Is_Machine_Power) {
 		ir_rx_init();
@@ -249,21 +245,25 @@ void ir_rx_handler(void)
 	}
 	
 	tmp_timer=g_ir_rx_info.prev_timer;
-	g_ir_rx_info.prev_timer=WORD(TIM2_CCR3H,TIM2_CCR3L);
-	tmp_timer=g_ir_rx_info.prev_timer-tmp_timer;
+	g_ir_rx_info.prev_timer=TIM_GetCap2(TIMER_IR_RX);
+	if (g_ir_rx_info.prev_timer > tmp_timer) {
+		tmp_timer=g_ir_rx_info.prev_timer-tmp_timer;
+	} else {
+		tmp_timer = ((0xFFFF - tmp_timer) + g_ir_rx_info.prev_timer);
+	}
 
 	switch (g_ir_rx_info.state)
 	{
 		case IR_RX_STATE_IDLE:
 			
-			if (IS_IR_RX_LEVEL_LOW) {
+			if (Bit_RESET == GPIO_ReadInputDataBit(GPIO_IR_RX_GRP, GPIO_IR_RX_PIN)) {
 				g_ir_rx_info.timeout = T600MS_12;
 				g_ir_rx_info.bit_cntr = 0;
 				g_ir_rx_info.state = IR_RX_STATE_START;
 			}
 			break;
 		case IR_RX_STATE_START:
-			if (IS_IR_RX_LEVEL_LOW) {
+			if (Bit_RESET == GPIO_ReadInputDataBit(GPIO_IR_RX_GRP, GPIO_IR_RX_PIN)) {
 				if ( (tmp_timer>IR_RX_REPEAT_PERIOD_MIN)&&(tmp_timer<IR_RX_REPEAT_PERIOD_MAX) ) {
 					bool repeat = FALSE;
 					if ( 
@@ -399,6 +399,7 @@ void ir_rx_main(void)
 				}
 			}
 #endif
+
 		} else if (g_ir_rx_info.sys_code == IR_SYS_CODE_ASUKA_TV) {
 			ir_send_tv_code(LSB(g_ir_rx_info.sys_code), 
 							MSB(g_ir_rx_info.sys_code), 
@@ -407,7 +408,6 @@ void ir_rx_main(void)
 		}
 	}
 }
-#endif
 
 #if 0	// todo later
 

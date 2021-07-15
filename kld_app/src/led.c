@@ -1,6 +1,8 @@
 
 #include "public.h"
 
+#define WHITE_LED_COLOR_LEVEL_HIGH
+
 static void led_power_handler(void)
 {
 	bool pwr_up = FALSE;
@@ -118,9 +120,21 @@ void led_main(void)
 				led_auto_color();
 			}
 		} else if (g_led_info.color_changed) {
-			TIM_SetCmp1(TIMER_LED, g_sys_info_store.led_b_level);
-			TIM_SetCmp2(TIMER_LED, g_sys_info_store.led_g_level);
-			TIM_SetCmp3(TIMER_LED, g_sys_info_store.led_r_level);
+			if ((0xFE==g_sys_info_store.led_r_level) && (0xFE==g_sys_info_store.led_g_level) && (0xFE==g_sys_info_store.led_b_level)) {
+#ifdef WHITE_LED_COLOR_LEVEL_HIGH
+				TIM_SetCmp1(TIMER_LED, g_sys_info_store.led_b_level);
+				TIM_SetCmp2(TIMER_LED, g_sys_info_store.led_g_level);
+				TIM_SetCmp3(TIMER_LED, g_sys_info_store.led_r_level);
+#else
+				TIM_SetCmp1(TIMER_LED, 0);
+				TIM_SetCmp2(TIMER_LED, 0);
+				TIM_SetCmp3(TIMER_LED, 0);
+#endif
+			} else {
+				TIM_SetCmp1(TIMER_LED, g_sys_info_store.led_b_level);
+				TIM_SetCmp2(TIMER_LED, g_sys_info_store.led_g_level);
+				TIM_SetCmp3(TIMER_LED, g_sys_info_store.led_r_level);
+			}
 			g_led_info.color_changed = FALSE;
 		}
 	} else {

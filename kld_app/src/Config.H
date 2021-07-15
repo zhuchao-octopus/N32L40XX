@@ -16,6 +16,7 @@
 #define TUNER_NXP_TEA6851		2
 #define TUNER_SILICONLAB_SI476X		3
 #define TUNER_NXP_TEA668X		4
+#define TUNER_ST_TDA7708		5
 
 //DVD device
 #define DVD_DVS				0
@@ -114,7 +115,7 @@
 #define CONFIG_LOUDNESS_DB	6
 
 /*---- Radio ----*/
-#define TUNER_MODEL  TUNER_NXP_TEA668X	// 收音IC定义
+#define TUNER_MODEL  TUNER_ST_TDA7708
 #define RADIO_DEFAULT_REGION   	RADIO_AREA_EUROPE//默认收音区域选择
 #define RDS_FUNCTION		1//RDS开关
 //#define TEA668X_V205
@@ -168,11 +169,13 @@
 #define MCU_DSP		""
 #endif
 
-#if 1
-#define MCU_VERSION	"CSM4_" MCU_DSP MCU_VERSION_BASE 
+#if TUNER_MODEL==TUNER_ST_TDA7708
+#define MCU_RADIO		"R7708_"
 #else
-#define MCU_VERSION	"SKY_2_" MCU_DSP MCU_VERSION_BASE 
+#define MCU_RADIO		""
 #endif
+
+#define MCU_VERSION	"CSM4_" MCU_DSP MCU_RADIO MCU_VERSION_BASE 
 
 
 #endif //_CONFIG_H

@@ -451,6 +451,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\firmware\n32l40x_std_periph_driver\src\n32l40x_usart.c</FilePath>
             </File>
+            <File>
+              <FileName>n32l40x_wwdg.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\firmware\n32l40x_std_periph_driver\src\n32l40x_wwdg.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -585,6 +590,11 @@
               <FileName>videochip.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\videochip.c</FilePath>
+            </File>
+            <File>
+              <FileName>tda7708.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\tda7708.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -1183,10 +1183,10 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 				case SUBID_TV_KEY:
 					break;
 				case SUBID_TV_TOUCH:
-// todo					Rem_SendDTVTouch(*Read_Lin_Ptr, *(Read_Lin_Ptr+1));
+					Rem_SendDTVTouch(*Read_Lin_Ptr, *(Read_Lin_Ptr+1));
 					break;
 				case SUBID_TV_IR_CODE:
-// todo					ir_send_tv_code(*Read_Lin_Ptr, *(Read_Lin_Ptr+1), *(Read_Lin_Ptr+2), *(Read_Lin_Ptr+3));
+					ir_send_tv_code(*Read_Lin_Ptr, *(Read_Lin_Ptr+1), *(Read_Lin_Ptr+2), *(Read_Lin_Ptr+3));
 					break;
 			}
 			break;
@@ -1710,6 +1710,11 @@ ext void LinTxWince_Service(void)
 	EVENT *nEvt;
 	uchar GroupID,SubID;
 	u32 tmp;
+	bool invalid_rds_ps;
+	u8 rds_ps_alpha_upper;
+	u8 rds_ps_alpha_lower;
+	u8 rds_ps_digital;
+	u8 rds_ps_symbol;
 
 	if(!SYSTEM_POWER_IS_ON())
 	{
@@ -1865,8 +1870,38 @@ ext void LinTxWince_Service(void)
 			length=2;
 			break;
 		case TX_TO_GUI_RDS_PS_INFO:
+			invalid_rds_ps = FALSE;
+			rds_ps_alpha_upper = 0;
+			rds_ps_alpha_lower = 0;
+			rds_ps_digital = 0;
+			rds_ps_symbol = 0;
 			for (i=0; i<RDS_PS_CHAR_NR; i++) {
 				buff[i] = g_rds_info.ps[i];
+				/* check PS content */
+				if ((buff[i]>='0')&&(buff[i]<='9')) {
+					++rds_ps_digital;
+				} else if ((buff[i]>='a')&&(buff[i]<='z')) {
+					++rds_ps_alpha_lower;
+				} else if ((buff[i]>='A')&&(buff[i]<='Z')) {
+					++rds_ps_alpha_upper;
+				} else if (buff[i]==0x20) {     /* ' ' */
+					++rds_ps_symbol;
+				} else if (buff[i]==0x27) {     /* ' */
+					++rds_ps_symbol;
+				} else if ((buff[i]>=0x2C)&&(buff[i]<=0x2F)) {          /* ,-./ */
+					++rds_ps_symbol;
+				} else {
+					invalid_rds_ps = TRUE;
+				}
+			}
+			if ((rds_ps_digital+rds_ps_alpha_upper)<3) {
+				invalid_rds_ps = TRUE;
+			}
+			if (invalid_rds_ps) {
+				// clear invalid PS
+				for (i=0; i<RDS_PS_CHAR_NR; i++) {
+					buff[i] = 0;
+				}
 			}
 			length = RDS_PS_CHAR_NR;
 			break;
@@ -2055,6 +2090,7 @@ ext void LinTxWince_Service(void)
 						buff[length++]=p[cnt];
 					}
 				}
+#if TUNER_MODEL==TUNER_NXP_TEA668X
 #ifndef MCU_FIXED_VERSION
 #ifdef TEA668X_V205
 				length--;
@@ -2078,6 +2114,7 @@ ext void LinTxWince_Service(void)
 					buff[length++]='x';
 				}
 				buff[length++]='\0';
+#endif
 #endif
 #endif
 			}

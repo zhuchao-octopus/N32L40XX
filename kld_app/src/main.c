@@ -52,6 +52,7 @@ static void rcu_config(void)
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_TIM1, ENABLE);
 	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM4, ENABLE);
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_TIM8, ENABLE);
+	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM2, ENABLE);
 }
 static void gpio_config(void)
 {
@@ -158,7 +159,7 @@ static void gpio_config(void)
 	/* DTV IR TX */
 	gpio_init_output.Pin = GPIO_DTV_IR_TX_PIN;
 	GPIO_InitPeripheral(GPIO_DTV_IR_TX_GRP, &gpio_init_output);
-	GPIO_ResetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
+	GPIO_SetBits(GPIO_DTV_IR_TX_GRP, GPIO_DTV_IR_TX_PIN);
 
 
 	/* LCD enable */
@@ -316,6 +317,8 @@ static void timer_config(void)
 {
 	TIM_TimeBaseInitType  TIM_TimeBaseStructure;
 	OCInitType TIM_OCInitStructure;
+	TIM_ICInitType TIM_ICInitStructure;
+	NVIC_InitType NVIC_InitStructure;
 
 	/* VCOM */
 	TIM_InitTimBaseStruct(&TIM_TimeBaseStructure);
@@ -366,7 +369,53 @@ static void timer_config(void)
 
 	TIM_EnableCtrlPwmOutputs(TIMER_LED, ENABLE);
 	TIM_Enable(TIMER_LED, ENABLE);
+
+	/* IR RX */
+	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+	TIM_TimeBaseStructure.Period    = 65535;
+	TIM_TimeBaseStructure.Prescaler = 143;
+	TIM_InitTimeBase(TIMER_IR_RX, &TIM_TimeBaseStructure);
+
+	TIM_ICInitStructure.Channel     = TIMER_CH_IR_RX;
+	TIM_ICInitStructure.IcPolarity  = TIM_IC_POLARITY_FALLING;
+	TIM_ICInitStructure.IcSelection = TIM_IC_SELECTION_DIRECTTI;
+	TIM_ICInitStructure.IcPrescaler = TIM_IC_PSC_DIV1;
+	TIM_ICInitStructure.IcFilter    = 0x0;
+	TIM_ICInit(TIMER_IR_RX, &TIM_ICInitStructure);
+	TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC2, ENABLE);
+
+	TIM_OCInitStructure.OcMode      = TIM_OCMODE_ACTIVE;
+	TIM_OCInitStructure.OutputState = TIM_OUTPUT_STATE_DISABLE;
+	TIM_OCInitStructure.Pulse       = 0;
+	TIM_OCInitStructure.OcPolarity  = TIM_OC_POLARITY_HIGH;
+	TIM_InitOc1(TIMER_IR_RX, &TIM_OCInitStructure);
+	TIM_ConfigOc1Preload(TIMER_IR_RX, TIM_OC_PRE_LOAD_DISABLE);
+	TIM_ConfigArPreload(TIMER_IR_RX, ENABLE);
+	TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC1, ENABLE);
+
+	TIM_Enable(TIMER_IR_RX, ENABLE);
+
 }
+
+#ifdef ENABLE_WWDG
+static void watchdog_enable(void)
+{
+	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_WWDG, ENABLE);
+	WWDG_SetPrescalerDiv(WWDG_PRESCALER_DIV8);
+	WWDG_SetWValue(127);
+	WWDG_Enable(127);
+}
+static void watchdog_disable(void)
+{
+	WWDG_DeInit();
+	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_WWDG, DISABLE);
+}
+#endif
 
 static void mcu_init(void)
 {
@@ -394,6 +443,9 @@ void main_goto_iap(void)
 {
 	if (((*(__IO uint32_t*)FLASH_ADDR_UPDATER) & 0x2FFE0000 ) == 0x20000000)        //ApplicationAddress为新程序的起始地址，检查栈顶地址是否合法，即栈顶地址是否为0x2000xxxx（内置SRAM）
 	{
+#ifdef ENABLE_WWDG
+		watchdog_disable();
+#endif
 
 		SysTick->CTRL  = 0;
 
@@ -404,6 +456,11 @@ void main_goto_iap(void)
 		TIM_SelectOcMode(TIMER_BEEP, TIMER_CH_BEEP, TIM_OCMODE_INACTIVE);
 		TIM_Enable(TIMER_BEEP, DISABLE);
 		TIM_DeInit(TIMER_BEEP);
+
+		TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC2, DISABLE);
+		TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC1, DISABLE);
+		TIM_Enable(TIMER_IR_RX, DISABLE);
+		TIM_DeInit(TIMER_IR_RX);
 
 		USART_ConfigInt(HOST_COMM_UART, USART_INT_RXDNE, DISABLE);
 		USART_Enable(HOST_COMM_UART, DISABLE);
@@ -464,7 +521,7 @@ static void Task12msPro()
 
 	Reverse_Detect();
 
-// todo 	ir_rx_main();
+	ir_rx_main();
 // todo	can_ir_main();
 
 }
@@ -522,8 +579,8 @@ void VariableInit(void)
 #endif
 	led_init();
 	beep_init();
-// todo	ir_rx_init();
-// todo	ir_tx_init();
+	ir_rx_init();
+	ir_tx_init();
 // todo	can_ir_init();
 	panel_key_init();
 	if(Check_CheckSum())
@@ -769,6 +826,7 @@ static void mcu_stay_in_sleep(void)
 	TIM_Enable(TIMER_VCOM, DISABLE);
 	TIM_Enable(TIMER_BEEP, DISABLE);
 	TIM_Enable(TIMER_LED, DISABLE);
+	TIM_Enable(TIMER_IR_RX, DISABLE);
 
 	/* Clock */
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_USART1, DISABLE);
@@ -777,6 +835,7 @@ static void mcu_stay_in_sleep(void)
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_TIM1, DISABLE);
 	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM4, DISABLE);
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_TIM8, DISABLE);
+	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM2, DISABLE);
 
 	while(1) {
 		acc_on = 0;
@@ -858,6 +917,10 @@ int main(void)
 	g_first_love = 1;
 	mcu_init();
 
+#ifdef ENABLE_WWDG
+	watchdog_enable();
+#endif
+
 	REAL_SYS_PWR_OFF;
 
 	PowerInit();	
@@ -879,7 +942,13 @@ int main(void)
 		CLEAR_WATCHDOG;
 
 		if (g_mcu_in_sleep) {
+#ifdef ENABLE_WWDG
+			watchdog_disable();
+#endif
 			mcu_stay_in_sleep();
+#ifdef ENABLE_WWDG
+			watchdog_enable();
+#endif
 			g_mcu_in_sleep = 0;
 		}
 
