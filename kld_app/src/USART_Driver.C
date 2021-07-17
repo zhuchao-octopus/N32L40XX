@@ -72,6 +72,8 @@ void USART_RxTx_Init(bool enable)
 	USART_InitStructure.Mode                = USART_MODE_RX | USART_MODE_TX;
 
 	if (enable) {
+		TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC4, DISABLE);
+
 		USART_Init(CAN_COMM_UART, &USART_InitStructure);
 		USART_ConfigInt(CAN_COMM_UART, USART_INT_RXDNE, ENABLE);
 		USART_Enable(CAN_COMM_UART, ENABLE);
@@ -80,6 +82,8 @@ void USART_RxTx_Init(bool enable)
 		USART_Init(CAN_COMM_UART, &USART_InitStructure);
 		USART_ConfigInt(CAN_COMM_UART, USART_INT_RXDNE, DISABLE);
 		USART_Enable(CAN_COMM_UART, DISABLE);
+
+		TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC4, ENABLE);
 		g_canbox_use_uart = FALSE;
 	}
 

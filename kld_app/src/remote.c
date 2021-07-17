@@ -409,7 +409,6 @@ void ir_rx_main(void)
 	}
 }
 
-#if 0	// todo later
 
 static const IR_RX_KEY_MAP g_can_ir_key_map[] = {
 	{0x0C, UICC_SOURCE},
@@ -442,7 +441,7 @@ void can_ir_init(void)
 
 void can_ir_handler(void)
 {
-	u16 tmp_timer;
+	u32 tmp_timer;
 
 	if (!Is_Machine_Power) {
 		can_ir_init();
@@ -450,25 +449,24 @@ void can_ir_handler(void)
 	}
 	
 	tmp_timer=g_can_ir_info.prev_timer;
-	g_can_ir_info.prev_timer=WORD(TIM2_CNTRH,TIM2_CNTRL);
+	g_can_ir_info.prev_timer=TIM_GetCap4(TIMER_IR_RX);
 	if (g_can_ir_info.prev_timer > tmp_timer) {
 		tmp_timer=g_can_ir_info.prev_timer-tmp_timer;
 	} else {
-		tmp_timer=g_can_ir_info.prev_timer+((u16)0xFFFF-tmp_timer);
+		tmp_timer = ((0xFFFF - tmp_timer) + g_can_ir_info.prev_timer);
 	}
 
 	switch (g_can_ir_info.state)
 	{
 		case IR_RX_STATE_IDLE:
-			
-			if (0==GPIO_CAN_IR_RX) {
+			if (Bit_RESET == GPIO_ReadInputDataBit(GPIO_CAN_UART_RX_GRP, GPIO_CAN_UART_RX_PIN)) {
 				g_can_ir_info.timeout = T600MS_12;
 				g_can_ir_info.bit_cntr = 0;
 				g_can_ir_info.state = IR_RX_STATE_START;
 			}
 			break;
 		case IR_RX_STATE_START:
-			if (0==GPIO_CAN_IR_RX) {
+			if (Bit_RESET == GPIO_ReadInputDataBit(GPIO_CAN_UART_RX_GRP, GPIO_CAN_UART_RX_PIN)) {
 				if ( (tmp_timer>IR_RX_REPEAT_PERIOD_MIN)&&(tmp_timer<IR_RX_REPEAT_PERIOD_MAX) ) {
 					if ( 
 						(g_can_ir_info.sys_code==IR_SYS_CODE_1)	/* system code 1 */
@@ -563,5 +561,4 @@ void can_ir_main(void)
 		}
 	}
 }
-#endif
 

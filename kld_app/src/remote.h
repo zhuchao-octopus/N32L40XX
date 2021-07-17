@@ -81,9 +81,9 @@ void ir_rx_handler(void);
 void ir_rx_init(void);
 void ir_rx_main(void);
 
-#if 0	// todo later
 ext IR_RX_INFO g_can_ir_info;
+void can_ir_init(void);
 void can_ir_handler(void);
-#endif
+void can_ir_main(void);
 
 #endif	//_REMOTE_H

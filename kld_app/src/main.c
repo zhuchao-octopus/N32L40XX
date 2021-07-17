@@ -389,6 +389,14 @@ static void timer_config(void)
 	TIM_ICInit(TIMER_IR_RX, &TIM_ICInitStructure);
 	TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC2, ENABLE);
 
+	TIM_ICInitStructure.Channel     = TIMER_CH_CANIR_RX;
+	TIM_ICInitStructure.IcPolarity  = TIM_IC_POLARITY_FALLING;
+	TIM_ICInitStructure.IcSelection = TIM_IC_SELECTION_DIRECTTI;
+	TIM_ICInitStructure.IcPrescaler = TIM_IC_PSC_DIV1;
+	TIM_ICInitStructure.IcFilter    = 0x0;
+	TIM_ICInit(TIMER_IR_RX, &TIM_ICInitStructure);
+	TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC4, DISABLE);
+
 	TIM_OCInitStructure.OcMode      = TIM_OCMODE_ACTIVE;
 	TIM_OCInitStructure.OutputState = TIM_OUTPUT_STATE_DISABLE;
 	TIM_OCInitStructure.Pulse       = 0;
@@ -522,7 +530,7 @@ static void Task12msPro()
 	Reverse_Detect();
 
 	ir_rx_main();
-// todo	can_ir_main();
+	can_ir_main();
 
 }
 static void Task40msPro()
@@ -581,7 +589,7 @@ void VariableInit(void)
 	beep_init();
 	ir_rx_init();
 	ir_tx_init();
-// todo	can_ir_init();
+	can_ir_init();
 	panel_key_init();
 	if(Check_CheckSum())
 	{		

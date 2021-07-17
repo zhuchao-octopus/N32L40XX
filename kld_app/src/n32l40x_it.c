@@ -204,6 +204,9 @@ void TIM2_IRQHandler(void)
 	if (TIM_GetIntStatus(TIM2, TIM_INT_CC2) == SET) {
 		TIM_ClrIntPendingBit(TIM2, TIM_INT_CC2);
 		ir_rx_handler();
+	} else if (TIM_GetIntStatus(TIM2, TIM_INT_CC4) == SET) {
+		TIM_ClrIntPendingBit(TIM2, TIM_INT_CC4);
+		can_ir_handler();
  	} else if (TIM_GetIntStatus(TIM2, TIM_INT_CC1) == SET) {
 		TIM_ClrIntPendingBit(TIM2, TIM_INT_CC1);
 		Rem_Isr();
