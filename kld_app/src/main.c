@@ -58,6 +58,7 @@ static void gpio_config(void)
 {
 	GPIO_InitType gpio_init_output;
 	GPIO_InitType  gpio_init_output_af;
+	GPIO_InitType  gpio_init_input_af;
 	GPIO_InitType  gpio_init_input_pull_up;
 	GPIO_InitType  gpio_init_input_float;
 	GPIO_InitType  gpio_init_ain;
@@ -68,6 +69,9 @@ static void gpio_config(void)
 	GPIO_InitStruct(&gpio_init_output_af);
 	gpio_init_output_af.GPIO_Mode = GPIO_Mode_AF_PP;
 	gpio_init_output_af.GPIO_Current = GPIO_DC_4mA;
+	GPIO_InitStruct(&gpio_init_input_af);
+	gpio_init_input_af.GPIO_Mode = GPIO_Mode_Input;
+	gpio_init_input_af.GPIO_Current = GPIO_DC_4mA;
 	GPIO_InitStruct(&gpio_init_input_float);
 	gpio_init_input_float.GPIO_Mode = GPIO_Mode_Input;
 	gpio_init_input_float.GPIO_Pull = GPIO_No_Pull;
@@ -148,8 +152,10 @@ static void gpio_config(void)
 	GPIO_InitPeripheral(GPIO_TEL_MUTE_DET_GRP, &gpio_init_input_pull_up);
 
 	/* IR rx */
-	gpio_init_input_float.Pin = GPIO_IR_RX_PIN;
-	GPIO_InitPeripheral(GPIO_IR_RX_GRP, &gpio_init_input_float);
+	gpio_init_input_af.Pin = GPIO_IR_RX_PIN;
+	gpio_init_input_af.GPIO_Alternate = GPIO_AF7_TIM5;
+	gpio_init_input_af.GPIO_Pull = GPIO_Pull_Up;
+	GPIO_InitPeripheral(GPIO_IR_RX_GRP, &gpio_init_input_af);
 
 	/* ANT control */
 	gpio_init_output.Pin = GPIO_ANT_CTRL_PIN;
@@ -371,7 +377,7 @@ static void timer_config(void)
 	TIM_Enable(TIMER_LED, ENABLE);
 
 	/* IR RX */
-	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;

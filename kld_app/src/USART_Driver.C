@@ -62,6 +62,7 @@ ext void Usart_Resend_Time(void)	// 4ms Ê±»ù
 void USART_RxTx_Init(bool enable)
 {
 	USART_InitType USART_InitStructure;
+	GPIO_InitType  GPIO_InitStructure;
 
 	USART_DeInit(CAN_COMM_UART);
 	USART_InitStructure.BaudRate            = g_canbox_baudrate;
@@ -71,8 +72,17 @@ void USART_RxTx_Init(bool enable)
 	USART_InitStructure.HardwareFlowControl = USART_HFCTRL_NONE;
 	USART_InitStructure.Mode                = USART_MODE_RX | USART_MODE_TX;
 
+	GPIO_InitStruct(&GPIO_InitStructure);
+
 	if (enable) {
 		TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC4, DISABLE);
+
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+		GPIO_InitStructure.GPIO_Current = GPIO_DC_4mA;
+		GPIO_InitStructure.Pin = GPIO_CAN_UART_RX_PIN;
+		GPIO_InitStructure.GPIO_Alternate = GPIO_AF4_USART2;
+		GPIO_InitStructure.GPIO_Pull = GPIO_Pull_Up;
+		GPIO_InitPeripheral(GPIO_CAN_UART_RX_GRP, &GPIO_InitStructure);
 
 		USART_Init(CAN_COMM_UART, &USART_InitStructure);
 		USART_ConfigInt(CAN_COMM_UART, USART_INT_RXDNE, ENABLE);
@@ -82,6 +92,13 @@ void USART_RxTx_Init(bool enable)
 		USART_Init(CAN_COMM_UART, &USART_InitStructure);
 		USART_ConfigInt(CAN_COMM_UART, USART_INT_RXDNE, DISABLE);
 		USART_Enable(CAN_COMM_UART, DISABLE);
+
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Input;
+		GPIO_InitStructure.GPIO_Current = GPIO_DC_4mA;
+		GPIO_InitStructure.Pin = GPIO_CAN_UART_RX_PIN;
+		GPIO_InitStructure.GPIO_Alternate = GPIO_AF7_TIM5;
+		GPIO_InitStructure.GPIO_Pull = GPIO_Pull_Up;
+		GPIO_InitPeripheral(GPIO_CAN_UART_RX_GRP, &GPIO_InitStructure);
 
 		TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC4, ENABLE);
 		g_canbox_use_uart = FALSE;
