@@ -68,7 +68,7 @@ typedef enum
 #define Opening                 1
 #define Closing                   0
 
-//#define ENABLE_WWDG
+#define ENABLE_WWDG
 
 #define BEGIN_WATCHDOG		
 #ifdef ENABLE_WWDG
