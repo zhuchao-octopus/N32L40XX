@@ -199,7 +199,7 @@ void TIM9_IRQHandler(void)
 	}
 }
 
-void TIM5_IRQHandler(void)
+void TIM2_IRQHandler(void)
 {
 	if (TIM_GetIntStatus(TIM2, TIM_INT_CC2) == SET) {
 		TIM_ClrIntPendingBit(TIM2, TIM_INT_CC2);

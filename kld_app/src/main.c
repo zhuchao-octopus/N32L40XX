@@ -153,7 +153,7 @@ static void gpio_config(void)
 
 	/* IR rx */
 	gpio_init_input_af.Pin = GPIO_IR_RX_PIN;
-	gpio_init_input_af.GPIO_Alternate = GPIO_AF7_TIM5;
+	gpio_init_input_af.GPIO_Alternate = GPIO_AF2_TIM2;
 	gpio_init_input_af.GPIO_Pull = GPIO_Pull_Up;
 	GPIO_InitPeripheral(GPIO_IR_RX_GRP, &gpio_init_input_af);
 
@@ -377,14 +377,14 @@ static void timer_config(void)
 	TIM_Enable(TIMER_LED, ENABLE);
 
 	/* IR RX */
-	NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 	NVIC_Init(&NVIC_InitStructure);
 
 	TIM_TimeBaseStructure.Period    = 65535;
-	TIM_TimeBaseStructure.Prescaler = 143;
+	TIM_TimeBaseStructure.Prescaler = 63;
 	TIM_InitTimeBase(TIMER_IR_RX, &TIM_TimeBaseStructure);
 
 	TIM_ICInitStructure.Channel     = TIMER_CH_IR_RX;
