@@ -230,6 +230,8 @@ void video_set_pwr_ctrl(bool on)
 	if (on) {
 		g_fms6502_need_config = TRUE;
 		g_fms6502_config_timer = 0;
+	} else {
+		g_wait_panel_pwr_timer = 0;
 	}
 }
 
@@ -239,6 +241,7 @@ void Video_Main(void)
 	uchar tmp_Lprm;
 
 	if(!Is_Machine_Power) {
+		g_wait_panel_pwr_timer = 0;
 		return;
 	}
 
