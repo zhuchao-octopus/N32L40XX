@@ -330,7 +330,7 @@ static void TFT_Power_Ctrl(void)
 			break;
 
 		case TFT_POWER_ON:
-			{
+			if (Tft_PowerTimer++ >= T1S_12) {
 				Tft_PowerTimer=0;
 				TFT_Power_State++;
 			}
