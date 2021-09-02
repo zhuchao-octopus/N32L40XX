@@ -101,6 +101,7 @@ static u8 _get_fm_step_for_russia(u16 freq)
 			}	\
 		}while(0);
 #define CORRECT_AM_FREQ(n) do { \
+			if ((n) == 0)  (n) = AM_MIN_FREQ; \
 			if ((n-AM_MIN_FREQ)%AM_STEP) n=n-((n-AM_MIN_FREQ)%AM_STEP);			\
 			if ((n) > AM_MAX_FREQ)  (n) = AM_MIN_FREQ; \
 			if ((n) < AM_MIN_FREQ)  (n) = AM_MAX_FREQ; \
