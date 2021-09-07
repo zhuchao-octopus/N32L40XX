@@ -52,7 +52,7 @@ static void rcu_config(void)
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_TIM1, ENABLE);
 	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM4, ENABLE);
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_TIM8, ENABLE);
-	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM2, ENABLE);
+	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM5, ENABLE);
 }
 static void gpio_config(void)
 {
@@ -153,7 +153,7 @@ static void gpio_config(void)
 
 	/* IR rx */
 	gpio_init_input_af.Pin = GPIO_IR_RX_PIN;
-	gpio_init_input_af.GPIO_Alternate = GPIO_AF2_TIM2;
+	gpio_init_input_af.GPIO_Alternate = GPIO_AF7_TIM5;
 	gpio_init_input_af.GPIO_Pull = GPIO_Pull_Up;
 	GPIO_InitPeripheral(GPIO_IR_RX_GRP, &gpio_init_input_af);
 
@@ -377,7 +377,7 @@ static void timer_config(void)
 	TIM_Enable(TIMER_LED, ENABLE);
 
 	/* IR RX */
-	NVIC_InitStructure.NVIC_IRQChannel = TIM2_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority=0;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -471,6 +471,7 @@ void main_goto_iap(void)
 		TIM_Enable(TIMER_BEEP, DISABLE);
 		TIM_DeInit(TIMER_BEEP);
 
+		TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC4, DISABLE);
 		TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC2, DISABLE);
 		TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC1, DISABLE);
 		TIM_Enable(TIMER_IR_RX, DISABLE);
@@ -849,7 +850,7 @@ static void mcu_stay_in_sleep(void)
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_TIM1, DISABLE);
 	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM4, DISABLE);
 	RCC_EnableAPB2PeriphClk(RCC_APB2_PERIPH_TIM8, DISABLE);
-	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM2, DISABLE);
+	RCC_EnableAPB1PeriphClk(RCC_APB1_PERIPH_TIM5, DISABLE);
 
 	while(1) {
 		acc_on = 0;

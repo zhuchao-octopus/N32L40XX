@@ -96,7 +96,7 @@ void USART_RxTx_Init(bool enable)
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Input;
 		GPIO_InitStructure.GPIO_Current = GPIO_DC_4mA;
 		GPIO_InitStructure.Pin = GPIO_CAN_UART_RX_PIN;
-		GPIO_InitStructure.GPIO_Alternate = GPIO_AF2_TIM2;
+		GPIO_InitStructure.GPIO_Alternate = GPIO_AF7_TIM5;
 		GPIO_InitStructure.GPIO_Pull = GPIO_Pull_Up;
 		GPIO_InitPeripheral(GPIO_CAN_UART_RX_GRP, &GPIO_InitStructure);
 
