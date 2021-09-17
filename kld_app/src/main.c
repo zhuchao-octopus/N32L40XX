@@ -218,6 +218,8 @@ static void gpio_config(void)
 	GPIO_InitPeripheral(GPIO_AD_BATT_DET_GRP, &gpio_init_ain);
 	gpio_init_ain.Pin = GPIO_AD_VOL_PIN;
 	GPIO_InitPeripheral(GPIO_AD_VOL_GRP, &gpio_init_ain);
+	gpio_init_ain.Pin = GPIO_AD_TUNE_PIN;
+	GPIO_InitPeripheral(GPIO_AD_TUNE_GRP, &gpio_init_ain);
 	gpio_init_ain.Pin = GPIO_AD_PANEL_KEY_DET_1_PIN|GPIO_AD_PANEL_KEY_DET_2_PIN;
 	GPIO_InitPeripheral(GPIO_AD_PANEL_KEY_DET_GRP, &gpio_init_ain);
 	gpio_init_ain.Pin = GPIO_AD_SWC_KEY_DET_1_PIN|GPIO_AD_SWC_KEY_DET_2_PIN;
@@ -499,7 +501,7 @@ static void Task4msPro()
 	Usart_Resend_Time();
 
 	encoder_key_main();
-//	encoder2_key_main();
+	encoder2_key_main();
 }
 static void Task12msPro()
 {
@@ -806,6 +808,8 @@ static void mcu_stay_in_sleep(void)
 	GPIO_InitPeripheral(GPIO_AD_BATT_DET_GRP, &gpio_init_input_float);
 	gpio_init_input_float.Pin = GPIO_AD_VOL_PIN;
 	GPIO_InitPeripheral(GPIO_AD_VOL_GRP, &gpio_init_input_float);
+	gpio_init_input_float.Pin = GPIO_AD_TUNE_PIN;
+	GPIO_InitPeripheral(GPIO_AD_TUNE_GRP, &gpio_init_input_float);
 	gpio_init_input_float.Pin = GPIO_AD_PANEL_KEY_DET_1_PIN|GPIO_AD_PANEL_KEY_DET_2_PIN;
 	GPIO_InitPeripheral(GPIO_AD_PANEL_KEY_DET_GRP, &gpio_init_input_float);
 	/* LED control */

@@ -77,8 +77,8 @@ void delay_decrement(void)
 		Counter_4ms++;
 		if (0!=g_vol_key_info.debounce_timer)
 			g_vol_key_info.debounce_timer--;
-//		if (0!=g_tune_key_info.debounce_timer)
-//			g_tune_key_info.debounce_timer--;
+		if (0!=g_tune_key_info.debounce_timer)
+			g_tune_key_info.debounce_timer--;
 	}
 	if(g_counter_ms%12==0)
 	{

@@ -146,13 +146,13 @@ typedef enum
 
 
 ext ENCODER_KEY_INFO g_vol_key_info;
-//ext ENCODER_KEY_INFO g_tune_key_info;
+ext ENCODER_KEY_INFO g_tune_key_info;
 ext KEY_HANDLER g_key_handler;
 ext KEY_INFO_STORE g_key_info_store;
 ext bool g_disabed_encoder;
 
 extern void encoder_key_main(void);
-//extern void encoder2_key_main(void);
+extern void encoder2_key_main(void);
 extern void panel_key_init(void);
 extern void panel_key_main(void);
 extern u8 panel_key_get_all_key_codes(KEY_STUDY_DEVS dev, u8 *pbuf);

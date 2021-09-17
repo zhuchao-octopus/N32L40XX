@@ -82,10 +82,9 @@ void encoder_key_main(void)
 	}
 }
 
-#if 0
-#define ENC2_AD_0	40
-#define ENC2_AD_1	58
-#define ENC2_AD_2	90
+#define ENC2_AD_0	27
+#define ENC2_AD_1	40
+#define ENC2_AD_2	62
 #define ENC2_AD_3	254
 #define ENC2_KEYCODE_CW	UICC_STEP_UP
 #define ENC2_KEYCODE_CCW	UICC_STEP_DOWN
@@ -108,8 +107,6 @@ static void encoder2_key_reset(void)
 void encoder2_key_main(void)
 {
 	u8 ad_value = 0;
-	u16 tmp_value = 0;
-	u8 cnt = 0;
 
 	if(Get_ACC_Det_Flag==0) {
 		encoder2_key_reset();
@@ -121,11 +118,7 @@ void encoder2_key_main(void)
 		return;
 	}
 
-	for (cnt=0; cnt<4; cnt++) {
-		Wait10us(1);
-		tmp_value += (u16)ADC_8BIT(AD_PANEL_TUNE_ENC_KEY);
-	}
-	ad_value = (u8)(tmp_value>>2);
+	ad_value = adc_channel_sample(AD_TUNE_ENCODER);
 
 	if(MAX(ad_value, ENC2_AD_0)-MIN(ad_value, ENC2_AD_0)<=3) {
 		ad_value = ENC2_AD_0;
@@ -163,7 +156,6 @@ void encoder2_key_main(void)
 			break;
 	}
 }
-#endif
 
 static const KEY_INFO g_def_panel_key[] = {
 	{AD_PANEL_KEY_DET_2, 0, UICC_FAKE_POWER_OFF, 0x00, KEY_STUDY_SWC_PU_LARGE},
