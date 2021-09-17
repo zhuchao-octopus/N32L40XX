@@ -889,7 +889,7 @@ static void mcu_stay_in_sleep(void)
 
 //		DBG_ConfigPeriph(DBG_STOP, ENABLE);
 
-		if (0!=g_acc_wait_timeout) {
+//		if (0!=g_acc_wait_timeout) {
 			SysTick->CTRL  = 0;
 
 			// lower the system clock
@@ -901,10 +901,10 @@ static void mcu_stay_in_sleep(void)
 			// recovery system clock
 			SystemInit();
 			
-		} else {
-			PWR_EnterSTOP2Mode(PWR_STOPENTRY_WFI, PWR_CTRL3_RAM1RET);
+//		} else {
+//			PWR_EnterSTOP2Mode(PWR_STOPENTRY_WFI, PWR_CTRL3_RAM1RET);
 	//		SystemInit();
-		}
+//		}
 
 		// we already exit the sleep mode
 		EXTI_InitStructure.EXTI_LineCmd = DISABLE;
