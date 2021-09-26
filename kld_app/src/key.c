@@ -1,6 +1,8 @@
 
 #include "public.h"
 
+//#define TUNE_ENCODER
+
 
 #define ENC1_AD_0	27
 #define ENC1_AD_1	40
@@ -117,7 +119,7 @@ void encoder2_key_main(void)
 		encoder2_key_reset();
 		return;
 	}
-
+#ifdef TUNE_ENCODER
 	ad_value = adc_channel_sample(AD_TUNE_ENCODER);
 
 	if(MAX(ad_value, ENC2_AD_0)-MIN(ad_value, ENC2_AD_0)<=3) {
@@ -155,6 +157,7 @@ void encoder2_key_main(void)
 		default:
 			break;
 	}
+#endif
 }
 
 static const KEY_INFO g_def_panel_key[] = {

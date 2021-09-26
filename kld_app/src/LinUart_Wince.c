@@ -514,6 +514,8 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 						if (g_audio_info.bt_phone_on) {
 							if (!g_audio_info.carplay_phone_on) {
 								audio_set_mute_temporary(360);
+							} else {
+								audio_set_mute_temporary(2000);
 							}
 						}
 						audio_set_bt_phone(FALSE);
@@ -521,7 +523,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					}
 					else if(*Read_Lin_Ptr==1)
 					{
-						if (!g_audio_info.bt_phone_on) {
+						if (!g_audio_info.bt_phone_on && !g_audio_info.carplay_phone_on) {
 							audio_set_mute_temporary(800);
 						}
 						audio_set_bt_phone(TRUE);
@@ -554,12 +556,14 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					{
 						audio_set_bt_voice(TRUE);
 					}
-//					else if (*Read_Lin_Ptr==0x30)
-//					{
+					else if (*Read_Lin_Ptr==0x30)
+					{
 //						audio_set_carplay_phone(FALSE);
-//					}
+						audio_set_mute_temporary(2000);
+					}
 					else if(*Read_Lin_Ptr==0x31)
 					{
+						audio_set_mute_temporary(3000);
 						audio_set_carplay_phone(TRUE);
 					}
 					break;
