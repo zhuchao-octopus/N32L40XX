@@ -218,8 +218,13 @@ static void gpio_config(void)
 	GPIO_InitPeripheral(GPIO_AD_BATT_DET_GRP, &gpio_init_ain);
 	gpio_init_ain.Pin = GPIO_AD_VOL_PIN;
 	GPIO_InitPeripheral(GPIO_AD_VOL_GRP, &gpio_init_ain);
+#ifdef KD2000
+	gpio_init_input_pull_up.Pin = GPIO_AD_TUNE_PIN;
+	GPIO_InitPeripheral(GPIO_AD_TUNE_GRP, &gpio_init_input_pull_up);
+#else
 	gpio_init_ain.Pin = GPIO_AD_TUNE_PIN;
 	GPIO_InitPeripheral(GPIO_AD_TUNE_GRP, &gpio_init_ain);
+#endif
 	gpio_init_ain.Pin = GPIO_AD_PANEL_KEY_DET_1_PIN|GPIO_AD_PANEL_KEY_DET_2_PIN;
 	GPIO_InitPeripheral(GPIO_AD_PANEL_KEY_DET_GRP, &gpio_init_ain);
 	gpio_init_ain.Pin = GPIO_AD_SWC_KEY_DET_1_PIN|GPIO_AD_SWC_KEY_DET_2_PIN;
@@ -497,6 +502,23 @@ void main_goto_iap(void)
 static void Task4msPro()
 {
 	g_trigger_4ms=0;
+
+#ifdef KD2000
+	if (Bit_SET==GPIO_ReadInputDataBit(GPIO_AD_TUNE_GRP, GPIO_AD_TUNE_PIN)) {
+		u8 i = 0;
+		for (i=0; i<20; i++) {
+			if (Bit_RESET==GPIO_ReadInputDataBit(GPIO_AD_TUNE_GRP, GPIO_AD_TUNE_PIN)) {
+				break;
+			}
+			delay_1ms(5);
+		}
+		if (i>=20) {
+			REAL_SYS_PWR_OFF;
+			NVIC_SystemReset();	// force reset
+		}
+	}
+#endif
+
 	LinUart_Resend_Time();	
 	Usart_Resend_Time();
 
@@ -933,6 +955,10 @@ static void mcu_stay_in_sleep(void)
 
 int main(void)
 {
+#ifdef KD2000
+	u8 i;
+#endif
+
 	g_first_love = 1;
 	mcu_init();
 
@@ -949,6 +975,22 @@ int main(void)
 	
 	VariableInit();
 	delay_1ms(500);
+
+#ifdef KD2000
+	i = 0;
+	for(;;) {
+		if (Bit_RESET==GPIO_ReadInputDataBit(GPIO_AD_TUNE_GRP, GPIO_AD_TUNE_PIN)) {
+			i++;
+		} else {
+			i=0;
+		}
+		delay_1ms(5);
+		if (i>20) {
+			break;
+		}
+	}
+#endif
+	
 	REAL_SYS_PWR_ON;
 
 

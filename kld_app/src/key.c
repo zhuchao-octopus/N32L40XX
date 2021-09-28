@@ -119,6 +119,7 @@ void encoder2_key_main(void)
 		encoder2_key_reset();
 		return;
 	}
+#ifndef KD2000
 #ifdef TUNE_ENCODER
 	ad_value = adc_channel_sample(AD_TUNE_ENCODER);
 
@@ -157,6 +158,7 @@ void encoder2_key_main(void)
 		default:
 			break;
 	}
+#endif
 #endif
 }
 
