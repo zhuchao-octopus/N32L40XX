@@ -1499,13 +1499,19 @@ void LinUart_Ack_Rx(void)
 
 void LinUart_Tx(void)
 {
+	uint16_t timeout;
 	Lin_Tx_Ptr=Lin_Send_Table.Ptr_Send_Buff;
 	if(Lin_Tx_Ptr==Lin_Tx_Buff)
 	{
 		while(Lin_Tx_Length>0)
 		{
 			USART_SendData(HOST_COMM_UART, *Lin_Tx_Ptr);
-			while(RESET == USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC));
+			for (timeout=400; timeout>0; timeout--) {
+				CLEAR_WATCHDOG;
+				if (RESET != USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC)) {
+					break;
+				}
+			}
 			Lin_Tx_Ptr++;
 			Lin_Tx_Length--;
 		}
@@ -1516,7 +1522,12 @@ void LinUart_Tx(void)
 		while(Lin_Tx_Length2>0)
 		{	
 			USART_SendData(HOST_COMM_UART, *Lin_Tx_Ptr);
-			while(RESET == USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC));
+			for (timeout=400; timeout>0; timeout--) {
+				CLEAR_WATCHDOG;
+				if (RESET != USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC)) {
+					break;
+				}
+			}
 			Lin_Tx_Ptr++;
 			Lin_Tx_Length2--;
 		}
@@ -1527,29 +1538,60 @@ void LinUart_Tx(void)
 void LinUart_Ack_Tx(uchar ackchar,uchar Seqence_num)
 {
 	uchar checksum;
+	uint16_t timeout;
 	
 	USART_SendData(HOST_COMM_UART, LIN_ADDRESS_MCU);
 	checksum=LIN_ADDRESS_MCU;
-	while(RESET == USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC));
+	for (timeout=400; timeout>0; timeout--) {
+		CLEAR_WATCHDOG;
+		if (RESET != USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC)) {
+			break;
+		}
+	}
 
 	USART_SendData(HOST_COMM_UART, LIN_ADDRESS_WINCE);
 	checksum^=LIN_ADDRESS_WINCE;
-	while(RESET == USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC));
+	for (timeout=400; timeout>0; timeout--) {
+		CLEAR_WATCHDOG;
+		if (RESET != USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC)) {
+			break;
+		}
+	}
 	
 	USART_SendData(HOST_COMM_UART, 6);//length
 	checksum^=6;
-	while(RESET == USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC));
+	for (timeout=400; timeout>0; timeout--) {
+		CLEAR_WATCHDOG;
+		if (RESET != USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC)) {
+			break;
+		}
+	}
 	
 	USART_SendData(HOST_COMM_UART, Seqence_num);
 	checksum^=Seqence_num;
-	while(RESET == USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC));
+	for (timeout=400; timeout>0; timeout--) {
+		CLEAR_WATCHDOG;
+		if (RESET != USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC)) {
+			break;
+		}
+	}
 
 	USART_SendData(HOST_COMM_UART, ackchar);
 	checksum^=ackchar;
-	while(RESET == USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC));
+	for (timeout=400; timeout>0; timeout--) {
+		CLEAR_WATCHDOG;
+		if (RESET != USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC)) {
+			break;
+		}
+	}
 	
 	USART_SendData(HOST_COMM_UART, checksum);
-	while(RESET == USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC));
+	for (timeout=400; timeout>0; timeout--) {
+		CLEAR_WATCHDOG;
+		if (RESET != USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_TXC)) {
+			break;
+		}
+	}
 
 }
  

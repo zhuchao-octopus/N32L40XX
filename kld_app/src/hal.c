@@ -195,6 +195,9 @@ uint8_t i2c_wait_ack(void)
 	while(read_sda_())
 	{
 		ucErrTime++;
+		if (0==(ucErrTime%600)) {
+			CLEAR_WATCHDOG;
+		}
 		if(ucErrTime>12000)
 		{
 			i2c_stop();
@@ -276,6 +279,7 @@ uint8_t i2c_read_byte(unsigned char ack)
 uint8_t adc_channel_sample(uint8_t channel)
 {
 	u16 adc_val_12b;
+	uint16_t timeout;
 
 	CLEAR_WATCHDOG;
 	
@@ -283,7 +287,9 @@ uint8_t adc_channel_sample(uint8_t channel)
 
 	ADC_EnableSoftwareStartConv(ADC, ENABLE);
 
-	while(ADC_GetFlagStatus(ADC, ADC_FLAG_ENDC)==0){
+	timeout = 400;
+	while( (ADC_GetFlagStatus(ADC, ADC_FLAG_ENDC)==0) && (timeout-->0) ) {
+		CLEAR_WATCHDOG;
 	}
 	ADC_ClearFlag(ADC,ADC_FLAG_ENDC);
 	ADC_ClearFlag(ADC,ADC_FLAG_STR);

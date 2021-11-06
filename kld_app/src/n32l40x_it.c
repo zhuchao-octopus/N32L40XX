@@ -135,25 +135,29 @@ void EXTI0_IRQHandler(void)
 
 void USART1_IRQHandler(void)
 {
-	if (USART_GetIntStatus(HOST_COMM_UART, USART_INT_RXDNE) != RESET)
+	CLEAR_WATCHDOG;
+	if (USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_OREF) != RESET)
 	{
 		host_rx_data(USART_ReceiveData(HOST_COMM_UART)&0xFF);
 	}
-	if (USART_GetIntStatus(HOST_COMM_UART, USART_INT_OREF) != RESET)
+	if (USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_RXDNE) != RESET)
 	{
-		USART_ReceiveData(HOST_COMM_UART);
+		USART_ClrFlag(HOST_COMM_UART, USART_FLAG_RXDNE);
+		host_rx_data(USART_ReceiveData(HOST_COMM_UART)&0xFF);
 	}
 }
 
 void USART2_IRQHandler(void)
 {
-	if (USART_GetIntStatus(CAN_COMM_UART, USART_INT_RXDNE) != RESET)
+	CLEAR_WATCHDOG;
+	if (USART_GetFlagStatus(CAN_COMM_UART, USART_FLAG_OREF) != RESET)
 	{
 		canbox_rx(USART_ReceiveData(CAN_COMM_UART)&0xFF);
 	}
-	if (USART_GetIntStatus(CAN_COMM_UART, USART_INT_OREF) != RESET)
+	if (USART_GetFlagStatus(CAN_COMM_UART, USART_FLAG_RXDNE) != RESET)
 	{
-		USART_ReceiveData(CAN_COMM_UART);
+		USART_ClrFlag(CAN_COMM_UART, USART_FLAG_RXDNE);
+		canbox_rx(USART_ReceiveData(CAN_COMM_UART)&0xFF);
 	}
 }
 

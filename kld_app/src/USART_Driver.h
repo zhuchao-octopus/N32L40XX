@@ -134,7 +134,7 @@ ext bool g_canbox_use_uart;
 #define T150MS_4	35
 
 ext void USART_TX(void);
-ext void USART_ACK(uchar ack_type);
+//ext void USART_ACK(uchar ack_type);
 ext void Usart_Resend_Time(void);	// 4ms Ê±»ù
 
 ext void USART_RxTx_Init(bool enable);

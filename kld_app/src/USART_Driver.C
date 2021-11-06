@@ -8,12 +8,18 @@ u32 g_canbox_baudrate = 38400;
 //不使用中断发送
 ext void USART_TX(void)
 {
+	uint16_t timeout;
 	USART_Tx_Ptr=USART_Tx_Buff;
 	USART_Tx_Length_Bak=USART_Tx_Length;
 	while(USART_Tx_Length>0)
 	{
 		USART_SendData(CAN_COMM_UART, *USART_Tx_Ptr);
-		while(RESET == USART_GetFlagStatus(CAN_COMM_UART, USART_FLAG_TXC));
+		for (timeout=400; timeout>0; timeout--) {
+			CLEAR_WATCHDOG;
+			if (RESET != USART_GetFlagStatus(CAN_COMM_UART, USART_FLAG_TXC)) {
+				break;
+			}
+		}
 
 		USART_Tx_Ptr++;
 		USART_Tx_Length--;
@@ -24,11 +30,11 @@ ext void USART_TX(void)
 }
 
 //host to can adapter
-ext void USART_ACK(uchar ack_type)
-{
-	USART_SendData(CAN_COMM_UART, ack_type);
-	while(RESET == USART_GetFlagStatus(CAN_COMM_UART, USART_FLAG_TXC));
-}
+//ext void USART_ACK(uchar ack_type)
+//{
+//	USART_SendData(CAN_COMM_UART, ack_type);
+//	while(RESET == USART_GetFlagStatus(CAN_COMM_UART, USART_FLAG_TXC));
+//}
 
 
 ext void Usart_Resend_Time(void)	// 4ms 时基
