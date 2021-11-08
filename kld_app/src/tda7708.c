@@ -19,6 +19,8 @@ static u16 s_byteNum = 0;
 static u16 s_startNum = 0;
 static u16 s_cnt = 0;
 
+static u8 g_tda7708_timer = 0;
+
 static void tda7708_i2c_read(u8 len)
 {
 	u8 cnt;
@@ -214,6 +216,7 @@ bool radio_dev_init(void)
 			break;
 		case TDA7708_STATUS_WAIT_INIT:
 			g_tda7708_status = TDA7708_STATUS_CHECK_INIT;
+			g_tda7708_timer = 0;
 			break;
 		case TDA7708_STATUS_CHECK_INIT:
 			g_tda7708_addr[0] = 0x62;
@@ -223,6 +226,24 @@ bool radio_dev_init(void)
 			if ( ( g_tda7708_data[0] == 0xAF) && ( g_tda7708_data[1] == 0xFE) && ( g_tda7708_data[2] == 0x42) && ( g_tda7708_data[3] == 0x00) )
 			{
 				g_tda7708_status = TDA7708_STATUS_READY;
+			} else {
+				++g_tda7708_timer;
+				if ( (g_startup_cntr<10) && (g_tda7708_timer>30) ) {
+					if (0==g_is_watchdog_rst) {
+						delay_1ms(3000);
+						REAL_SYS_PWR_OFF;
+						delay_1ms(3000);
+						for(;;);	//wait for reset
+					} else {
+						u8 x,y;
+						for (x=PRESET_BAND_FM1; x<=PRESET_BAND_FM3; x++) {
+							for(y=0;y<FM_PRESET_NUM;y++) {
+								g_radio_info.preset_fm[x-PRESET_BAND_FM1][y]=2;
+							}
+						}
+
+					}
+				}
 			}
 			break;
 		case TDA7708_STATUS_READY:

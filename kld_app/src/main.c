@@ -611,6 +611,12 @@ void VariableInit(void)
 
 	g_super_watchdog_timer = 0;
 
+	if (RCC_GetFlagStatus(RCC_CTRLSTS_FLAG_WWDGRSTF)!=RESET) {
+		g_is_watchdog_rst = 1;
+	} else {
+		g_is_watchdog_rst = 0;
+	}
+
 	audio_init();
 	radio_init();
 #ifdef DVD_FUNCTION_ENABLE

@@ -42,6 +42,9 @@ ext u8 g_super_watchdog_timer;
 
 ext u8 g_startup_cntr;
 
+ext u8 g_is_watchdog_rst;
+
+
 ext  UCharField Sys_Flag1;
 #define F_IAP_Request	 		Sys_Flag1.field.B0
 #define F_SystemOff			Sys_Flag1.field.B2
