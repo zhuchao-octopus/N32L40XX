@@ -52,6 +52,9 @@
 	#define TX_AUDIO_DSP_SETTINGS		0x0C
 	#define TX_AUDIO_SA_INFO			0x0D
 	#define TX_AUDIO_DSP_SETTINGS_2		0x0E
+	#define TX_AUDIO_DSP_V2_SETTINGS_1		0x0F
+	#define TX_AUDIO_DSP_V2_SETTINGS_2		0x10
+	#define TX_AUDIO_DSP_V2_SETTINGS_3		0x11
 
 #define MCU_TX_CAN_INFO	0x05
 	#define TX_CAN_DATA	0x01
@@ -169,6 +172,7 @@
 	#define SUBID_AUDIO_CH_VOL_ADJ	0x0C
 	#define SUBID_DSP_SETTINGS		0x0D
 	#define SUBID_SA_CTRL		0x0F
+	#define SUBID_DSP_SETTINGS_V2		0x10
 
 #define MCU_RX_GROUP_CAN_EVENT		0x05
 	#define SUBID_CAN_COMM_SET		0x01
@@ -530,10 +534,12 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					}
 					else if(*Read_Lin_Ptr==2)
 					{
-						SwitchSource(SOURCE_BT);
+//						SwitchSource(FRONT, SOURCE_BT);
+						audio_set_bt_music(TRUE);
 					}
 					else if(*Read_Lin_Ptr==3)
 					{
+						audio_set_bt_music(FALSE);
 					}
 					else if (*Read_Lin_Ptr==4)
 					{
@@ -798,12 +804,16 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							PostEvent(WINCE_MODULE, TX_TO_GUI_RDS_FLAG_INFO,NONE );
 							PostEvent(WINCE_MODULE, TX_TO_GUI_RDS_PTY_INFO, NONE);
 							PostEvent(WINCE_MODULE, TX_TO_GUI_RDS_PS_INFO, NONE);
+							PostEvent(WINCE_MODULE, TX_TO_GUI_RDS_RT_INFO, 1);
 							break;
 						case 0x01:	
 							PostEvent(WINCE_MODULE, TX_TO_GUI_RDS_FLAG_INFO,NONE );
 							break;
 						case 0x02:
 							PostEvent(WINCE_MODULE, TX_TO_GUI_RDS_PTY_INFO, NONE);
+							break;
+						case 0x03:
+							PostEvent(WINCE_MODULE, TX_TO_GUI_RDS_RT_INFO, 1);
 							break;
 						default:
 							break;
@@ -830,9 +840,15 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							break;
 						case 0x05:
 							audio_set_fader(*Read_Lin_Ptr);
+#if ASP_MODEL==ASP_BU32107
+							audio_update_dsp_v2_set_2();
+#endif
 							break;
 						case 0x06:
 							audio_set_balance(*Read_Lin_Ptr);
+#if ASP_MODEL==ASP_BU32107
+							audio_update_dsp_v2_set_2();
+#endif
 							break;
 
 						case 0x20:
@@ -855,7 +871,6 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
  							audio_set_eq_custom_level((EQ_FREQ)(tmp-0x20), *Read_Lin_Ptr);
 							break;
 						case 0x40:
-							audio_save_eq_user_mode(*Read_Lin_Ptr);
 							break;
 						case 0x50:
 							audio_soundfield_ctrl(*Read_Lin_Ptr);
@@ -918,10 +933,6 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					{
 						case 0x02:	
 							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_EQUALIZER_INFO, NONE);
-#if ASP_MODEL==ASP_BU32107
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS, NONE);
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS_2, NONE);
-#endif
 							break;
 						case 0x03:	
 							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_EQ_INFO2, NONE);
@@ -998,72 +1009,288 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 				case SUBID_DSP_SETTINGS:
 #if ASP_MODEL==ASP_BU32107
 					switch (*Read_Lin_Ptr++) {
-						case 0x00:
-							audio_set_loud_on(*Read_Lin_Ptr);
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS, 1);
-							break;
-						case 0x01:
-							audio_set_hpf(*Read_Lin_Ptr, *(Read_Lin_Ptr+1));
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS, 1);
-							break;
-						case 0x02:
-							audio_set_dsp_phat(*Read_Lin_Ptr, *(Read_Lin_Ptr+1));
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS, 1);
-							break;
-						case 0x03:
-							audio_set_dsp_bass(*Read_Lin_Ptr, *(Read_Lin_Ptr+1), *(Read_Lin_Ptr+2));
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS, 1);
-							break;
-						case 0x04:
-							audio_set_dsp_core(*Read_Lin_Ptr, *(Read_Lin_Ptr+1));
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS, 1);
-							break;
-						case 0x05:
-							audio_set_dsp_space(*Read_Lin_Ptr, *(Read_Lin_Ptr+1));
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS, 1);
-							break;
-						case 0x06:
-							audio_set_subwoofer_on(*Read_Lin_Ptr);
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS, 1);
-							break;
-						case 0x07:
-							audio_set_dsp_soundfield(*Read_Lin_Ptr);
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS_2, 1);
-							break;
-						case 0x08:
-							audio_set_dsp_speaker(AUDIO_SPK_FL, *Read_Lin_Ptr, *(Read_Lin_Ptr+1), *(Read_Lin_Ptr+2));
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS_2, 1);
-							break;
-						case 0x09:
-							audio_set_dsp_speaker(AUDIO_SPK_FR, *Read_Lin_Ptr, *(Read_Lin_Ptr+1), *(Read_Lin_Ptr+2));
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS_2, 1);
-							break;
-						case 0x0A:
-							audio_set_dsp_speaker(AUDIO_SPK_RL, *Read_Lin_Ptr, *(Read_Lin_Ptr+1), *(Read_Lin_Ptr+2));
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS_2, 1);
-							break;
-						case 0x0B:
-							audio_set_dsp_speaker(AUDIO_SPK_RR, *Read_Lin_Ptr, *(Read_Lin_Ptr+1), *(Read_Lin_Ptr+2));
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS_2, 1);
-							break;
 						case 0x0C:
 							audio_set_dsp_surround(*Read_Lin_Ptr);
+							audio_update_dsp_v2_set_2();
 							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS_2, 1);
-							break;
-						case 0x0D:
-							audio_set_dsp_sf_expert_mode(*Read_Lin_Ptr);
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS_2, 1);
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
 							break;
 						default:
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS, 1);
 							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_SETTINGS_2, 1);
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+							break;
+					}
+#endif
+
+					break;
+				case SUBID_SA_CTRL:
+					audio_set_spectrum_analyzer(*Read_Lin_Ptr);
+					break;
+
+				case SUBID_DSP_SETTINGS_V2:
+#if ASP_MODEL==ASP_BU32107
+					switch (*Read_Lin_Ptr++) {
+						case 0x00:
+							if (AUDIO_EQ_REAR!=g_audio_info.dsp_eq_pos) {
+								g_audio_info.dsp_hpf_fc = *Read_Lin_Ptr;
+							} else {
+								g_audio_info.dsp_hpf_fc_rear = *Read_Lin_Ptr;
+							}
+							audio_update_dsp_v2_set_1();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							break;
+						case 0x01:
+							g_audio_info.dsp_eq_pos = (AUDIO_EQ_POS)(*Read_Lin_Ptr);
+							audio_update_dsp_v2_set_eq();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							break;
+						case 0x02:
+							g_audio_info.dsp_delay_mode = (AUDIO_DELAY_MODE)(*Read_Lin_Ptr);
+							audio_update_dsp_v2_set_2();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+							break;
+						case 0x03:
+							g_audio_info.dsp_delay_spk[AUDIO_SPK_FL] = WORD((*Read_Lin_Ptr), *(Read_Lin_Ptr+1));
+							audio_update_dsp_v2_set_2();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+							break;
+						case 0x04:
+							g_audio_info.dsp_delay_spk[AUDIO_SPK_FR] = WORD((*Read_Lin_Ptr), *(Read_Lin_Ptr+1));
+							audio_update_dsp_v2_set_2();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+							break;
+						case 0x05:
+							g_audio_info.dsp_delay_spk[AUDIO_SPK_RL] = WORD((*Read_Lin_Ptr), *(Read_Lin_Ptr+1));
+							audio_update_dsp_v2_set_2();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+							break;
+						case 0x06:
+							g_audio_info.dsp_delay_spk[AUDIO_SPK_RR] = WORD((*Read_Lin_Ptr), *(Read_Lin_Ptr+1));
+							audio_update_dsp_v2_set_2();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+							break;
+						case 0x07:
+							g_audio_info.dsp_delay_spk_width = *Read_Lin_Ptr;
+							audio_update_dsp_v2_set_2();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+							break;
+						case 0x08:
+							g_audio_info.dsp_delay_spk_height = *Read_Lin_Ptr;
+							audio_update_dsp_v2_set_2();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+							break;
+						case 0x09:
+							g_audio_info.dsp_spk_atten[AUDIO_SPK_FL] = *Read_Lin_Ptr;
+							if (g_audio_info.dsp_spk_sw.field.front_sync) {
+								g_audio_info.dsp_spk_atten[AUDIO_SPK_FR] = *Read_Lin_Ptr;
+							}
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x0A:
+							g_audio_info.dsp_spk_atten[AUDIO_SPK_FR] = *Read_Lin_Ptr;
+							if (g_audio_info.dsp_spk_sw.field.front_sync) {
+								g_audio_info.dsp_spk_atten[AUDIO_SPK_FL] = *Read_Lin_Ptr;
+							}
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x0B:
+							g_audio_info.dsp_spk_atten[AUDIO_SPK_RL] = *Read_Lin_Ptr;
+							if (g_audio_info.dsp_spk_sw.field.rear_sync) {
+								g_audio_info.dsp_spk_atten[AUDIO_SPK_RR] = *Read_Lin_Ptr;
+							}
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x0C:
+							g_audio_info.dsp_spk_atten[AUDIO_SPK_RR] = *Read_Lin_Ptr;
+							if (g_audio_info.dsp_spk_sw.field.rear_sync) {
+								g_audio_info.dsp_spk_atten[AUDIO_SPK_RL] = *Read_Lin_Ptr;
+							}
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x0D:
+							if (0 == *Read_Lin_Ptr) {
+								g_audio_info.dsp_spk_sw.field.front_sync = 0;
+							} else {
+								g_audio_info.dsp_spk_sw.field.front_sync = 1;
+								g_audio_info.dsp_spk_atten[AUDIO_SPK_FR] = g_audio_info.dsp_spk_atten[AUDIO_SPK_FL];
+							}
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x0E:
+							if (0 == *Read_Lin_Ptr) {
+								g_audio_info.dsp_spk_sw.field.rear_sync = 0;
+							} else {
+								g_audio_info.dsp_spk_sw.field.rear_sync = 1;
+								g_audio_info.dsp_spk_atten[AUDIO_SPK_RR] = g_audio_info.dsp_spk_atten[AUDIO_SPK_RL];
+							}
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x0F:
+							if (0 == *Read_Lin_Ptr) {
+								g_audio_info.dsp_spk_sw.field.fl_mute = 0;
+							} else {
+								g_audio_info.dsp_spk_sw.field.fl_mute = 1;
+							}
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x10:
+							if (0 == *Read_Lin_Ptr) {
+								g_audio_info.dsp_spk_sw.field.fr_mute = 0;
+							} else {
+								g_audio_info.dsp_spk_sw.field.fr_mute = 1;
+							}
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x11:
+							if (0 == *Read_Lin_Ptr) {
+								g_audio_info.dsp_spk_sw.field.rl_mute = 0;
+							} else {
+								g_audio_info.dsp_spk_sw.field.rl_mute = 1;
+							}
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x12:
+							if (0 == *Read_Lin_Ptr) {
+								g_audio_info.dsp_spk_sw.field.rr_mute = 0;
+							} else {
+								g_audio_info.dsp_spk_sw.field.rr_mute = 1;
+							}
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x13:
+							g_audio_info.dsp_all_atten = *Read_Lin_Ptr;
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x14:
+							if (0 == *Read_Lin_Ptr) {
+								g_audio_info.dsp_spk_sw.field.all_mute = 0;
+							} else {
+								g_audio_info.dsp_spk_sw.field.all_mute = 1;
+							}
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x15:
+							g_audio_info.dsp_sub_gain = *Read_Lin_Ptr;
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x16:
+							if (0 == *Read_Lin_Ptr) {
+								g_audio_info.dsp_spk_sw.field.sub_mute = 0;
+							} else {
+								g_audio_info.dsp_spk_sw.field.sub_mute = 1;
+							}
+							audio_update_dsp_v2_set_3();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							break;
+						case 0x17:
+							g_audio_info.dsp_loud_on = *Read_Lin_Ptr;
+							audio_update_dsp_v2_set_1();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							break;
+						case 0x18:
+							g_audio_info.dsp_loud_lpf = *Read_Lin_Ptr;
+							audio_update_dsp_v2_set_1();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							break;
+						case 0x19:
+							g_audio_info.dsp_loud_hpf = *Read_Lin_Ptr;
+							audio_update_dsp_v2_set_1();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							break;
+						case 0x1A:
+							g_audio_info.dsp_phat_on = *Read_Lin_Ptr;
+							audio_update_dsp_v2_set_1();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							break;
+						case 0x1B:
+							g_audio_info.dsp_phat_gain = *Read_Lin_Ptr;
+							audio_update_dsp_v2_set_1();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							break;
+						case 0x1C:
+							g_audio_info.dsp_bass_on = *Read_Lin_Ptr;
+							audio_update_dsp_v2_set_1();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							break;
+						case 0x1D:
+							g_audio_info.dsp_bass_fc = *Read_Lin_Ptr;
+							audio_update_dsp_v2_set_1();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							break;
+						case 0x1E:
+							g_audio_info.dsp_bass_gain = *Read_Lin_Ptr;
+							audio_update_dsp_v2_set_1();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							break;
+						case 0x1F:
+							if (0xFF == *Read_Lin_Ptr) {
+								audio_reset_dsp_v2_set();
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							} else if (0x00 == *Read_Lin_Ptr) {
+								audio_init_dsp_v2_set(AUDIO_DSP_RESET_ID_DELAY, FALSE);
+								audio_update_dsp_v2_set_2();
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+							} else if (0x01 == *Read_Lin_Ptr) {
+								audio_init_dsp_v2_set(AUDIO_DSP_RESET_ID_GAIN, FALSE);
+								audio_update_dsp_v2_set_3();
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							} else if (0x02 == *Read_Lin_Ptr) {
+								audio_init_dsp_v2_set(AUDIO_DSP_RESET_ID_OTHER, FALSE);
+								audio_update_dsp_v2_set_1();
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							} else if (0x03 == *Read_Lin_Ptr) {
+								audio_init_dsp_v2_set(AUDIO_DSP_RESET_ID_FILTER, FALSE);
+								audio_update_dsp_v2_set_1();
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							}
+							break;
+						case 0x20:
+							if (AUDIO_DSP_USER_ID_NUMS> (*Read_Lin_Ptr)) {
+								audio_set_dsp_v2_user(*Read_Lin_Ptr);
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
+							}
+							break;
+						case 0x21:
+							g_audio_info.dsp_delay_c_pos = (AUDIO_DSP_C_POS)(*Read_Lin_Ptr);
+							audio_update_dsp_v2_set_2();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_EQUALIZER_INFO, NONE);
+							break;
+						case 0x22:
+							if (AUDIO_EQ_REAR!=g_audio_info.dsp_eq_pos) {
+								g_audio_info.dsp_lpf_fc = *Read_Lin_Ptr;
+							} else {
+								g_audio_info.dsp_lpf_fc_rear = *Read_Lin_Ptr;
+							}
+							audio_update_dsp_v2_set_1();
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							break;
+						default:
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1, 1);
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3, 1);
 							break;
 					}
 #endif
 					break;
-				case SUBID_SA_CTRL:
-					audio_set_spectrum_analyzer((bool)(*Read_Lin_Ptr));
-					break;
+
 				default:
 					break;
 			}
@@ -1693,18 +1920,21 @@ const uchar Mcu_Tx_Comd_Matrix[][4]=
 	TX_TO_GUI_RDS_PSLIST_INFO,		MCU_TX_RDS_INFO,			TX_RDS_PSLIST_INFO,			1,
 #endif
 
-	TX_TO_GUI_AUDIO_TOTAL_AUDIO_INFO,MCU_TX_AUDIO_INFO,		TX_AUDIO_TOTAL_AUDIO_INFO,	7+7+16+1+2,
-	TX_TO_GUI_AUDIO_ASP_INFO,		MCU_TX_AUDIO_INFO,		TX_AUDIO_ASP_INFO,			7,
+//	TX_TO_GUI_AUDIO_TOTAL_AUDIO_INFO,MCU_TX_AUDIO_INFO,		TX_AUDIO_TOTAL_AUDIO_INFO,	7+7+16+1+2,
+//	TX_TO_GUI_AUDIO_ASP_INFO,		MCU_TX_AUDIO_INFO,		TX_AUDIO_ASP_INFO,			7,
 	TX_TO_GUI_AUDIO_EQUALIZER_INFO,	MCU_TX_AUDIO_INFO,		TX_AUDIO_EQUALIZER_INFO,		7,
-	TX_TO_GUI_AUDIO_EQ_INFO2,	MCU_TX_AUDIO_INFO,		TX_AUDIO_EQ_INFO2,	6,
-	TX_TO_GUI_AUDIO_VOLUME_INFO,		MCU_TX_AUDIO_INFO,		TX_AUDIO_VOLUME_INFO,		2,
+	TX_TO_GUI_AUDIO_EQ_INFO2,	MCU_TX_AUDIO_INFO,		TX_AUDIO_EQ_INFO2,	0,
+	TX_TO_GUI_AUDIO_VOLUME_INFO,		MCU_TX_AUDIO_INFO,		TX_AUDIO_VOLUME_INFO,		3,
 	TX_TO_GUI_AUDIO_FLAG_INFO,		MCU_TX_AUDIO_INFO,		TX_AUDIO_FLAG_INFO,			2,
 	TX_TO_GUI_AUDIO_VOL_CTRL_INFO_WHEN_REVERSE,		MCU_TX_AUDIO_INFO,		TX_AUDIO_VOL_CTRL_INFO_WHEN_REVERSE,			1,
 	TX_TO_GUI_AUDIO_CUR_MAX_OUTPUT_VOL,		MCU_TX_AUDIO_INFO,		TX_AUDIO_CUR_MAX_OUTPUT_VOL,			1,
-	TX_TO_GUI_AUDIO_CHANNEL_DEF_GAIN,		MCU_TX_AUDIO_INFO,		TX_AUDIO_CHANNEL_DEF_GAIN,			1,
+	TX_TO_GUI_AUDIO_CHANNEL_DEF_GAIN,		MCU_TX_AUDIO_INFO,		TX_AUDIO_CHANNEL_DEF_GAIN,			6,
 	TX_TO_GUI_AUDIO_PROCESSOR_TYPE,		MCU_TX_AUDIO_INFO,		TX_AUDIO_PROCESSOR_TYPE,			1,
 	TX_TO_GUI_AUDIO_DSP_SETTINGS,		MCU_TX_AUDIO_INFO,		TX_AUDIO_DSP_SETTINGS,			1,
 	TX_TO_GUI_AUDIO_DSP_SETTINGS_2,		MCU_TX_AUDIO_INFO,		TX_AUDIO_DSP_SETTINGS_2,			1,
+	TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1,		MCU_TX_AUDIO_INFO,		TX_AUDIO_DSP_V2_SETTINGS_1,			1,
+	TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2,		MCU_TX_AUDIO_INFO,		TX_AUDIO_DSP_V2_SETTINGS_2,			1,
+	TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3,		MCU_TX_AUDIO_INFO,		TX_AUDIO_DSP_V2_SETTINGS_3,			1,
 	TX_TO_GUI_AUDIO_SA_INFO,			MCU_TX_AUDIO_INFO,		TX_AUDIO_SA_INFO,		1,
 	TX_TO_GUI_SYSTEM_TIME_INFO,		MCU_TX_SYSTEM_INFO,		SYSTEM_TIME_INFO,			3,
 	TX_TO_GUI_SYSTEM_SET_INFO,		MCU_TX_SYSTEM_INFO,		SYSTEM_SET_INFO,				7,
@@ -1961,31 +2191,63 @@ ext void LinTxWince_Service(void)
 //		case	TX_TO_GUI_RDS_PSLIST_INFO:
 //			break;
 #endif
-		case TX_TO_GUI_AUDIO_ASP_INFO:
-			length = 0;
-			break;
+//		case TX_TO_GUI_AUDIO_TOTAL_AUDIO_INFO:	
+//			break;
+//		case TX_TO_GUI_AUDIO_ASP_INFO:
+//			length = 0;
+//			break;
 		case TX_TO_GUI_AUDIO_EQUALIZER_INFO:
 			buff[0] = g_audio_info.eq_mode;
 			buff[1] = g_audio_info.subwoofer;
 			buff[2] = 0x07;	// for legacy
 			buff[3] = 0x07;	// for legacy
 			buff[4] = g_audio_info.loudness;
+#if ASP_MODEL==ASP_BU32107
+			switch (g_audio_info.dsp_delay_c_pos) {
+				case AUDIO_DSP_C_POS_FL:
+					buff[5] = MIN_FIELD_LEVEL;
+					buff[6] = MIN_FIELD_LEVEL;
+					break;
+				case AUDIO_DSP_C_POS_FR:
+					buff[5] = MIN_FIELD_LEVEL;
+					buff[6] = MAX_FIELD_LEVEL;
+					break;
+				case AUDIO_DSP_C_POS_RL:
+					buff[5] = MAX_FIELD_LEVEL;
+					buff[6] = MIN_FIELD_LEVEL;
+					break;
+				case AUDIO_DSP_C_POS_RR:
+					buff[5] = MAX_FIELD_LEVEL;
+					buff[6] = MAX_FIELD_LEVEL;
+					break;
+				case AUDIO_DSP_C_POS_ALL:
+					buff[5] = DEFAULT_FIELD_LEVEL;
+					buff[6] = DEFAULT_FIELD_LEVEL;
+					break;
+				case AUDIO_DSP_C_POS_USER:
+				default:
+					buff[5] = g_audio_info.fader;
+					buff[6] = g_audio_info.balance;
+					break;
+			}
+#else
 			buff[5] = g_audio_info.fader;
 			buff[6] = g_audio_info.balance;
+#endif
 			for (i=0; i<EQ_FREQ_NUMS; i++) {
 				buff[7+i] = g_audio_info.eq_visible_level[i];
 			}
 			length =7+EQ_FREQ_NUMS;				
 			break;	
 		case TX_TO_GUI_AUDIO_EQ_INFO2:	
-			length = 0;
+//			length = 0;
 			break;
 
 		case TX_TO_GUI_AUDIO_VOLUME_INFO:					
 			buff[0]=audio_get_volume();
 			buff[1]=MAX_VOLUME;
 			buff[2]=nEvt->prm;
-			length = 3;
+//			length = 3;
 			break;
 
 		case TX_TO_GUI_AUDIO_FLAG_INFO:	//15
@@ -2026,22 +2288,6 @@ ext void LinTxWince_Service(void)
 			break;
 
 		case TX_TO_GUI_AUDIO_DSP_SETTINGS:
-#if ASP_MODEL==ASP_BU32107
-			buff[0] = g_audio_info.loud_on;
-			buff[1] = g_audio_info.hpf_on;
-			buff[2] = g_audio_info.hpf_freq;
-			buff[3] = g_audio_info.phat_en;
-			buff[4] = g_audio_info.phat_gain;
-			buff[5] = g_audio_info.dsp_bass_on;
-			buff[6] = g_audio_info.dsp_bass_freq;
-			buff[7] = g_audio_info.dsp_bass_gain;
-			buff[8] = g_audio_info.core_en;
-			buff[9] = g_audio_info.core_gain;
-			buff[10] = g_audio_info.space_en;
-			buff[11] = g_audio_info.space_gain;
-			buff[12] = g_audio_info.subwoofer_on;
-			length = 13;
-#endif
 			break;
 
 		case TX_TO_GUI_AUDIO_SA_INFO:
@@ -2055,18 +2301,66 @@ ext void LinTxWince_Service(void)
 
 		case TX_TO_GUI_AUDIO_DSP_SETTINGS_2:
 #if ASP_MODEL==ASP_BU32107
-			buff[0] = g_audio_info.sf_mode;
-			for (i=0; i<AUDIO_SPK_NUMS; i++) {
-				buff[1+3*i] = g_audio_info.spk_on[i];
-				buff[2+3*i] = g_audio_info.spk_gain[i];
-				buff[3+3*i] = g_audio_info.spk_delay[i];
+			for (i=0; i<15; i++) {
+				buff[i] = 0;
 			}
 			buff[13] = g_audio_info.surround_mode;
-			buff[14] = g_audio_info.soundfield_expert_mode;
 			length = 15;
 #endif
 			break;
 
+#if ASP_MODEL==ASP_BU32107
+		case TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_1:
+			buff[0] = g_audio_info.dsp_set_user_id;
+			if (AUDIO_EQ_REAR!=g_audio_info.dsp_eq_pos) {
+				buff[1] = g_audio_info.dsp_hpf_fc;
+			} else {
+				buff[1] = g_audio_info.dsp_hpf_fc_rear;
+			}
+			buff[2] = g_audio_info.dsp_eq_pos;
+			buff[3] = g_audio_info.dsp_loud_on;
+			buff[4] = g_audio_info.dsp_loud_lpf;
+			buff[5] = g_audio_info.dsp_loud_hpf;
+			buff[6] = g_audio_info.dsp_phat_on;
+			buff[7] = g_audio_info.dsp_phat_gain;
+			buff[8] = g_audio_info.dsp_bass_on;
+			buff[9] = g_audio_info.dsp_bass_fc;
+			buff[10] = g_audio_info.dsp_bass_gain;
+			if (AUDIO_EQ_REAR!=g_audio_info.dsp_eq_pos) {
+				buff[11] = g_audio_info.dsp_lpf_fc;
+			} else {
+				buff[11] = g_audio_info.dsp_lpf_fc_rear;
+			}
+			length = 12;
+			break;
+
+		case TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2:
+			buff[0] = g_audio_info.dsp_delay_mode;
+			buff[1] = MSB(g_audio_info.dsp_delay_spk[AUDIO_SPK_FL]);
+			buff[2] = LSB(g_audio_info.dsp_delay_spk[AUDIO_SPK_FL]);
+			buff[3] = MSB(g_audio_info.dsp_delay_spk[AUDIO_SPK_FR]);
+			buff[4] = LSB(g_audio_info.dsp_delay_spk[AUDIO_SPK_FR]);
+			buff[5] = MSB(g_audio_info.dsp_delay_spk[AUDIO_SPK_RL]);
+			buff[6] = LSB(g_audio_info.dsp_delay_spk[AUDIO_SPK_RL]);
+			buff[7] = MSB(g_audio_info.dsp_delay_spk[AUDIO_SPK_RR]);
+			buff[8] = LSB(g_audio_info.dsp_delay_spk[AUDIO_SPK_RR]);
+			buff[9] = g_audio_info.dsp_delay_spk_width;
+			buff[10] = g_audio_info.dsp_delay_spk_height;
+			buff[11] = g_audio_info.dsp_delay_c_pos;
+			length = 12;
+			break;
+
+		case TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_3:
+			buff[0] = g_audio_info.dsp_spk_sw.byte;
+			buff[1] = g_audio_info.dsp_spk_atten[AUDIO_SPK_FL];
+			buff[2] = g_audio_info.dsp_spk_atten[AUDIO_SPK_FR];
+			buff[3] = g_audio_info.dsp_spk_atten[AUDIO_SPK_RL];
+			buff[4] = g_audio_info.dsp_spk_atten[AUDIO_SPK_RR];
+			buff[5] = g_audio_info.dsp_all_atten;
+			buff[6] = g_audio_info.dsp_sub_gain;
+			length = 7;
+			break;
+#endif
 		case TX_TO_GUI_SYSTEM_TIME_INFO:	
 			buff[0]=0;
 			buff[1]=0;

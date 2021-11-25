@@ -3,7 +3,7 @@
 
 #if ASP_MODEL==ASP_BU32107
 
-#define SPDIF_OUT_ENABLE
+//#define SPDIF_OUT_ENABLE
 
 #include "bu32107.h"
 
@@ -33,6 +33,9 @@ static BU32107_REG_INFO g_regs[BU32107_REG_NUMS] =
 	{0x0902, 0x00, FALSE},		// BU32107_DVOL_ATT_RL
 	{0x0903, 0x00, FALSE},		// BU32107_DVOL_ATT_RR
 
+	{0x0600, 0x00, FALSE},		// BU32107_EQ_MODE_SCALER
+
+	{0x061D, 0x00, FALSE},		// BU32107_EQ_20HZ
 	{0x0610, 0x00, FALSE},		// BU32107_EQ_50HZ
 	{0x0611, 0x00, FALSE},		// BU32107_EQ_80HZ
 	{0x0612, 0x00, FALSE},		// BU32107_EQ_125HZ
@@ -46,11 +49,23 @@ static BU32107_REG_INFO g_regs[BU32107_REG_NUMS] =
 	{0x061A, 0x00, FALSE},		// BU32107_EQ_5K
 	{0x061B, 0x00, FALSE},		// BU32107_EQ_8K
 	{0x061C, 0x00, FALSE},		// BU32107_EQ_12K5
-	{0x061D, 0x00, FALSE},		// BU32107_EQ_BASS_F
-	{0x061E, 0x00, FALSE},		// BU32107_EQ_MID
-	{0x061F, 0x00, FALSE},		// BU32107_EQ_TREBLE_F
-	{0x062D, 0x00, FALSE},		// BU32107_EQ_BASS_R
-	{0x062F, 0x00, FALSE},		// BU32107_EQ_TREBLE_R
+	{0x061F, 0x00, FALSE},		// BU32107_EQ_20K
+	{0x061E, 0x00, FALSE},		// BU32107_EQ_31HZ5
+	{0x062D, 0x00, FALSE},		// BU32107_EQ_20HZ_R
+	{0x0620, 0x00, FALSE},		// BU32107_EQ_50HZ_R
+	{0x0621, 0x00, FALSE},		// BU32107_EQ_80HZ_R
+	{0x0622, 0x00, FALSE},		// BU32107_EQ_125HZ_R
+	{0x0623, 0x00, FALSE},		// BU32107_EQ_200HZ_R
+	{0x0624, 0x00, FALSE},		// BU32107_EQ_315HZ_R
+	{0x0625, 0x00, FALSE},		// BU32107_EQ_500HZ_R
+	{0x0626, 0x00, FALSE},		// BU32107_EQ_800HZ_R
+	{0x0627, 0x00, FALSE},		// BU32107_EQ_1K25_R
+	{0x0628, 0x00, FALSE},		// BU32107_EQ_2K_R
+	{0x0629, 0x00, FALSE},		// BU32107_EQ_3K15_R
+	{0x062A, 0x00, FALSE},		// BU32107_EQ_5K_R
+	{0x062B, 0x00, FALSE},		// BU32107_EQ_8K_R
+	{0x062C, 0x00, FALSE},		// BU32107_EQ_12K5_R
+	{0x062F, 0x00, FALSE},		// BU32107_EQ_20K_R
 
 	{0x0703, 0x00, FALSE},		// BU32107_FRONT_HPF
 	{0x0704, 0x00, FALSE},		// BU32107_REAR_HPF
@@ -58,6 +73,7 @@ static BU32107_REG_INFO g_regs[BU32107_REG_NUMS] =
 	{0x0705, 0x00, FALSE},		// BU32107_FRONT_P2BASS
 	{0x0706, 0x00, FALSE},		// BU32107_REAR_P2BASS
 
+	{0x0701, 0x00, FALSE},		// BU32107_LOUDNESS_FILTER
 	{0x0702, 0x00, FALSE},		// BU32107_LOUDNESS
 
 	{0x0101, 0x00, FALSE},		// BU32107_INPUT_GAIN
@@ -70,14 +86,14 @@ static BU32107_REG_INFO g_regs[BU32107_REG_NUMS] =
 	{0x0405, 0x00, FALSE},		// BU32107_TA_RL_L
 	{0x0406, 0x00, FALSE},		// BU32107_TA_RR_H
 	{0x0407, 0x00, FALSE},		// BU32107_TA_RR_L
-	{0x040A, 0x00, FALSE},		// BU32107_TA_RL2_H
-	{0x040B, 0x00, FALSE},		// BU32107_TA_RL2_L
-	{0x040C, 0x00, FALSE},		// BU32107_TA_RR2_H
-	{0x040D, 0x00, FALSE},		// BU32107_TA_RR2_L
+//	{0x040A, 0x00, FALSE},		// BU32107_TA_RL2_H
+//	{0x040B, 0x00, FALSE},		// BU32107_TA_RL2_L
+//	{0x040C, 0x00, FALSE},		// BU32107_TA_RR2_H
+//	{0x040D, 0x00, FALSE},		// BU32107_TA_RR2_L
 
 	{0x0205, 0x00, FALSE},		// BU32107_DSP_SEL_3
 
-	{0x0709, 0x00, FALSE},		// BU32107_IIR
+//	{0x0709, 0x00, FALSE},		// BU32107_IIR
 
 	{0x0202, 0x00, FALSE},		// BU32107_DIG_IO_SEL3
 };
@@ -98,7 +114,6 @@ static const s8 g_bu32107_gains[] = {
 	-14, -12, -10, -8, -6,		/* volume 21~25 */
 	-4, -2, 0, 2, 4		/* volume 26~30 */
 };
-static const u8 g_bu32107_atten_table[8] = {0, 3, 6, 9, 12, 16, 20, 63};
 
 static void bu32107_write(u16 addr, u8 value)
 {
@@ -153,52 +168,9 @@ static void bu32107_update_regs(void)
 	}
 }
 
-static void bu32107_update_time_alignment(void)
-{
-	u16 val;
-	u8 cnt;
-
-	for (cnt=0; cnt<AUDIO_SPK_NUMS; cnt++) {
-		val = 0;
-		if (g_audio_info.space_en) {
-			if ( (AUDIO_SPK_FL==cnt) || (AUDIO_SPK_FR==cnt) ) {
-				val += g_audio_info.space_gain;
-			}
-		}
-		
-		if (1 == g_audio_info.soundfield_expert_mode) {
-			// professional sound field mode
-			val += g_audio_info.spk_delay[cnt];
-		}
-
-		val *= 20;
-
-		if (g_audio_info.surround_mode != AUDIO_SR_MODE_FLAT) {
-			if ( (AUDIO_SPK_RL==cnt) || (AUDIO_SPK_RR==cnt) ) {
-				val += 5;
-			}
-		}
-
-		BU32107_UPDATE_REG(BU32107_TA_FL_H+2*cnt, MSB(val));
-		BU32107_UPDATE_REG(BU32107_TA_FL_L+2*cnt, LSB(val));
-	}
-
-	val = 0;
-	if (g_audio_info.surround_mode != AUDIO_SR_MODE_FLAT) {
-		val += 9;
-	}
-	BU32107_UPDATE_REG(BU32107_TA_RL2_H, MSB(val));
-	BU32107_UPDATE_REG(BU32107_TA_RL2_L, LSB(val));
-	BU32107_UPDATE_REG(BU32107_TA_RR2_H, MSB(val));
-	BU32107_UPDATE_REG(BU32107_TA_RR2_L, LSB(val));
-
-	bu32107_update_regs();
-}
-
 bool audio_dev_init(void)
 {
 	u8 i;
-	u8 j;
 	
 	// reset
 	bu32107_write(0xFEFE, 0x81);
@@ -246,7 +218,7 @@ bool audio_dev_init(void)
 	bu32107_write(0x0200, 0x00);	// disable digital ext output&input
 	bu32107_write(0x0201, 0x00);	// disable digital output 1&3
 	bu32107_write(0x0202, 0x66);	// digital input 3: C-1; digital input 1: C-1
-	bu32107_write(0x0203, 0x08);	// time-alignment 4-ch mode
+	bu32107_write(0x0203, 0x00);	// time-alignment 2-ch mode
 	bu32107_write(0x0204, 0x00);
 	bu32107_write(0x0205, 0x05);	// time-alignment -> p2bass
 	bu32107_write(0x0206, 0x32);	// Digital Mixing -> SR; Digital Stereo mix (L+R)
@@ -268,42 +240,42 @@ bool audio_dev_init(void)
 	bu32107_write(0x040D, 0x00);
 	bu32107_write(0x0500, 0x04);
 	bu32107_write(0x0501, 0x10);		// SA2: 36dB
-	bu32107_write(0x0600, 0x00);		// 13-Band EQ + TONE
-	bu32107_write(0x0610, 0x40);		// Front & Rear
-	bu32107_write(0x0611, 0x40);		// Front & Rear
-	bu32107_write(0x0612, 0x40);		// Front & Rear
-	bu32107_write(0x0613, 0x40);		// Front & Rear
-	bu32107_write(0x0614, 0x40);		// Front & Rear
-	bu32107_write(0x0615, 0x40);		// Front & Rear
-	bu32107_write(0x0616, 0x40);		// Front & Rear
-	bu32107_write(0x0617, 0x40);		// Front & Rear
-	bu32107_write(0x0618, 0x40);		// Front & Rear
-	bu32107_write(0x0619, 0x40);		// Front & Rear
-	bu32107_write(0x061A, 0x40);		// Front & Rear
-	bu32107_write(0x061B, 0x40);		// Front & Rear
-	bu32107_write(0x061C, 0x40);		// Front & Rear
-	bu32107_write(0x061D, 0x40);		// Front & Rear
+	bu32107_write(0x0600, 0x80);		// 16-Band EQ
+	bu32107_write(0x0610, 0x00);		// Front
+	bu32107_write(0x0611, 0x00);		// Front
+	bu32107_write(0x0612, 0x00);		// Front
+	bu32107_write(0x0613, 0x00);		// Front
+	bu32107_write(0x0614, 0x00);		// Front
+	bu32107_write(0x0615, 0x00);		// Front
+	bu32107_write(0x0616, 0x00);		// Front
+	bu32107_write(0x0617, 0x00);		// Front
+	bu32107_write(0x0618, 0x00);		// Front
+	bu32107_write(0x0619, 0x00);		// Front
+	bu32107_write(0x061A, 0x00);		// Front
+	bu32107_write(0x061B, 0x00);		// Front
+	bu32107_write(0x061C, 0x00);		// Front
+	bu32107_write(0x061D, 0x00);		// Front
 	bu32107_write(0x061E, 0x40);		// Front & Rear
-	bu32107_write(0x061F, 0x40);		// Front & Rear
-	bu32107_write(0x0620, 0x00);
-	bu32107_write(0x0621, 0x00);
-	bu32107_write(0x0622, 0x00);
-	bu32107_write(0x0623, 0x00);
-	bu32107_write(0x0624, 0x00);
-	bu32107_write(0x0625, 0x00);
-	bu32107_write(0x0626, 0x00);
-	bu32107_write(0x0627, 0x00);
-	bu32107_write(0x0628, 0x00);
-	bu32107_write(0x0629, 0x00);
-	bu32107_write(0x062A, 0x00);
-	bu32107_write(0x062B, 0x00);
-	bu32107_write(0x062C, 0x00);
-	bu32107_write(0x062D, 0x00);
-	bu32107_write(0x062E, 0x00);
-	bu32107_write(0x062F, 0x00);
+	bu32107_write(0x061F, 0x00);		// Front
+	bu32107_write(0x0620, 0x00);		// Rear
+	bu32107_write(0x0621, 0x00);		// Rear
+	bu32107_write(0x0622, 0x00);		// Rear
+	bu32107_write(0x0623, 0x00);		// Rear
+	bu32107_write(0x0624, 0x00);		// Rear
+	bu32107_write(0x0625, 0x00);		// Rear
+	bu32107_write(0x0626, 0x00);		// Rear
+	bu32107_write(0x0627, 0x00);		// Rear
+	bu32107_write(0x0628, 0x00);		// Rear
+	bu32107_write(0x0629, 0x00);		// Rear
+	bu32107_write(0x062A, 0x00);		// Rear
+	bu32107_write(0x062B, 0x00);		// Rear
+	bu32107_write(0x062C, 0x00);		// Rear
+	bu32107_write(0x062D, 0x00);		// Rear
+	bu32107_write(0x062E, 0x00);		// Rear (Invalid)
+	bu32107_write(0x062F, 0x00);		// Rear
 	bu32107_write(0x0700, 0x00);
 	bu32107_write(0x0701, 0x55);		// Loudness: LPF 100HZ, HPF 10KHZ
-	bu32107_write(0x0702, 0xA0);		// Loudness: HiBoost=0.55, 0dB
+	bu32107_write(0x0702, 0xB0);		// Loudness: HiBoost=1.0, 0dB
 	bu32107_write(0x0703, 0x00);		// Front HPF through
 	bu32107_write(0x0704, 0x00);		// Rear HPF through
 	bu32107_write(0x0705, 0x80);		// Front P2BASS through
@@ -343,6 +315,7 @@ bool audio_dev_init(void)
 	bu32107_write(0x0201, 0x40);
 #endif
 
+#if 0
 	// setup IIR A/IIR B coef
 	bu32107_write(0x0709, 0x80);		// IIR A/IIR B coef
 	for (i=0; i<2; i++) {
@@ -358,6 +331,7 @@ bool audio_dev_init(void)
 		}
 	}
 	bu32107_write(0x0709, 0x00);		// IIR A/IIR B through
+#endif
 
 	for (i=0; i<BU32107_REG_NUMS; i++) {
 		g_regs[i].value = bu32107_read(g_regs[i].addr);
@@ -432,6 +406,23 @@ void audio_dev_update_source(AUDIO_SOURCE src)
 	} else {
 		BU32107_UPDATE_REG(BU32107_DIG_IO_SEL3, 0x66);
 	}
+
+	if ( (AUDIO_SRC_BT_MODULE==src) && (!g_audio_info.bt_phone_on) && (!g_audio_info.bt_voice_on)
+		&& (!g_audio_info.bt_music_on) ) {
+
+		val = g_regs[BU32107_DSP_SEL_1].value;
+		val |= (1<<7);
+		BU32107_UPDATE_REG(BU32107_DSP_SEL_1, val);
+
+		BU32107_UPDATE_REG(BU32107_DIG_IO_SEL3, 0x00);
+	}
+
+	if (AUDIO_SRC_BT_MODULE==src) {
+		BU32107_UPDATE_REG(BU32107_EQ_MODE_SCALER, 0x90);
+	} else {
+		BU32107_UPDATE_REG(BU32107_EQ_MODE_SCALER, 0x80);
+	}
+
 	
 	bu32107_update_regs();
 
@@ -443,7 +434,7 @@ void audio_dev_update_volume(u8 vol)
 	s8 gain;
 	u8 val_fader;
 	u8 val_dvol_boost;
-	s8 gain_sub;
+	s16 gain_sub;
 	u8 val_fader_sub;
 	u8 val_dvol_boost_sub;
 
@@ -454,14 +445,18 @@ void audio_dev_update_volume(u8 vol)
 
 	gain = g_bu32107_gains[vol];
 	gain_sub = g_bu32107_gains[vol];
-	if (g_audio_info.subwoofer_on) {
-		gain_sub += g_audio_info.subwoofer;
+	gain_sub -= g_audio_info.dsp_sub_gain;
+
+	if ( (1==g_audio_info.dsp_loud_on) && (AUDIO_SRC_NONE != g_audio_info.cur_source) ) {
+		// add loudness compansation
+		gain += (g_audio_info.loudness+g_audio_info.dsp_loud_lpf+g_audio_info.dsp_loud_hpf);
+		gain_sub += (g_audio_info.loudness+g_audio_info.dsp_loud_lpf+g_audio_info.dsp_loud_hpf);
 	}
 
-	if ( (g_audio_info.loud_on) && (AUDIO_SRC_NONE != g_audio_info.cur_source) ) {
-		// add loudness compansation
-		gain += BU32107_LOUDNESS_STEP*g_audio_info.loudness;
-		gain_sub += BU32107_LOUDNESS_STEP*g_audio_info.loudness;
+	//  fake for PHAT
+	if (g_audio_info.dsp_phat_on) {
+		gain += 1;
+		gain += g_audio_info.dsp_phat_gain;
 	}
 
 	switch (g_audio_info.output_type) {
@@ -501,10 +496,16 @@ void audio_dev_update_volume(u8 vol)
 		val_dvol_boost = 0x80;
 	}
 
-	if (gain_sub>=0) {
+	if (g_audio_info.dsp_spk_sw.field.sub_mute) {
+		val_fader_sub = 0x80;
+		val_dvol_boost_sub = 0x00;
+	} else if (gain_sub>=0) {
 		val_fader_sub = 0xA0;
 		val_dvol_boost_sub = 0x80-gain_sub*2;
 	} else {
+		if (gain_sub<-79) {
+			gain_sub = -79;
+		}
 		val_fader_sub = 0xA0+(u8)((s8)0-gain_sub);
 		val_dvol_boost_sub = 0x80;
 	}
@@ -616,7 +617,7 @@ void audio_dev_update_navi_mix_vol(u8 vol)
 
 // update EQ settings according to the AUDIO_INFO's eq_cur_freq & eq_cur_level member
 
-static u8 bu32107_calc_eq_level_to_reg_gain(u8 val, u8 level)
+static u8 bu32107_calc_eq_level_to_reg_gain(u8 val, s8 level)
 {
 	val &= ~0x1F;
 	if (level > MAX_EQ_LEVEL) {
@@ -624,7 +625,14 @@ static u8 bu32107_calc_eq_level_to_reg_gain(u8 val, u8 level)
 	}
 
 	if (level >= DEFAULT_EQ_LEVEL) {
-		val += (level-DEFAULT_EQ_LEVEL);
+		val += (level-DEFAULT_EQ_LEVEL)/2;
+	} else if (level<0) {
+		if (-1==level) {
+			val += 11;
+		} else {
+			val += 12;
+		}
+		val |= (1<<4);
 	} else {
 		val += (DEFAULT_EQ_LEVEL-level);
 		val |= (1<<4);
@@ -633,34 +641,223 @@ static u8 bu32107_calc_eq_level_to_reg_gain(u8 val, u8 level)
 	return val;
 }
 
-void audio_dev_update_eq(void)
+static s8 _audio_do_fake_hpf_lpf(s8 level, u8 eq_id, u8 hpf, u8 lpf)
+{
+	s8 result = level;
+
+	if (hpf>0) {
+		switch (eq_id) {
+			case EQ_FREQ_20HZ:
+				if (hpf>1) {
+					result = result-(hpf);
+				}
+				if (hpf>6) {
+					result = result -4;
+				}
+				break;
+			case EQ_FREQ_50HZ:
+				if (hpf>3) {
+					result = result-((hpf-2));
+				}
+				if (hpf>6) {
+					result = result -3;
+				}
+				break;
+			case EQ_FREQ_80HZ:
+				if (hpf>5) {
+					result = result-((hpf-4));
+				}
+				break;
+			case EQ_FREQ_125HZ:
+				if (hpf>7) {
+					result = result-((hpf-6));
+				}
+				break;
+			case EQ_FREQ_200HZ:
+				if (hpf>9) {
+					result = result-((hpf-8));
+				}
+				break;
+			case EQ_FREQ_315HZ:
+				if (hpf>11) {
+					result = result-((hpf-10));
+				}
+				break;
+			case EQ_FREQ_500HZ:
+				if (hpf>13) {
+					result = result-((hpf-12));
+				}
+				break;
+			case EQ_FREQ_800HZ:
+				if (hpf>15) {
+					result = result-((hpf-14));
+				}
+				break;
+			case EQ_FREQ_1K25HZ:
+				if (hpf>17) {
+					result = result-((hpf-16));
+				}
+				break;
+			case EQ_FREQ_2KHZ:
+				if (hpf>19) {
+					result = result-((hpf-18));
+				}
+				break;
+			case EQ_FREQ_3K15HZ:
+				if (hpf>21) {
+					result = result-((hpf-20));
+				}
+				break;
+			case EQ_FREQ_5KHZ:
+				if (hpf>23) {
+					result = result-((hpf-22));
+				}
+				break;
+			case EQ_FREQ_8KHZ:
+				if (hpf>25) {
+					result = result-((hpf-24));
+				}
+				break;
+			case EQ_FREQ_12K5HZ:
+				if (hpf>27) {
+					result = result-((hpf-26));
+				}
+				break;
+			case EQ_FREQ_20KHZ:
+				if (hpf>29) {
+					result = result-((hpf-28));
+				}
+				break;
+		}
+	}
+
+	if (lpf>0) {
+		switch (eq_id) {
+			case EQ_FREQ_20HZ:
+				if (lpf<3) {
+					result = result - ((2-lpf));
+				}
+				break;
+			case EQ_FREQ_50HZ:
+				if (lpf<5) {
+					result = result - ((4-lpf));
+				}
+				break;
+			case EQ_FREQ_80HZ:
+				if (lpf<7) {
+					result = result - ((6-lpf));
+				}
+				break;
+			case EQ_FREQ_125HZ:
+				if (lpf<9) {
+					result = result - ((8-lpf));
+				}
+				break;
+			case EQ_FREQ_200HZ:
+				if (lpf<11) {
+					result = result - ((10-lpf));
+				}
+				break;
+			case EQ_FREQ_315HZ:
+				if (lpf<13) {
+					result = result - ((12-lpf));
+				}
+				break;
+			case EQ_FREQ_500HZ:
+				if (lpf<15) {
+					result = result - ((14-lpf));
+				}
+				break;
+			case EQ_FREQ_800HZ:
+				if (lpf<17) {
+					result = result - ((16-lpf));
+				}
+				break;
+			case EQ_FREQ_1K25HZ:
+				if (lpf<19) {
+					result = result - ((18-lpf));
+				}
+				break;
+			case EQ_FREQ_2KHZ:
+				if (lpf<21) {
+					result = result - ((20-lpf));
+				}
+				break;
+			case EQ_FREQ_3K15HZ:
+				if (lpf<23) {
+					result = result - ((22-lpf));
+				}
+				break;
+			case EQ_FREQ_5KHZ:
+				if (lpf<25) {
+					result = result - ((24-lpf));
+				}
+				break;
+			case EQ_FREQ_8KHZ:
+				if (lpf<27) {
+					result = result - ((26-lpf));
+				}
+				break;
+			case EQ_FREQ_12K5HZ:
+				if (lpf<29) {
+					result = result - ((28-lpf));
+				}
+				break;
+			case EQ_FREQ_20KHZ:
+				if (lpf<31) {
+					result = result - ((30-lpf));
+				}
+				break;
+
+			default:
+				break;
+		}
+	}
+
+	return result;
+}
+
+void audio_dev_update_eq()
 {
 	u8 val;
 	u8 reg_id;
+	u8 reg_id_rear;
 	u8 eq_id;
-	u8 level;
+	s8 level;
+	u8 hpf;
+	u8 lpf;
 
-	reg_id = BU32107_EQ_80HZ;
+	reg_id = BU32107_EQ_20HZ;
+	reg_id_rear = BU32107_EQ_20HZ_R;
 
-	for (eq_id=EQ_FREQ_80HZ; eq_id<EQ_FREQ_NUMS; eq_id++) {
-		switch (eq_id) {
-			case EQ_FREQ_200HZ_FAKE:
-			case EQ_FREQ_1K25HZ_FAKE:
-			case EQ_FREQ_8KHZ_FAKE:
-				level = g_audio_info.eq_visible_level[eq_id];
-				++eq_id;
-				level = level+g_audio_info.eq_visible_level[eq_id];
-				level = level / 2;
-				break;
-			default:
-				level = g_audio_info.eq_visible_level[eq_id];
-				break;
-		}
+	for (eq_id=EQ_FREQ_20HZ; eq_id<EQ_FREQ_NUMS; eq_id++) {
+		// Front
+		level = g_audio_info.eq_visible_level[eq_id];
+		hpf = g_audio_info.dsp_hpf_fc;
+		lpf = g_audio_info.dsp_lpf_fc;
+		level = _audio_do_fake_hpf_lpf(level, eq_id, hpf, lpf);
 		val = bu32107_calc_eq_level_to_reg_gain(
 				g_regs[reg_id].value, 
 				level);
 		BU32107_UPDATE_REG(reg_id, val);
 		++reg_id;
+
+		// Rear
+		level = g_audio_info.eq_visible_level[eq_id];
+		if (AUDIO_EQ_MIDDLE==g_audio_info.dsp_eq_pos) {
+			hpf = g_audio_info.dsp_hpf_fc;
+			lpf = g_audio_info.dsp_lpf_fc;
+		} else {
+			hpf = g_audio_info.dsp_hpf_fc_rear;
+			lpf = g_audio_info.dsp_lpf_fc_rear;
+		}
+
+		level = _audio_do_fake_hpf_lpf(level, eq_id, hpf, lpf);
+		val = bu32107_calc_eq_level_to_reg_gain(
+				g_regs[reg_id_rear].value, 
+				level);
+		BU32107_UPDATE_REG(reg_id_rear, val);
+		++reg_id_rear;
 	}
 
 	bu32107_update_regs();	
@@ -672,61 +869,47 @@ void audio_dev_update_fader_balance(u8 fad, u8 bal)
 	u8 val;
 	u8 cnt;
 
-	for (cnt=0; cnt<AUDIO_SPK_NUMS; cnt++) {
-		atten[cnt] = 0;
-	}
-
-	if (0 == g_audio_info.soundfield_expert_mode) {
-		// normal sound field mode
-		if (!g_audio_info.disabled_soundfield) {
-			if (fad<=7) {
-				atten[AUDIO_SPK_RL] += g_bu32107_atten_table[7-fad];
-				atten[AUDIO_SPK_RR] += g_bu32107_atten_table[7-fad];
-			} else {
-				atten[AUDIO_SPK_FL] += g_bu32107_atten_table[fad-7];
-				atten[AUDIO_SPK_FR] += g_bu32107_atten_table[fad-7];
-			}
-			if (bal<=7) {
-				atten[AUDIO_SPK_FR] += g_bu32107_atten_table[7-bal];
-				atten[AUDIO_SPK_RR] += g_bu32107_atten_table[7-bal];
-			} else {
-				atten[AUDIO_SPK_FL] += g_bu32107_atten_table[bal-7];
-				atten[AUDIO_SPK_RL] += g_bu32107_atten_table[bal-7];
-			}
+	for (cnt=AUDIO_SPK_FL; cnt<AUDIO_SPK_NUMS; cnt++) {
+		// if all speaker mute
+		if (g_audio_info.dsp_spk_sw.field.all_mute) {
+			atten[cnt] = 194;
+			continue;
 		}
+
+		// if individual speaker mute
+		if (g_audio_info.dsp_spk_sw.byte & (1<<cnt)) {
+			atten[cnt] = 194;
+			continue;
+		}
+
+		// individual speaker atten
+		val = g_audio_info.dsp_spk_atten[cnt];
+		if (val>DSP_SPK_GAIN_MIN) {
+			val = DSP_SPK_GAIN_MIN;
+		}
+		atten[cnt] = val*2;
+
+		// all speaker atten
+		val = g_audio_info.dsp_all_atten;
+		if (val>DSP_SPK_GAIN_MIN) {
+			val = DSP_SPK_GAIN_MIN;
+		}
+		atten[cnt] = atten[cnt] + val*2;
 	}
 
 	if ((!g_audio_info.bt_phone_on)&&(!g_audio_info.bt_voice_on)&&(g_audio_info.navi_break_on)) {
 		if (NAVI_BREAK_DIRECT==g_audio_info.navi_mix_extra_gain) {	// navi break directly
 			// mute the front speaker
-			atten[AUDIO_SPK_FL] = 97;
-			atten[AUDIO_SPK_FR] = 97;
+			atten[AUDIO_SPK_FL] = 194;
+			atten[AUDIO_SPK_FR] = 194;
 		} else {	// navi mix
 			// cut down the front speaker
-			atten[AUDIO_SPK_FL] += VOLUME_CUT_WHEN_NAVI_MIX;
-			atten[AUDIO_SPK_FR] += VOLUME_CUT_WHEN_NAVI_MIX;
+			atten[AUDIO_SPK_FL] += VOLUME_CUT_WHEN_NAVI_MIX*2;
+			atten[AUDIO_SPK_FR] += VOLUME_CUT_WHEN_NAVI_MIX*2;
 		}
 	}
 
-	for (cnt=0; cnt<AUDIO_SPK_NUMS; cnt++) {
-		// make sure no overflow
-		if (atten[cnt]>97)	atten[cnt]=97;
-
-		// turn step: 1dB -> 0.5dB
-		atten[cnt] = atten[cnt]*2;
-
-		if (1 == g_audio_info.soundfield_expert_mode) {
-			// professional sound field mode
-
-			// speak fader if needed, in DSP advanced settings 2
-			atten[cnt] += (DSP_SPK_GAIN_MAX - g_audio_info.spk_gain[cnt]);
-
-			// turn off speak if needed, in DSP advanced settings 2
-			if (g_audio_info.spk_on[cnt] == FALSE) {
-				atten[cnt] = 194;
-			}
-		}
-
+	for (cnt=AUDIO_SPK_FL; cnt<AUDIO_SPK_NUMS; cnt++) {
 		if (atten[cnt]>190) {
 			val = 0x00;	// -inf
 		} else {
@@ -747,7 +930,7 @@ void audio_dev_update_loudness(u8 loud)
 		loud = 0;
 	}
 
-	if (!g_audio_info.loud_on) {
+	if (0==g_audio_info.dsp_loud_on) {
 		loud = 0;
 	}
 
@@ -758,9 +941,49 @@ void audio_dev_update_loudness(u8 loud)
 
 	val = g_regs[BU32107_LOUDNESS].value;
 	val &= ~0x0F;
-	val |= BU32107_LOUDNESS_STEP*g_audio_info.loudness;
+	val |= (g_audio_info.loudness+g_audio_info.dsp_loud_lpf+g_audio_info.dsp_loud_hpf);
 	BU32107_UPDATE_REG(BU32107_LOUDNESS, val);
-
+#if 0
+	val = g_regs[BU32107_LOUDNESS_FILTER].value;
+	val &= ~0x77;
+	switch (g_audio_info.dsp_loud_lpf) {
+		case 0:
+			val |= 0x00;	// 30HZ
+			break;
+		case 1:
+			val |= 0x01;	// 40HZ
+			break;
+		case 2:
+			val |= 0x02;	// 50HZ
+			break;
+		case 3:
+			val |= 0x04;	// 80HZ
+			break;
+		case 4:
+		default:
+			val |= 0x05;	// 100HZ
+			break;
+	}
+	switch (g_audio_info.dsp_loud_hpf) {
+		case 0:
+			val |= 0x00;	// 3KHZ
+			break;
+		case 1:
+			val |= 0x10;	// 4KHZ
+			break;
+		case 2:
+			val |= 0x20;	// 5KHZ
+			break;
+		case 3:
+			val |= 0x40;	// 8KHZ
+			break;
+		case 4:
+		default:
+			val |= 0x50;	// 10KHZ
+			break;
+	}
+	BU32107_UPDATE_REG(BU32107_LOUDNESS_FILTER, val);
+#endif
 	val = g_regs[BU32107_INIT_SETUP_2].value;
 	if (0==loud) {
 		val |= (1<<3);
@@ -786,167 +1009,120 @@ void audio_dev_update_subwoofer(u8 subwoofer)
 #endif
 }
 
-void audio_dev_update_dsp_settings_1(void)
+void audio_dev_update_dsp_settings_misc(void)
 {
 	u8 val;
+	u8 gain;
+	u8 fc;
 
 	// HPF
-	if (g_audio_info.hpf_on) {
-		val = g_audio_info.hpf_freq;
-	} else {
-		val = 0;
-	}
+	val = 0;//g_audio_info.dsp_hpf_fc & 0x0F;
 	BU32107_UPDATE_REG(BU32107_FRONT_HPF, val);
 	BU32107_UPDATE_REG(BU32107_REAR_HPF, val);
-
+#if 0
+	// PHAT
+	// fake with EQ 31.5HZ
+	if (g_audio_info.dsp_phat_on) {
+		val = 0x41 + g_audio_info.dsp_phat_gain;
+	} else {
+		val = 0x40;
+	}
+	BU32107_UPDATE_REG(BU32107_EQ_31HZ5, val);
+#endif
 	// BASS
 	val = 0x80;
 	if (g_audio_info.dsp_bass_on) {
-		val |= (g_audio_info.dsp_bass_freq << 4);
+		fc = g_audio_info.dsp_bass_fc+3;
+		if (fc>7)
+			fc = 7;
+		val |= (fc << 4);
 
-		if (g_audio_info.dsp_bass_gain > 12) {
-			val |= 0x0C;
-		} else {
-			val |= g_audio_info.dsp_bass_gain;
-		}
+		gain = (g_audio_info.dsp_bass_gain+1)*2;
+		if (gain>12)
+			gain = 12;
+		val |= gain;
+
 	} else {
 		val = 0x80;
 	}
 	BU32107_UPDATE_REG(BU32107_FRONT_P2BASS, val);
 	BU32107_UPDATE_REG(BU32107_REAR_P2BASS, val);
 
-	// PHAT
-	// fake with EQ 50HZ
-	if (g_audio_info.phat_en) {
-		val = 0x40 + g_audio_info.phat_gain;
-	} else {
-		val = 0x40;
-	}
-	BU32107_UPDATE_REG(BU32107_EQ_50HZ, val);
-
-	// CORE
-	// fake with EQ middle
-	if (g_audio_info.core_en) {
-		val = 0x70 + g_audio_info.core_gain;
-	} else {
-		val = 0x70;
-	}
-	BU32107_UPDATE_REG(BU32107_EQ_MID, val);
-
-	// SPACE
-	// fake with time-alignment
-	bu32107_update_time_alignment();
-
-	
 	bu32107_update_regs();
-
 }
 
-void audio_dev_update_dsp_settings_2(void)
+void audio_dev_update_dsp_settings_delay(void)
 {
-	u8 val;
+	u16 tmp;
+	u8 id;
+	u8 val[AUDIO_SPK_NUMS] = {0, 0, 0, 0};
+	u8 fader;
+	u8 balance;
 
-	audio_dev_update_fader_balance(g_audio_info.fader, g_audio_info.balance);
+	if (AUDIO_DELAY_AUTO == g_audio_info.dsp_delay_mode) {
+		switch (g_audio_info.dsp_delay_c_pos) {
+			case AUDIO_DSP_C_POS_FL:
+				fader = MIN_FIELD_LEVEL;
+				balance = MIN_FIELD_LEVEL;
+				break;
+			case AUDIO_DSP_C_POS_FR:
+				fader = MIN_FIELD_LEVEL;
+				balance = MAX_FIELD_LEVEL;
+				break;
+			case AUDIO_DSP_C_POS_RL:
+				fader = MAX_FIELD_LEVEL;
+				balance = MIN_FIELD_LEVEL;
+				break;
+			case AUDIO_DSP_C_POS_RR:
+				fader = MAX_FIELD_LEVEL;
+				balance = MAX_FIELD_LEVEL;
+				break;
+			case AUDIO_DSP_C_POS_ALL:
+				fader = DEFAULT_FIELD_LEVEL;
+				balance = DEFAULT_FIELD_LEVEL;
+				break;
+			case AUDIO_DSP_C_POS_USER:
+			default:
+				fader = g_audio_info.fader;
+				balance = g_audio_info.balance;
+				break;
+		}
 
-	// some surround mode need modify delay
-	bu32107_update_time_alignment();
-
-	// surround mode
-	switch (g_audio_info.surround_mode) {
-		case AUDIO_SR_MODE_FLAT:
-			val = 0x05;	// time-alignment -> p2bass rear
-			BU32107_UPDATE_REG(BU32107_DSP_SEL_3, val);
-
-			val = 0x40;	// front/rear -HZ 0dB
-			BU32107_UPDATE_REG(BU32107_EQ_BASS_F, val);
-			BU32107_UPDATE_REG(BU32107_EQ_TREBLE_F, val);
-
-			val = 0x00;	// IIR through
-			BU32107_UPDATE_REG(BU32107_IIR, val);
-			break;
-		case AUDIO_SR_MODE_RECITAL:
-			val = 0x25;	// surround -> p2bass rear
-			BU32107_UPDATE_REG(BU32107_DSP_SEL_3, val);
-
-			val = 0x12;	// 63HZ 4dB
-			BU32107_UPDATE_REG(BU32107_EQ_BASS_F, val);
-			val = 0x02;	// 2.5K 4dB
-			BU32107_UPDATE_REG(BU32107_EQ_TREBLE_F, val);
-			val = 0x12;	// 63HZ 4dB
-			BU32107_UPDATE_REG(BU32107_EQ_BASS_R, val);
-			val = 0x00;	// -HZ 0dB
-			BU32107_UPDATE_REG(BU32107_EQ_TREBLE_R, val);
-
-			val = 0x80;	// IIR coef
-			BU32107_UPDATE_REG(BU32107_IIR, val);
-			break;
-		case AUDIO_SR_MODE_CONCERT:
-			val = 0x25;	// surround -> p2bass rear
-			BU32107_UPDATE_REG(BU32107_DSP_SEL_3, val);
-
-			val = 0x22;	// 100HZ 4dB
-			BU32107_UPDATE_REG(BU32107_EQ_BASS_F, val);
-			val = 0x22;	// 6.3K 4dB
-			BU32107_UPDATE_REG(BU32107_EQ_TREBLE_F, val);
-			val = 0x22;	// 100HZ 4dB
-			BU32107_UPDATE_REG(BU32107_EQ_BASS_R, val);
-			val = 0x22;	// 6.3K 4dB
-			BU32107_UPDATE_REG(BU32107_EQ_TREBLE_R, val);
-
-			val = 0x80;	// IIR coef
-			BU32107_UPDATE_REG(BU32107_IIR, val);
-			break;
-		case AUDIO_SR_MODE_BGM:
-			val = 0x25;	// surround -> p2bass rear
-			BU32107_UPDATE_REG(BU32107_DSP_SEL_3, val);
-
-			val = 0x2A;	// 100HZ -4dB
-			BU32107_UPDATE_REG(BU32107_EQ_BASS_F, val);
-			val = 0x00;	// -HZ 0dB
-			BU32107_UPDATE_REG(BU32107_EQ_TREBLE_F, val);
-			val = 0x00;	// -HZ 0dB
-			BU32107_UPDATE_REG(BU32107_EQ_BASS_R, val);
-			val = 0x3A;	// 10K -4dB
-			BU32107_UPDATE_REG(BU32107_EQ_TREBLE_R, val);
-
-			val = 0x80;	// IIR coef
-			BU32107_UPDATE_REG(BU32107_IIR, val);
-			break;
-		case AUDIO_SR_MODE_MOVIE:
-			val = 0x25;	// surround -> p2bass rear
-			BU32107_UPDATE_REG(BU32107_DSP_SEL_3, val);
-
-			val = 0x22;	// 100HZ 4dB
-			BU32107_UPDATE_REG(BU32107_EQ_BASS_F, val);
-			val = 0x03;	// 2.5K 6dB
-			BU32107_UPDATE_REG(BU32107_EQ_TREBLE_F, val);
-			val = 0x22;	// 100HZ 4dB
-			BU32107_UPDATE_REG(BU32107_EQ_BASS_R, val);
-			val = 0x00;	// -HZ 0dB
-			BU32107_UPDATE_REG(BU32107_EQ_TREBLE_R, val);
-
-			val = 0x80;	// IIR coef
-			BU32107_UPDATE_REG(BU32107_IIR, val);
-			break;
-		case AUDIO_SR_MODE_DRAMA:
-			val = 0x25;	// surround -> p2bass rear
-			BU32107_UPDATE_REG(BU32107_DSP_SEL_3, val);
-
-			val = 0x00;	// -HZ 0dB
-			BU32107_UPDATE_REG(BU32107_EQ_BASS_F, val);
-			val = 0x03;	// 2.5K 6dB
-			BU32107_UPDATE_REG(BU32107_EQ_TREBLE_F, val);
-			val = 0x02;	// 40HZ 4dB
-			BU32107_UPDATE_REG(BU32107_EQ_BASS_R, val);
-			val = 0x00;	// -HZ 0dB
-			BU32107_UPDATE_REG(BU32107_EQ_TREBLE_R, val);
-
-			val = 0x00;	// IIR through
-			BU32107_UPDATE_REG(BU32107_IIR, val);
-			break;
+		if (fader < DEFAULT_FIELD_LEVEL) {
+			val[AUDIO_SPK_FL] = val[AUDIO_SPK_FL] + (DEFAULT_FIELD_LEVEL-fader) * (g_audio_info.dsp_delay_spk_height+1);
+			val[AUDIO_SPK_FR] = val[AUDIO_SPK_FR] + (DEFAULT_FIELD_LEVEL-fader) * (g_audio_info.dsp_delay_spk_height+1);
+		} else {
+			val[AUDIO_SPK_RL] = val[AUDIO_SPK_RL] + (fader-DEFAULT_FIELD_LEVEL) * (g_audio_info.dsp_delay_spk_height+1);
+			val[AUDIO_SPK_RR] = val[AUDIO_SPK_RR] + (fader-DEFAULT_FIELD_LEVEL) * (g_audio_info.dsp_delay_spk_height+1);
+		}
+		if (balance < DEFAULT_FIELD_LEVEL) {
+			val[AUDIO_SPK_FL] = val[AUDIO_SPK_FL] + (DEFAULT_FIELD_LEVEL-balance) * (g_audio_info.dsp_delay_spk_width+1);
+			val[AUDIO_SPK_RL] = val[AUDIO_SPK_RL] + (DEFAULT_FIELD_LEVEL-balance) * (g_audio_info.dsp_delay_spk_width+1);
+		} else {
+			val[AUDIO_SPK_FR] = val[AUDIO_SPK_FR] + (balance-DEFAULT_FIELD_LEVEL) * (g_audio_info.dsp_delay_spk_width+1);
+			val[AUDIO_SPK_RR] = val[AUDIO_SPK_RR] + (balance-DEFAULT_FIELD_LEVEL) * (g_audio_info.dsp_delay_spk_width+1);
+		}
 	}
-	
+	for (id=AUDIO_SPK_FL; id<AUDIO_SPK_NUMS; id++) {
+		if (AUDIO_DELAY_MANUAL == g_audio_info.dsp_delay_mode) {
+			tmp = (g_audio_info.dsp_delay_spk[id] * 48 / 34);
+		} else {
+			tmp = (u16)(val[id]) * 10 / 3;
+		}
+		if (tmp>0x01FF) {
+			tmp = 0x01FF;
+		}
+		BU32107_UPDATE_REG(BU32107_TA_FL_H+id*2, MSB(tmp));
+		BU32107_UPDATE_REG(BU32107_TA_FL_L+id*2, LSB(tmp));
+	}
+
 	bu32107_update_regs();
+}
+
+void audio_dev_update_dsp_settings_gain(void)
+{
+	audio_dev_update_fader_balance(0,0);
+	audio_dev_update_volume(g_audio_info.cur_vol);
 }
 
 void audio_dev_update_spectrum_data(void)

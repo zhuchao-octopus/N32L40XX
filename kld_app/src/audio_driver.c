@@ -342,34 +342,21 @@ void audio_init(void)
 	g_audio_info.temp_mute_timer = 0;
 	g_audio_info.src_sw_state = AUDIO_SRC_SW_STATE_NONE;
 	g_audio_info.bt_voice_on = FALSE;
+	g_audio_info.bt_music_on = FALSE;
 	g_audio_info.bt_voice_vol = DEFAULT_VOLUME;
 	g_audio_info.bt_voice_timer = 0;
 //	g_audio_info.overheat = FALSE;
 	g_audio_info.ext_force_mute_timer = 0;
-	g_audio_info.loud_on = FALSE;
-	g_audio_info.hpf_on = FALSE;
-	g_audio_info.hpf_freq = 0;
-	g_audio_info.dsp_bass_on = FALSE;
-	g_audio_info.dsp_bass_freq = 0;
-	g_audio_info.dsp_bass_gain = 0;
-	g_audio_info.subwoofer_on = FALSE;
-	g_audio_info.phat_en = FALSE;
-	g_audio_info.phat_gain = 0;
-	g_audio_info.core_en = FALSE;
-	g_audio_info.core_gain = 0;
-	g_audio_info.space_en = FALSE;
-	g_audio_info.space_gain = 0;
-	g_audio_info.sf_mode = AUDIO_SF_MODE_USER;
-	for (cnt=0; cnt<AUDIO_SPK_NUMS; cnt++) {
-		g_audio_info.spk_on[cnt] = TRUE;
-		g_audio_info.spk_gain[cnt] = DSP_SPK_GAIN_MAX;
-		g_audio_info.spk_delay[cnt] = 0;
-		g_audio_info.spk_user_gain[cnt] = DSP_SPK_GAIN_MAX;
-		g_audio_info.spk_user_delay[cnt] = 0;
-	}
-	g_audio_info.soundfield_expert_mode = 0;
+
 	g_audio_info.disabled_soundfield = FALSE;
+
+#if ASP_MODEL==ASP_BU32107
+	g_audio_info.dsp_set_user_id = AUDIO_DSP_USER_ID_0;
 	audio_eq_init();	
+	audio_init_dsp_v2_set(AUDIO_DSP_RESET_ID_ALL, TRUE);
+#else
+	audio_eq_init();	
+#endif
 }
 
 void audio_main(void)
@@ -386,6 +373,7 @@ void audio_main(void)
 		g_audio_info.navi_break_on_cache = FALSE;
 		g_audio_info.reverse_on = FALSE;
 		g_audio_info.bt_voice_on = FALSE;
+		g_audio_info.bt_music_on = FALSE;
 		g_audio_info.bt_voice_timer = 0;
 		return;
 	}
@@ -409,6 +397,7 @@ void audio_main(void)
 			g_audio_info.bt_phone_on = FALSE;
 			g_audio_info.carplay_phone_on = FALSE;
 			g_audio_info.bt_voice_on = FALSE;
+			g_audio_info.bt_music_on = FALSE;
 			g_audio_info.navi_break_on = FALSE;
 			g_audio_info.navi_break_on_cache = FALSE;
 			g_audio_info.sa_en = FALSE;
@@ -419,8 +408,9 @@ void audio_main(void)
 			audio_dev_update_loudness(g_audio_info.loudness);
 			audio_dev_update_subwoofer(g_audio_info.subwoofer);
 			audio_dev_update_eq();
-			audio_dev_update_dsp_settings_1();
-			audio_dev_update_dsp_settings_2();
+			audio_dev_update_dsp_settings_misc();
+			audio_dev_update_dsp_settings_delay();
+			audio_dev_update_dsp_settings_gain();
 			g_audio_info.pwr_timer = 0;
 			g_audio_info.bt_phone_timer = 0;
 			g_audio_info.bt_voice_timer = 0;
@@ -602,6 +592,8 @@ void audio_set_bt_phone(bool on)
 
 		// let audio has chance to force unmute, when bt phone on
 		audio_set_mute((AUDIO_MUTE_FLAG)(g_audio_info.mute), TRUE);
+
+		audio_dev_update_source(g_audio_info.cur_source);
 	}
 }
 
@@ -617,6 +609,16 @@ void audio_set_bt_voice(bool on)
 
 		// let audio has chance to force unmute, when bt voice on
 		audio_set_mute((AUDIO_MUTE_FLAG)(g_audio_info.mute), TRUE);
+
+		audio_dev_update_source(g_audio_info.cur_source);
+	}
+}
+
+void audio_set_bt_music(bool on)
+{
+	if (g_audio_info.bt_music_on != on) {
+		g_audio_info.bt_music_on = on;
+		audio_dev_update_source(g_audio_info.cur_source);
 	}
 }
 
@@ -652,14 +654,26 @@ void audio_set_android_sound_on(bool on)
 
 void audio_set_eq_mode(EQ_MODE mode)
 {
+	bool do_eq_update=FALSE;
 	if (!IS_VALID_EQ_MODE(mode)) {
 		return;
 	}
+#if ASP_MODEL==ASP_BU32107
+	if (mode != g_audio_info.eq_mode) {
+		do_eq_update = TRUE;
+	}
+	if (do_eq_update) {
+		audio_eq_update_mode(mode);
+		audio_dev_update_eq();
+		PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_EQUALIZER_INFO, NONE);
+	}
+#else
 	if (mode != g_audio_info.eq_mode) {
 		audio_eq_update_mode(mode);
 		audio_dev_update_eq();
 		PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_EQUALIZER_INFO, NONE);
 	}
+#endif
 }
 
 void audio_set_eq_custom_level(EQ_FREQ freq, u8 level)
@@ -673,39 +687,6 @@ void audio_set_eq_custom_level(EQ_FREQ freq, u8 level)
 	PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_EQUALIZER_INFO, NONE);
 }
 
-void audio_save_eq_user_mode(u8 id)
-{
-#if ASP_MODEL==ASP_BU32107
-	u8 cnt;
-	for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
-		switch (id) {
-			case EQ_MODE_CUSTOM_1:
-				g_audio_info.eq_custom_level_1[cnt] = g_audio_info.eq_custom_level[cnt];
-				break;
-			case EQ_MODE_CUSTOM_2:
-				g_audio_info.eq_custom_level_2[cnt] = g_audio_info.eq_custom_level[cnt];
-				break;
-			case EQ_MODE_CUSTOM_3:
-				g_audio_info.eq_custom_level_3[cnt] = g_audio_info.eq_custom_level[cnt];
-				break;
-			case EQ_MODE_CUSTOM_4:
-				g_audio_info.eq_custom_level_4[cnt] = g_audio_info.eq_custom_level[cnt];
-				break;
-			case EQ_MODE_CUSTOM_5:
-				g_audio_info.eq_custom_level_5[cnt] = g_audio_info.eq_custom_level[cnt];
-				break;
-			case EQ_MODE_CUSTOM_6:
-				g_audio_info.eq_custom_level_6[cnt] = g_audio_info.eq_custom_level[cnt];
-				break;
-			default:
-				return;
-		}
-	}		
-
-	g_audio_info.eq_mode = (EQ_MODE)id;
-#endif
-}
-
 void audio_set_fader(u8 level)
 {
 	if (level>MAX_FIELD_LEVEL) {
@@ -713,6 +694,10 @@ void audio_set_fader(u8 level)
 	}
 	if (level != g_audio_info.fader) {
 		g_audio_info.fader = level;
+#if ASP_MODEL==ASP_BU32107
+		g_audio_info.dsp_delay_c_pos = AUDIO_DSP_C_POS_USER;
+		PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+#endif
 		audio_dev_update_fader_balance(g_audio_info.fader, g_audio_info.balance);
 		PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_EQUALIZER_INFO, NONE);
 	}
@@ -725,6 +710,10 @@ void audio_set_balance(u8 level)
 	}
 	if (level != g_audio_info.balance) {
 		g_audio_info.balance = level;
+#if ASP_MODEL==ASP_BU32107
+		g_audio_info.dsp_delay_c_pos = AUDIO_DSP_C_POS_USER;
+		PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_DSP_V2_SETTINGS_2, 1);
+#endif
 		audio_dev_update_fader_balance(g_audio_info.fader, g_audio_info.balance);
 		PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_EQUALIZER_INFO, NONE);
 	}
@@ -736,7 +725,7 @@ void audio_set_loudness(u8 level)
 		return;
 	}
 	if (level != g_audio_info.loudness) {
-		g_audio_info.loudness = level;
+//		g_audio_info.loudness = level;
 		audio_dev_update_loudness(g_audio_info.loudness);
 		PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_EQUALIZER_INFO, NONE);
 	}
@@ -805,143 +794,9 @@ void audio_adjust_channel_volume(void)
 	audio_dev_update_volume(g_audio_info.cur_vol);
 }
 
-void audio_set_loud_on(bool on)
-{
-	g_audio_info.loud_on = on;
-	audio_dev_update_loudness(g_audio_info.loudness);
-}
-
-void audio_set_hpf(bool on, u8 freq)
-{
-	g_audio_info.hpf_on = on;
-	g_audio_info.hpf_freq = freq;
-	audio_dev_update_dsp_settings_1();
-}
-
-void audio_set_dsp_bass(bool on, u8 freq, u8 gain)
-{
-	g_audio_info.dsp_bass_on = on;
-	g_audio_info.dsp_bass_freq = freq;
-	g_audio_info.dsp_bass_gain = gain;
-	audio_dev_update_dsp_settings_1();
-}
-
-void audio_set_subwoofer_on(bool on)
-{
-	g_audio_info.subwoofer_on = on;
-	audio_dev_update_subwoofer(g_audio_info.subwoofer);
-}
-
 void audio_set_spectrum_analyzer(bool on)
 {
 	g_audio_info.sa_en = on;
-}
-
-void audio_set_dsp_phat(bool on, u8 gain)
-{
-	g_audio_info.phat_en = on;
-	g_audio_info.phat_gain = gain;
-	audio_dev_update_dsp_settings_1();
-}
-
-void audio_set_dsp_core(bool on, u8 gain)
-{
-	g_audio_info.core_en = on;
-	g_audio_info.core_gain = gain;
-	audio_dev_update_dsp_settings_1();
-}
-
-void audio_set_dsp_space(bool on, u8 gain)
-{
-	g_audio_info.space_en = on;
-	g_audio_info.space_gain = gain;
-	audio_dev_update_dsp_settings_1();
-}
-
-void audio_set_dsp_soundfield(u8 mode)
-{
-	u8 cnt;
-
-	g_audio_info.sf_mode = (AUDIO_SF_MODE)mode;
-	switch (mode) {
-		case AUDIO_SF_MODE_ALL:
-		case AUDIO_SF_MODE_DRIVER:
-		case AUDIO_SF_MODE_COPILOT:
-		case AUDIO_SF_MODE_RL:
-		case AUDIO_SF_MODE_RR:
-			for (cnt=0; cnt<AUDIO_SPK_NUMS; cnt++) {
-				g_audio_info.spk_on[cnt] = TRUE;
-				g_audio_info.spk_gain[cnt] = DSP_SPK_GAIN_MAX;
-				g_audio_info.spk_delay[cnt] = 0;
-			}
-			break;
-		case AUDIO_SF_MODE_USER:
-			for (cnt=0; cnt<AUDIO_SPK_NUMS; cnt++) {
-				g_audio_info.spk_on[cnt] = g_audio_info.spk_user_on[cnt];
-				g_audio_info.spk_gain[cnt] = g_audio_info.spk_user_gain[cnt];
-				g_audio_info.spk_delay[cnt] = g_audio_info.spk_user_delay[cnt];
-			}		
-			break;
-	}
-
-	switch (mode) {
-		case AUDIO_SF_MODE_DRIVER:
-			g_audio_info.spk_gain[AUDIO_SPK_FL] = DSP_SPK_GAIN_MAX-3;
-			g_audio_info.spk_delay[AUDIO_SPK_FL] = 8;
-			break;
-		case AUDIO_SF_MODE_COPILOT:
-			g_audio_info.spk_gain[AUDIO_SPK_FR] = DSP_SPK_GAIN_MAX-3;
-			g_audio_info.spk_delay[AUDIO_SPK_FR] = 8;
-			break;
-		case AUDIO_SF_MODE_RL:
-			g_audio_info.spk_gain[AUDIO_SPK_RL] = DSP_SPK_GAIN_MAX-3;
-			g_audio_info.spk_delay[AUDIO_SPK_RL] = 8;
-			break;
-		case AUDIO_SF_MODE_RR:
-			g_audio_info.spk_gain[AUDIO_SPK_RR] = DSP_SPK_GAIN_MAX-3;
-			g_audio_info.spk_delay[AUDIO_SPK_RR] = 8;
-			break;
-		default:
-			break;
-	}
-	audio_dev_update_dsp_settings_2();
-}
-
-void audio_set_dsp_speaker(u8 spk, bool on, u8 gain, u8 delay)
-{
-	u8 cnt;
-
-	// update the custom level from current visible level, because
-	// maybe we are adjusting custom level from the preset levels.
-	for (cnt=0; cnt<AUDIO_SPK_NUMS; cnt++) {
-		g_audio_info.spk_user_gain[cnt] = g_audio_info.spk_gain[cnt];
-		g_audio_info.spk_user_delay[cnt] = g_audio_info.spk_delay[cnt];
-	}		
-
-	g_audio_info.spk_user_on[spk] = on;
-	g_audio_info.spk_on[spk] = on;
-	if (gain > DSP_SPK_GAIN_MAX)
-		gain = DSP_SPK_GAIN_MAX;
-	g_audio_info.spk_user_gain[spk] = gain;
-	g_audio_info.spk_user_delay[spk] = delay;
-	g_audio_info.spk_gain[spk] = gain;
-	g_audio_info.spk_delay[spk] = delay;
-
-	g_audio_info.sf_mode = AUDIO_SF_MODE_USER;
-
-	audio_dev_update_dsp_settings_2();
-}
-
-void audio_set_dsp_surround(u8 mode)
-{
-	g_audio_info.surround_mode = (AUDIO_SR_MODE)mode;
-	audio_dev_update_dsp_settings_2();
-}
-
-void audio_set_dsp_sf_expert_mode(u8 mode)
-{
-	g_audio_info.soundfield_expert_mode = mode;
-	audio_dev_update_dsp_settings_2();
 }
 
 void audio_soundfield_ctrl(u8 disabled)
@@ -953,4 +808,253 @@ void audio_soundfield_ctrl(u8 disabled)
 	}
 	audio_dev_update_fader_balance(g_audio_info.fader, g_audio_info.balance);
 }
+
+#if ASP_MODEL==ASP_BU32107
+void audio_init_dsp_v2_set(AUDIO_DSP_RESET_ID reset, bool clear_user)
+{
+	u8 id;
+	u8 cnt;
+
+	if ((AUDIO_DSP_RESET_ID_DELAY==reset)||(AUDIO_DSP_RESET_ID_ALL==reset)) {
+		g_audio_info.surround_mode = AUDIO_SR_MODE_FLAT;
+		g_audio_info.dsp_delay_mode = AUDIO_DELAY_MANUAL;
+		g_audio_info.dsp_delay_spk[AUDIO_SPK_FL] = 0;
+		g_audio_info.dsp_delay_spk[AUDIO_SPK_FR] = 0;
+		g_audio_info.dsp_delay_spk[AUDIO_SPK_RL] = 0;
+		g_audio_info.dsp_delay_spk[AUDIO_SPK_RR] = 0;
+		g_audio_info.dsp_delay_spk_width = 0;
+		g_audio_info.dsp_delay_spk_height = 0;
+		g_audio_info.fader = DEFAULT_FIELD_LEVEL;
+		g_audio_info.balance = DEFAULT_FIELD_LEVEL;
+		g_audio_info.dsp_delay_c_pos = AUDIO_DSP_C_POS_ALL;
+	}
+	if ((AUDIO_DSP_RESET_ID_GAIN==reset)||(AUDIO_DSP_RESET_ID_ALL==reset)) {
+		g_audio_info.dsp_spk_sw.byte = 0;
+		g_audio_info.dsp_spk_atten[AUDIO_SPK_FL] = DSP_SPK_GAIN_MAX;
+		g_audio_info.dsp_spk_atten[AUDIO_SPK_FR] = DSP_SPK_GAIN_MAX;
+		g_audio_info.dsp_spk_atten[AUDIO_SPK_RL] = DSP_SPK_GAIN_MAX;
+		g_audio_info.dsp_spk_atten[AUDIO_SPK_RR] = DSP_SPK_GAIN_MAX;
+		g_audio_info.dsp_all_atten = DSP_SPK_GAIN_MAX;
+		g_audio_info.dsp_sub_gain = 0;
+	}
+	if ((AUDIO_DSP_RESET_ID_OTHER==reset)||(AUDIO_DSP_RESET_ID_ALL==reset)) {
+		g_audio_info.dsp_loud_on = 1;
+		g_audio_info.dsp_loud_lpf = 0;
+		g_audio_info.dsp_loud_hpf = 0;
+		g_audio_info.dsp_phat_on = 1;
+		g_audio_info.dsp_phat_gain = 0;
+		g_audio_info.dsp_bass_on = 1;
+		g_audio_info.dsp_bass_fc = 0;
+		g_audio_info.dsp_bass_gain = 0;
+	}
+
+	if ((AUDIO_DSP_RESET_ID_FILTER==reset)||(AUDIO_DSP_RESET_ID_ALL==reset)) {
+		g_audio_info.dsp_hpf_fc = 0;
+		g_audio_info.dsp_hpf_fc_rear = 0;
+		g_audio_info.dsp_lpf_fc = 0;
+		g_audio_info.dsp_lpf_fc_rear = 0;
+		g_audio_info.dsp_eq_pos = AUDIO_EQ_FRONT;
+	}
+
+	if (clear_user) {
+		g_audio_info.dsp_set_user_id = AUDIO_DSP_USER_ID_0;
+		for (id=AUDIO_DSP_USER_ID_0; id<AUDIO_DSP_USER_ID_NUMS; id++) {
+			g_dsp_set_v2[id].dsp_hpf_fc = g_audio_info.dsp_hpf_fc;
+			g_dsp_set_v2[id].dsp_hpf_fc_rear = g_audio_info.dsp_hpf_fc_rear;
+			g_dsp_set_v2[id].dsp_lpf_fc = g_audio_info.dsp_lpf_fc;
+			g_dsp_set_v2[id].dsp_lpf_fc_rear = g_audio_info.dsp_lpf_fc_rear;
+			g_dsp_set_v2[id].dsp_loud_on = g_audio_info.dsp_loud_on;
+			g_dsp_set_v2[id].dsp_loud_lpf = g_audio_info.dsp_loud_lpf;
+			g_dsp_set_v2[id].dsp_loud_hpf = g_audio_info.dsp_loud_hpf;
+			g_dsp_set_v2[id].dsp_phat_on = g_audio_info.dsp_phat_on;
+			g_dsp_set_v2[id].dsp_phat_gain = g_audio_info.dsp_phat_gain;
+			g_dsp_set_v2[id].dsp_bass_on = g_audio_info.dsp_bass_on;
+			g_dsp_set_v2[id].dsp_bass_fc = g_audio_info.dsp_bass_fc;
+			g_dsp_set_v2[id].dsp_bass_gain = g_audio_info.dsp_bass_gain;
+			g_dsp_set_v2[id].dsp_delay_mode = g_audio_info.dsp_delay_mode;
+			g_dsp_set_v2[id].dsp_delay_spk[AUDIO_SPK_FL] = g_audio_info.dsp_delay_spk[AUDIO_SPK_FL];
+			g_dsp_set_v2[id].dsp_delay_spk[AUDIO_SPK_FR] = g_audio_info.dsp_delay_spk[AUDIO_SPK_FR];
+			g_dsp_set_v2[id].dsp_delay_spk[AUDIO_SPK_RL] = g_audio_info.dsp_delay_spk[AUDIO_SPK_RL];
+			g_dsp_set_v2[id].dsp_delay_spk[AUDIO_SPK_RR] = g_audio_info.dsp_delay_spk[AUDIO_SPK_RR];
+			g_dsp_set_v2[id].dsp_delay_spk_width = g_audio_info.dsp_delay_spk_width;
+			g_dsp_set_v2[id].dsp_delay_spk_height = g_audio_info.dsp_delay_spk_height;
+			g_dsp_set_v2[id].fader = g_audio_info.fader;
+			g_dsp_set_v2[id].balance = g_audio_info.balance;
+			g_dsp_set_v2[id].dsp_delay_c_pos = g_audio_info.dsp_delay_c_pos;
+			g_dsp_set_v2[id].dsp_spk_sw.byte = g_audio_info.dsp_spk_sw.byte;
+			g_dsp_set_v2[id].dsp_spk_atten[AUDIO_SPK_FL] = g_audio_info.dsp_spk_atten[AUDIO_SPK_FL];
+			g_dsp_set_v2[id].dsp_spk_atten[AUDIO_SPK_FR] = g_audio_info.dsp_spk_atten[AUDIO_SPK_FR];
+			g_dsp_set_v2[id].dsp_spk_atten[AUDIO_SPK_RL] = g_audio_info.dsp_spk_atten[AUDIO_SPK_RL];
+			g_dsp_set_v2[id].dsp_spk_atten[AUDIO_SPK_RR] = g_audio_info.dsp_spk_atten[AUDIO_SPK_RR];
+			g_dsp_set_v2[id].dsp_all_atten = g_audio_info.dsp_all_atten;
+			g_dsp_set_v2[id].dsp_sub_gain = g_audio_info.dsp_sub_gain;
+			for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
+				g_dsp_set_v2[id].eq_custom_level[cnt] = g_audio_info.eq_custom_level[cnt];
+			}
+			g_dsp_set_v2[id].surround_mode = g_audio_info.surround_mode;
+		}
+	}
+
+}
+
+void audio_update_dsp_v2_set_eq(void)
+{
+	audio_eq_update_mode(g_audio_info.eq_mode);
+
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_eq_pos = g_audio_info.dsp_eq_pos;
+
+	audio_dev_update_eq();
+	PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_EQUALIZER_INFO, NONE);
+}
+void audio_update_dsp_v2_set_1(void)
+{
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_hpf_fc = g_audio_info.dsp_hpf_fc;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_hpf_fc_rear = g_audio_info.dsp_hpf_fc_rear;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_lpf_fc = g_audio_info.dsp_lpf_fc;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_lpf_fc_rear = g_audio_info.dsp_lpf_fc_rear;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_loud_on = g_audio_info.dsp_loud_on;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_loud_lpf = g_audio_info.dsp_loud_lpf;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_loud_hpf = g_audio_info.dsp_loud_hpf;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_phat_on = g_audio_info.dsp_phat_on;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_phat_gain = g_audio_info.dsp_phat_gain;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_bass_on = g_audio_info.dsp_bass_on;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_bass_fc = g_audio_info.dsp_bass_fc;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_bass_gain = g_audio_info.dsp_bass_gain;
+
+	audio_dev_update_loudness(g_audio_info.loudness);
+	audio_dev_update_dsp_settings_misc();
+	audio_dev_update_eq();
+}
+void audio_update_dsp_v2_set_2(void)
+{
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_mode = g_audio_info.dsp_delay_mode;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_spk[AUDIO_SPK_FL] = g_audio_info.dsp_delay_spk[AUDIO_SPK_FL];
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_spk[AUDIO_SPK_FR] = g_audio_info.dsp_delay_spk[AUDIO_SPK_FR];
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_spk[AUDIO_SPK_RL] = g_audio_info.dsp_delay_spk[AUDIO_SPK_RL];
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_spk[AUDIO_SPK_RR] = g_audio_info.dsp_delay_spk[AUDIO_SPK_RR];
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_spk_width = g_audio_info.dsp_delay_spk_width;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_spk_height = g_audio_info.dsp_delay_spk_height;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].fader = g_audio_info.fader;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].balance = g_audio_info.balance;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_c_pos = g_audio_info.dsp_delay_c_pos;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].surround_mode = g_audio_info.surround_mode;
+
+	audio_dev_update_dsp_settings_delay();
+}
+void audio_update_dsp_v2_set_3(void)
+{
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_spk_sw.byte = g_audio_info.dsp_spk_sw.byte;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_spk_atten[AUDIO_SPK_FL] = g_audio_info.dsp_spk_atten[AUDIO_SPK_FL];
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_spk_atten[AUDIO_SPK_FR] = g_audio_info.dsp_spk_atten[AUDIO_SPK_FR];
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_spk_atten[AUDIO_SPK_RL] = g_audio_info.dsp_spk_atten[AUDIO_SPK_RL];
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_spk_atten[AUDIO_SPK_RR] = g_audio_info.dsp_spk_atten[AUDIO_SPK_RR];
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_all_atten = g_audio_info.dsp_all_atten;
+	g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_sub_gain = g_audio_info.dsp_sub_gain;
+
+	audio_dev_update_dsp_settings_gain();
+}
+void audio_reset_dsp_v2_set(void)
+{
+	audio_init_dsp_v2_set(AUDIO_DSP_RESET_ID_ALL, FALSE);	
+	audio_update_dsp_v2_set_1();
+	audio_update_dsp_v2_set_2();
+	audio_update_dsp_v2_set_3();
+
+	audio_eq_init();
+	audio_update_dsp_v2_set_eq();
+}
+void audio_set_dsp_v2_user(u8 id)
+{
+	u8 cnt;
+
+	g_audio_info.dsp_set_user_id = id;
+	g_audio_info.dsp_hpf_fc = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_hpf_fc;
+	g_audio_info.dsp_hpf_fc_rear = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_hpf_fc_rear;
+	g_audio_info.dsp_lpf_fc = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_lpf_fc;
+	g_audio_info.dsp_lpf_fc_rear = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_lpf_fc_rear;
+	g_audio_info.dsp_eq_pos = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_eq_pos;
+	g_audio_info.dsp_loud_on = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_loud_on;
+	g_audio_info.dsp_loud_lpf = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_loud_lpf;
+	g_audio_info.dsp_loud_hpf = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_loud_hpf;
+	g_audio_info.dsp_phat_on = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_phat_on;
+	g_audio_info.dsp_phat_gain = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_phat_gain;
+	g_audio_info.dsp_bass_on = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_bass_on;
+	g_audio_info.dsp_bass_fc = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_bass_fc;
+	g_audio_info.dsp_bass_gain = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_bass_gain;
+	g_audio_info.dsp_delay_mode = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_mode;
+	g_audio_info.dsp_delay_spk[AUDIO_SPK_FL] = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_spk[AUDIO_SPK_FL];
+	g_audio_info.dsp_delay_spk[AUDIO_SPK_FR] = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_spk[AUDIO_SPK_FR];
+	g_audio_info.dsp_delay_spk[AUDIO_SPK_RL] = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_spk[AUDIO_SPK_RL];
+	g_audio_info.dsp_delay_spk[AUDIO_SPK_RR] = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_spk[AUDIO_SPK_RR];
+	g_audio_info.dsp_delay_spk_width = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_spk_width;
+	g_audio_info.dsp_delay_spk_height = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_spk_height;
+	g_audio_info.fader = g_dsp_set_v2[g_audio_info.dsp_set_user_id].fader;
+	g_audio_info.balance = g_dsp_set_v2[g_audio_info.dsp_set_user_id].balance;
+	g_audio_info.dsp_delay_c_pos = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_delay_c_pos;
+	g_audio_info.dsp_spk_sw.byte = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_spk_sw.byte;
+	g_audio_info.dsp_spk_atten[AUDIO_SPK_FL] = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_spk_atten[AUDIO_SPK_FL];
+	g_audio_info.dsp_spk_atten[AUDIO_SPK_FR] = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_spk_atten[AUDIO_SPK_FR];
+	g_audio_info.dsp_spk_atten[AUDIO_SPK_RL] = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_spk_atten[AUDIO_SPK_RL];
+	g_audio_info.dsp_spk_atten[AUDIO_SPK_RR] = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_spk_atten[AUDIO_SPK_RR];
+	g_audio_info.dsp_all_atten = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_all_atten;
+	g_audio_info.dsp_sub_gain = g_dsp_set_v2[g_audio_info.dsp_set_user_id].dsp_sub_gain;
+
+	g_audio_info.eq_mode = g_dsp_set_v2[g_audio_info.dsp_set_user_id].eq_mode;
+	for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
+		g_audio_info.eq_custom_level[cnt]= g_dsp_set_v2[g_audio_info.dsp_set_user_id].eq_custom_level[cnt];
+	}
+	g_audio_info.surround_mode = g_dsp_set_v2[g_audio_info.dsp_set_user_id].surround_mode;
+
+	audio_update_dsp_v2_set_eq();
+	audio_dev_update_loudness(g_audio_info.loudness);
+	audio_dev_update_dsp_settings_misc();
+	audio_dev_update_dsp_settings_delay();
+	audio_dev_update_dsp_settings_gain();
+}
+
+void audio_set_dsp_surround(u8 mode)
+{
+	g_audio_info.surround_mode = (AUDIO_SR_MODE)mode;
+
+	switch (mode) {
+		case AUDIO_SR_MODE_FLAT:
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_FL] = 0;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_FR] = 0;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_RL] = 0;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_RR] = 0;
+			break;
+		case AUDIO_SR_MODE_RECITAL:
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_FL] = 300;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_FR] = 300;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_RL] = 50;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_RR] = 50;
+			break;
+		case AUDIO_SR_MODE_CONCERT:
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_FL] = 200;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_FR] = 200;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_RL] = 400;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_RR] = 400;
+			break;
+		case AUDIO_SR_MODE_BGM:
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_FL] = 100;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_FR] = 100;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_RL] = 350;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_RR] = 350;
+			break;
+		case AUDIO_SR_MODE_MOVIE:
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_FL] = 250;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_FR] = 250;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_RL] = 50;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_RR] = 50;
+			break;
+		case AUDIO_SR_MODE_DRAMA:
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_FL] = 350;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_FR] = 350;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_RL] = 80;
+			g_audio_info.dsp_delay_spk[AUDIO_SPK_RR] = 80;
+			break;
+	}
+}
+
+#endif
 

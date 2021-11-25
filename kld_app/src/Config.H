@@ -101,8 +101,8 @@
 ******************************
 ******************************/
 /*---- Audio ----*/
-//#define ASP_MODEL		ASP_BU32107		// DSP
-#define ASP_MODEL		ASP_BD37534		// non DSP
+#define ASP_MODEL		ASP_BU32107		// DSP
+//#define ASP_MODEL		ASP_BD37534		// non DSP
 #define VOLUME_CUT_WHEN_NAVI_MIX		9
 #define DFT_NAVI_AUDIO_CH	NAVI_AUDIO_LEFT_CH//导航发声时默认喇叭
 #define A_SRC_RADIO_EXTRA_GAIN_ATTEN		0
@@ -117,7 +117,7 @@
 #define CONFIG_LOUDNESS_DB	6
 
 /*---- Radio ----*/
-#define TUNER_MODEL  TUNER_NXP_TEA668X
+#define TUNER_MODEL  TUNER_ST_TDA7708
 #define RADIO_DEFAULT_REGION   	RADIO_AREA_EUROPE//默认收音区域选择
 #define RDS_FUNCTION		1//RDS开关
 //#define TEA668X_V205
@@ -178,9 +178,9 @@
 #endif
 
 #ifdef KD2000
-#define MCU_VERSION	"CSM4_KD2000_" MCU_DSP MCU_RADIO MCU_VERSION_BASE 
+#define MCU_VERSION	"CSM4_489_KD2000_" MCU_DSP MCU_RADIO MCU_VERSION_BASE 
 #else
-#define MCU_VERSION	"CSM4_" MCU_DSP MCU_RADIO MCU_VERSION_BASE 
+#define MCU_VERSION	"CSM4_489_" MCU_DSP MCU_RADIO MCU_VERSION_BASE 
 #endif
 
 

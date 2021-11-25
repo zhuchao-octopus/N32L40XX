@@ -28,8 +28,8 @@
 
 #define SPECTRUM_NUMS	16
 
-#define DSP_SPK_GAIN_MAX	12
-#define DSP_SPK_GAIN_MIN	0
+#define DSP_SPK_GAIN_MAX	0
+#define DSP_SPK_GAIN_MIN	60
 
 typedef enum
 {
@@ -55,32 +55,26 @@ typedef enum
 	EQ_MODE_CLASSIC,
 	EQ_MODE_ROCK,
 	EQ_MODE_DBB,
-	EQ_MODE_NUMS,
-	EQ_MODE_CUSTOM_1 = 0x10,
-	EQ_MODE_CUSTOM_2 = 0x11,
-	EQ_MODE_CUSTOM_3 = 0x12,
-	EQ_MODE_CUSTOM_4 = 0x13,
-	EQ_MODE_CUSTOM_5 = 0x14,
-	EQ_MODE_CUSTOM_6 = 0x15
+	EQ_MODE_NUMS
 }EQ_MODE;
 
 typedef enum
 {
-	EQ_FREQ_80HZ=0,
+	EQ_FREQ_20HZ=0,
+	EQ_FREQ_50HZ,
+	EQ_FREQ_80HZ,
 	EQ_FREQ_125HZ,
-	EQ_FREQ_200HZ_FAKE,
 	EQ_FREQ_200HZ,
 	EQ_FREQ_315HZ,
 	EQ_FREQ_500HZ,
 	EQ_FREQ_800HZ,
-	EQ_FREQ_1K25HZ_FAKE,
 	EQ_FREQ_1K25HZ,
 	EQ_FREQ_2KHZ,
 	EQ_FREQ_3K15HZ,
 	EQ_FREQ_5KHZ,
-	EQ_FREQ_8KHZ_FAKE,
 	EQ_FREQ_8KHZ,
 	EQ_FREQ_12K5HZ,
+	EQ_FREQ_20KHZ,
 
 	EQ_FREQ_NUMS	
 }EQ_FREQ;
@@ -176,14 +170,73 @@ typedef enum
 
 typedef enum
 {
-	AUDIO_SF_MODE_ALL = 0,
-	AUDIO_SF_MODE_DRIVER,
-	AUDIO_SF_MODE_COPILOT,
-	AUDIO_SF_MODE_RL,
-	AUDIO_SF_MODE_RR,
-	AUDIO_SF_MODE_USER,
-	AUDIO_SF_MODE_NUMS
-}AUDIO_SF_MODE;
+	AUDIO_SPK_FL = 0,
+	AUDIO_SPK_FR,
+	AUDIO_SPK_RL,
+	AUDIO_SPK_RR,
+	AUDIO_SPK_NUMS
+}AUDIO_SPK;
+
+typedef enum
+{
+	AUDIO_EQ_FRONT = 0,	/* Only set FL/FR EQ */
+	AUDIO_EQ_REAR,			/* Only set RL/RR EQ */
+	AUDIO_EQ_MIDDLE,		/* Set FL/FR/RL/RR EQ */
+	AUDIO_EQ_POS_NUMS
+}AUDIO_EQ_POS;
+
+typedef enum
+{
+	AUDIO_DELAY_MANUAL = 0,
+	AUDIO_DELAY_AUTO,
+	AUDIO_DELAY_MODE_NUMS
+}AUDIO_DELAY_MODE;
+
+typedef enum
+{
+	AUDIO_DSP_USER_ID_0 = 0,
+	AUDIO_DSP_USER_ID_1,
+	AUDIO_DSP_USER_ID_2,
+	AUDIO_DSP_USER_ID_NUMS
+}AUDIO_DSP_USER_ID;
+
+typedef struct S_AUDIO_SPK_SW_FLAG
+{
+	unsigned char fl_mute:1;	/* bit 0 */
+	unsigned char fr_mute:1;
+	unsigned char rl_mute:1;
+	unsigned char rr_mute:1;
+	unsigned char front_sync:1;
+	unsigned char rear_sync:1;
+	unsigned char all_mute:1;
+	unsigned char sub_mute:1;
+}_AUDIO_SPK_SW_FLAG;
+typedef union
+{
+	uchar	byte;
+	_AUDIO_SPK_SW_FLAG field;
+}AUDIO_SPK_SW;
+
+typedef enum
+{
+	AUDIO_DSP_RESET_ID_DELAY = 0,
+	AUDIO_DSP_RESET_ID_GAIN,
+	AUDIO_DSP_RESET_ID_OTHER,
+	AUDIO_DSP_RESET_ID_FILTER,
+	AUDIO_DSP_RESET_ID_ALL,
+	AUDIO_DSP_RESET_ID_NUMS
+}AUDIO_DSP_RESET_ID;
+
+typedef enum
+{
+	AUDIO_DSP_C_POS_FL = 0,
+	AUDIO_DSP_C_POS_FR,
+	AUDIO_DSP_C_POS_RL,
+	AUDIO_DSP_C_POS_RR,
+	AUDIO_DSP_C_POS_ALL,
+	AUDIO_DSP_C_POS_USER,
+	AUDIO_DSP_C_POS_NUMS
+}AUDIO_DSP_C_POS;
 
 typedef enum
 {
@@ -195,15 +248,6 @@ typedef enum
 	AUDIO_SR_MODE_DRAMA,
 	AUDIO_SR_MODE_NUMS
 }AUDIO_SR_MODE;
-
-typedef enum
-{
-	AUDIO_SPK_FL = 0,
-	AUDIO_SPK_FR,
-	AUDIO_SPK_RL,
-	AUDIO_SPK_RR,
-	AUDIO_SPK_NUMS
-}AUDIO_SPK;
 
 typedef struct
 {
@@ -242,61 +286,90 @@ typedef struct
 	bool bt_voice_on;
 	u8 bt_voice_vol;
 	u8 bt_voice_timer;
+	bool bt_music_on;
 	bool carplay_phone_on;
 
 	u8 output_type;
 //	bool overheat;
 	u8 ext_force_mute_timer;
 
-	bool loud_on;
-	bool hpf_on;
-	u8 hpf_freq;
-	bool dsp_bass_on;
-	u8 dsp_bass_freq;
-	u8 dsp_bass_gain;
-	bool subwoofer_on;
-
 	/* EQ member */
 	EQ_MODE eq_mode;
 	u8 eq_visible_level[EQ_FREQ_NUMS];
 	u8 eq_custom_level[EQ_FREQ_NUMS];
-	u8 eq_custom_level_1[EQ_FREQ_NUMS];
-	u8 eq_custom_level_2[EQ_FREQ_NUMS];
-	u8 eq_custom_level_3[EQ_FREQ_NUMS];
-	u8 eq_custom_level_4[EQ_FREQ_NUMS];
-	u8 eq_custom_level_5[EQ_FREQ_NUMS];
-	u8 eq_custom_level_6[EQ_FREQ_NUMS];
 
 	/* Spectrum analyzer */
 	bool sa_en;
 	u8 sa_timer;
 	u8 sa_data[SPECTRUM_NUMS];
 
-	bool phat_en;
-	u8 phat_gain;
-	bool core_en;
-	u8 core_gain;
-	bool space_en;
-	u8 space_gain;
-	AUDIO_SF_MODE sf_mode;	/* sound field mode */
-	bool spk_on[AUDIO_SPK_NUMS];
-	u8 spk_gain[AUDIO_SPK_NUMS];
-	u8 spk_delay[AUDIO_SPK_NUMS];
-	bool spk_user_on[AUDIO_SPK_NUMS];
-	u8 spk_user_gain[AUDIO_SPK_NUMS];
-	u8 spk_user_delay[AUDIO_SPK_NUMS];
-	AUDIO_SR_MODE surround_mode;	/* surround mode */
-	u8 soundfield_expert_mode;
-
 	bool disabled_soundfield;
+
+#if ASP_MODEL==ASP_BU32107
+	AUDIO_SR_MODE surround_mode;	/* surround mode */
+
+	/* DSP V2 settings */
+	u8 dsp_set_user_id;
+	u8 dsp_hpf_fc;
+	u8 dsp_hpf_fc_rear;
+	u8 dsp_lpf_fc;
+	u8 dsp_lpf_fc_rear;
+	AUDIO_EQ_POS dsp_eq_pos;
+	u8 dsp_loud_on;
+	u8 dsp_loud_lpf;
+	u8 dsp_loud_hpf;
+	u8 dsp_phat_on;
+	u8 dsp_phat_gain;
+	u8 dsp_bass_on;
+	u8 dsp_bass_fc;
+	u8 dsp_bass_gain;
+	AUDIO_DELAY_MODE dsp_delay_mode;
+	u16 dsp_delay_spk[AUDIO_SPK_NUMS];
+	u8 dsp_delay_spk_width;
+	u8 dsp_delay_spk_height;
+	AUDIO_DSP_C_POS dsp_delay_c_pos;
+	AUDIO_SPK_SW dsp_spk_sw;
+	u8 dsp_spk_atten[AUDIO_SPK_NUMS];
+	u8 dsp_all_atten;
+	u8 dsp_sub_gain;
+#endif
 }AUDIO_INFO;
 
+typedef struct
+{
+	u8 dsp_hpf_fc;
+	u8 dsp_hpf_fc_rear;
+	u8 dsp_lpf_fc;
+	u8 dsp_lpf_fc_rear;
+	AUDIO_EQ_POS dsp_eq_pos;
+	u8 dsp_loud_on;
+	u8 dsp_loud_lpf;
+	u8 dsp_loud_hpf;
+	u8 dsp_phat_on;
+	u8 dsp_phat_gain;
+	u8 dsp_bass_on;
+	u8 dsp_bass_fc;
+	u8 dsp_bass_gain;
+	AUDIO_DELAY_MODE dsp_delay_mode;
+	u16 dsp_delay_spk[AUDIO_SPK_NUMS];
+	u8 dsp_delay_spk_width;
+	u8 dsp_delay_spk_height;
+	u8 fader;	/* 0->14: front->rear */
+	u8 balance;	/* 0->14: left->right */
+	AUDIO_DSP_C_POS dsp_delay_c_pos;
+	AUDIO_SPK_SW dsp_spk_sw;
+	u8 dsp_spk_atten[AUDIO_SPK_NUMS];
+	u8 dsp_all_atten;
+	u8 dsp_sub_gain;
+	EQ_MODE eq_mode;
+	u8 eq_custom_level[EQ_FREQ_NUMS];
+	AUDIO_SR_MODE surround_mode;	/* surround mode */
+}DSP_SETTINGS_V2;
+
+
 #define IS_VALID_VOLUME(vol)	(/*(vol>=MIN_VOLUME)&&*/(vol<=MAX_VOLUME))
-#if ASP_MODEL==ASP_BU32107
-#define IS_VALID_EQ_MODE(mode) ((mode<EQ_MODE_NUMS) || ((mode>=EQ_MODE_CUSTOM_1)&&(mode<=EQ_MODE_CUSTOM_6)))
-#else
 #define IS_VALID_EQ_MODE(mode) (mode<EQ_MODE_NUMS)
-#endif
+
 #define IS_VALID_EQ_FREQ(freq) (freq<EQ_FREQ_NUMS)
 #define IS_VALID_FAD_BAL_LEVEL(lvl) ((lvl>=MIN_FIELD_LEVEL)&&(lvl<=MAX_FIELD_LEVEL))
 #define IS_VALID_LOUDNESS_LEVEL(lvl) ((lvl>=MIN_LOUDNESS)&&(lvl<=MAX_LOUDNESS))
@@ -310,6 +383,9 @@ typedef struct
 * our varible
 **************************************/
 ext AUDIO_INFO g_audio_info;	// do not write any member outside audio_driver.c, just read only.
+#if ASP_MODEL==ASP_BU32107
+ext DSP_SETTINGS_V2 g_dsp_set_v2[AUDIO_DSP_USER_ID_NUMS];
+#endif
 
 /*******************************************************
 *   interface for system
@@ -325,6 +401,7 @@ void audio_set_vol_ctrl_when_reverse(u8 val);
 void audio_set_mute(AUDIO_MUTE_FLAG flag, bool mute);
 void audio_set_mute_temporary(u16 time_ms);
 void audio_set_bt_phone(bool on);
+void audio_set_bt_music(bool on);
 void audio_set_carplay_phone(bool on);
 void audio_set_bt_voice(bool on);
 void audio_set_navi_break(bool on);
@@ -333,7 +410,6 @@ void audio_set_app_3rd_break(bool on);
 void audio_set_android_sound_on(bool on);
 void audio_set_eq_mode(EQ_MODE mode);
 void audio_set_eq_custom_level(EQ_FREQ freq, u8 level);
-void audio_save_eq_user_mode(u8 id);
 void audio_set_fader(u8 level);
 void audio_set_balance(u8 level);
 void audio_set_loudness(u8 level);
@@ -342,19 +418,18 @@ void audio_set_navi_extra_gain(u8 gain);
 void audio_set_pwr_ctrl(bool on);
 void audio_set_output_type(u8 type);
 void audio_adjust_channel_volume(void);
-void audio_set_loud_on(bool on);
-void audio_set_hpf(bool on, u8 freq);
-void audio_set_dsp_bass(bool on, u8 freq, u8 gain);
-void audio_set_subwoofer_on(bool on);
 void audio_set_spectrum_analyzer(bool on);
-void audio_set_dsp_phat(bool on, u8 gain);
-void audio_set_dsp_core(bool on, u8 gain);
-void audio_set_dsp_space(bool on, u8 gain);
-void audio_set_dsp_soundfield(u8 mode);
-void audio_set_dsp_speaker(u8 spk, bool on, u8 gain, u8 delay);
-void audio_set_dsp_surround(u8 mode);
-void audio_set_dsp_sf_expert_mode(u8 mode);
 void audio_soundfield_ctrl(u8 disabled);
+#if ASP_MODEL==ASP_BU32107
+void audio_set_dsp_surround(u8 mode);
+void audio_init_dsp_v2_set(AUDIO_DSP_RESET_ID id, bool clear_user);
+void audio_update_dsp_v2_set_eq(void);
+void audio_update_dsp_v2_set_1(void);
+void audio_update_dsp_v2_set_2(void);
+void audio_update_dsp_v2_set_3(void);
+void audio_reset_dsp_v2_set(void);
+void audio_set_dsp_v2_user(u8 id);
+#endif
 
 
 
@@ -378,9 +453,14 @@ void audio_dev_update_eq(void);	// update EQ settings according to the AUDIO_INF
 void audio_dev_update_fader_balance(u8 fad, u8 bal);
 void audio_dev_update_loudness(u8 loud);
 void audio_dev_update_subwoofer(u8 subwoofer);
-void audio_dev_update_dsp_settings_1(void);
-void audio_dev_update_dsp_settings_2(void);
 void audio_dev_update_spectrum_data(void);
+
+#if ASP_MODEL==ASP_BU32107
+void audio_dev_update_dsp_settings_misc(void);
+void audio_dev_update_dsp_settings_delay(void);
+void audio_dev_update_dsp_settings_gain(void);
+#endif
+
 
 #endif /* _AUDIO_DRIVER_H_ */
 
