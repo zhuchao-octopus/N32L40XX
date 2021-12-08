@@ -591,7 +591,38 @@ static void Task1sPro()
 	if (g_super_watchdog_timer>0) {
 		--g_super_watchdog_timer;
 		if ( (g_startup_cntr>10) && (0==g_super_watchdog_timer) ) {
-			NVIC_SystemReset();	// force reset 
+			// power off & on all system
+			g_startup_cntr = 0;
+
+			// move from AUDIO_STATE_PWR_OFF_ING == g_audio_info.state
+			audio_set_mute(AUDIO_MUTE_DRIVER, TRUE);
+			audio_dev_deinit();
+			g_audio_info.pwr_timer = 0;
+			g_audio_info.bt_phone_timer = 0;
+			g_audio_info.bt_phone_on = FALSE;
+			g_audio_info.carplay_phone_on = FALSE;
+			g_audio_info.navi_break_on = FALSE;
+			g_audio_info.navi_break_on_cache = FALSE;
+			g_audio_info.reverse_on = FALSE;
+			g_audio_info.bt_voice_on = FALSE;
+			g_audio_info.bt_voice_timer = 0;
+
+			// move from RADIO_STATE_PWR_OFF_ING == g_radio_info.state
+			radio_dev_deinit();
+			g_radio_info.state = RADIO_STATE_UNKNOWN;
+
+			// power down
+			REAL_SYS_PWR_OFF;
+
+			// delay
+			delay_1ms(2000);
+
+			// power up
+			REAL_SYS_PWR_ON;
+
+			audio_set_pwr_ctrl(TRUE);
+			radio_set_pwr_ctrl(TRUE);
+
 		}
 	}
 }
