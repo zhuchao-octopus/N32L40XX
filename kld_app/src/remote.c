@@ -508,7 +508,7 @@ void can_ir_handler(void)
 				g_can_ir_info.key_sent = FALSE;
 				g_can_ir_info.bit_cntr = 0;
 				g_can_ir_info.state = IR_RX_STATE_IDLE;
-				g_can_ir_info.repeat_timer = T50MS_12;
+				g_can_ir_info.repeat_timer = T500MS_12;
 				g_can_ir_info.timeout = T600MS_12;
 			}
 			break;
