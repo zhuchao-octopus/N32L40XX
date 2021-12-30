@@ -684,6 +684,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 								g_app_slept = FALSE;
 								PostEvent(WINCE_MODULE, TX_TO_GUI_BRIGHTNESS_INFO,g_brightness );	
 							}
+							GPIO_SetBits(GPIO_ANT_CTRL_GRP, GPIO_ANT_CTRL_PIN);
 							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_PROCESSOR_TYPE, 1);	
 							break;
 						case 0x01:
@@ -693,6 +694,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 								audio_set_mute(AUDIO_MUTE_SYSTEM, TRUE);
 							}
 							g_app_slept = TRUE;
+							GPIO_ResetBits(GPIO_ANT_CTRL_GRP, GPIO_ANT_CTRL_PIN);
 							break;
 						default:
 							break;

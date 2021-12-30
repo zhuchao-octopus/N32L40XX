@@ -1004,6 +1004,7 @@ int main(void)
 #endif
 
 	REAL_SYS_PWR_OFF;
+	GPIO_ResetBits(GPIO_ANT_CTRL_GRP, GPIO_ANT_CTRL_PIN);
 
 	PowerInit();	
 	app_wd_init();
