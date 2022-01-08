@@ -268,6 +268,12 @@ static void gpio_config(void)
 	GPIO_InitPeripheral(GPIO_BEEP_GRP, &gpio_init_output_af);
 
 
+	/* OTG control */
+	gpio_init_output.Pin = GPIO_OTG_CTRL_GRP;
+	GPIO_InitPeripheral(GPIO_OTG_CTRL_PIN, &gpio_init_output);
+	OTG_CTRL_DEVICE;
+
+
 }
 static void uart_config(void)
 {
@@ -797,6 +803,10 @@ static void mcu_stay_in_sleep(void)
 	GPIO_InitStruct(&gpio_init_input_float);
 	gpio_init_input_float.GPIO_Mode = GPIO_Mode_Analog;
 	gpio_init_input_float.GPIO_Pull = GPIO_No_Pull;
+
+	/* OTG control */
+	gpio_init_input_float.Pin = GPIO_OTG_CTRL_PIN;
+	GPIO_InitPeripheral(GPIO_OTG_CTRL_GRP, &gpio_init_input_float);
 
 	/* UART HOST */
 	gpio_init_input_float.Pin = GPIO_HOST_UART_TX_PIN;

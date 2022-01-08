@@ -181,6 +181,13 @@
 #define GPIO_BEEP_GRP		GPIOB
 #define GPIO_BEEP_PIN		GPIO_PIN_8
 
+
+#define GPIO_OTG_CTRL_GRP		GPIOA
+#define GPIO_OTG_CTRL_PIN		GPIO_PIN_11
+#define OTG_CTRL_DEVICE	GPIO_SetBits(GPIO_OTG_CTRL_GRP, GPIO_OTG_CTRL_PIN);
+#define OTG_CTRL_HOST		GPIO_ResetBits(GPIO_OTG_CTRL_GRP, GPIO_OTG_CTRL_PIN);
+
+
 ext u8 illumin_level;
 extern u8 g_panel_led_all_on;
 
