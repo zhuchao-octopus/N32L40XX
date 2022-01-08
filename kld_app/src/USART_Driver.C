@@ -13,7 +13,7 @@ ext void USART_TX(void)
 	USART_Tx_Length_Bak=USART_Tx_Length;
 	while(USART_Tx_Length>0)
 	{
-		for (timeout=400; timeout>0; timeout--) {
+		for (timeout=1000; timeout>0; timeout--) {
 			CLEAR_WATCHDOG;
 			if (RESET != USART_GetFlagStatus(CAN_COMM_UART, USART_FLAG_TXC)) {
 				break;
