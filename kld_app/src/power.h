@@ -112,5 +112,9 @@ ext u8 g_saved_batt_adc_val;
 ext u8 g_batt_notify_cntr;
 ext void batt_main(void);
 
+
+ext u8 g_4g_pwrkey_cnt;
+ext void host_pwrkey_main(void);
+
 #endif
 

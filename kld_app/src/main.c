@@ -242,15 +242,15 @@ static void gpio_config(void)
 
 
 	/* HOST recovery key */
-	gpio_init_output.Pin = GPIO_HOST_REC_KEY_PIN;
-	GPIO_InitPeripheral(GPIO_HOST_REC_KEY_GRP, &gpio_init_output);
-	GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
+//	gpio_init_output.Pin = GPIO_HOST_REC_KEY_PIN;
+//	GPIO_InitPeripheral(GPIO_HOST_REC_KEY_GRP, &gpio_init_output);
+//	GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
 
 	/* HOST power key */
 	if (0!=g_first_love) {
-		gpio_init_output.Pin = GPIO_HOST_PWR_KEY_PIN;
-		GPIO_InitPeripheral(GPIO_HOST_PWR_KEY_GRP, &gpio_init_output);
-		GPIO_ResetBits(GPIO_HOST_PWR_KEY_GRP, GPIO_HOST_PWR_KEY_PIN);
+//		gpio_init_output.Pin = GPIO_HOST_PWR_KEY_PIN;
+//		GPIO_InitPeripheral(GPIO_HOST_PWR_KEY_GRP, &gpio_init_output);
+//		GPIO_ResetBits(GPIO_HOST_PWR_KEY_GRP, GPIO_HOST_PWR_KEY_PIN);
 	}
 
 
@@ -269,10 +269,13 @@ static void gpio_config(void)
 
 
 	/* OTG control */
-	gpio_init_output.Pin = GPIO_OTG_CTRL_GRP;
-	GPIO_InitPeripheral(GPIO_OTG_CTRL_PIN, &gpio_init_output);
+	gpio_init_output.Pin = GPIO_OTG_CTRL_PIN;
+	GPIO_InitPeripheral(GPIO_OTG_CTRL_GRP, &gpio_init_output);
 	OTG_CTRL_DEVICE;
 
+	gpio_init_output.Pin = GPIO_4G_PWRKEY_PIN;
+	GPIO_InitPeripheral(GPIO_4G_PWRKEY_GRP, &gpio_init_output);
+	GPIO_ResetBits(GPIO_4G_PWRKEY_GRP, GPIO_4G_PWRKEY_PIN);
 
 }
 static void uart_config(void)
@@ -585,6 +588,8 @@ static void Task100msPro()
 	led_main();
 
 	app_wd_main();
+
+	host_pwrkey_main();
 }
 static void Task1sPro()
 {	
@@ -888,8 +893,8 @@ static void mcu_stay_in_sleep(void)
 //	GPIO_InitPeripheral(GPIO_LED_GRP, &gpio_init_input_float);
 
 	/* HOST recovery key */
-	gpio_init_input_float.Pin = GPIO_HOST_REC_KEY_PIN;
-	GPIO_InitPeripheral(GPIO_HOST_REC_KEY_GRP, &gpio_init_input_float);
+//	gpio_init_input_float.Pin = GPIO_HOST_REC_KEY_PIN;
+//	GPIO_InitPeripheral(GPIO_HOST_REC_KEY_GRP, &gpio_init_input_float);
 	/* VCOM */
 	gpio_init_input_float.Pin = GPIO_VCOM_PIN;
 	GPIO_InitPeripheral(GPIO_VCOM_GRP, &gpio_init_input_float);

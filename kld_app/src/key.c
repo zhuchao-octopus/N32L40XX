@@ -90,6 +90,8 @@ void encoder_key_main(void)
 #define ENC2_AD_3	254
 #define ENC2_KEYCODE_CW	UICC_STEP_UP
 #define ENC2_KEYCODE_CCW	UICC_STEP_DOWN
+#ifndef KD2000
+#ifdef TUNE_ENCODER
 static void encoder2_do_key(u8 keycode) {
 	if ((0==g_tune_key_info.debounce_timer)||(g_tune_key_info.last_key_code==keycode)) {
 		g_tune_key_info.debounce_timer= 8;	// 32ms
@@ -100,6 +102,8 @@ static void encoder2_do_key(u8 keycode) {
 		g_tune_key_info.last_key_code= keycode;
 	}
 }
+#endif
+#endif
 static void encoder2_key_reset(void)
 {
 	g_tune_key_info.debounce_timer = 0;
@@ -108,7 +112,11 @@ static void encoder2_key_reset(void)
 }
 void encoder2_key_main(void)
 {
+#ifndef KD2000
+#ifdef TUNE_ENCODER
 	u8 ad_value = 0;
+#endif
+#endif
 
 	if(Get_ACC_Det_Flag==0) {
 		encoder2_key_reset();
@@ -726,17 +734,17 @@ static void panel_key_recovery_handler(void)
 	if (g_key_handler.recovery_key_timer < T3S_12) {
 		++g_key_handler.recovery_key_timer;
 		if (0==g_key_handler.key_pressed_timer) {
-			GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
+//			GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
 		} else if (MAX_PANEL_KEY_NUM == g_key_handler.last_idx) {
-			GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
+//			GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
 		} else if (NO_KEY == g_key_info_store.key[g_key_handler.last_idx].key_code_short) {
-			GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
+//			GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
 		} else if ( (UICC_FAKE_POWER_OFF == g_key_info_store.key[g_key_handler.last_idx].key_code_short) ||
 				(UICC_FAKE_POWER_OFF == g_key_info_store.key[g_key_handler.last_idx].key_code_long) ) {
-			GPIO_ResetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
+//			GPIO_ResetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
 		}
 	} else if (T3S_12 == g_key_handler.recovery_key_timer) {
-		GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
+//		GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
 	}
 }
 
@@ -1158,7 +1166,7 @@ void panel_key_main(void)
 {
 	if(Get_ACC_Det_Flag==0) {
 		panel_key_reset();
-		GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
+//		GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
 		return;
 	}
 

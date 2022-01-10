@@ -73,13 +73,14 @@ void PowerInit(void)
 	g_kill_host = FALSE;
 	g_saved_batt_adc_val = 0;
 	g_mcu_in_sleep = 0;
+	g_4g_pwrkey_cnt = 0;
 }
 
 static void do_wakeup_host(void)
 {
-	GPIO_SetBits(GPIO_HOST_PWR_KEY_GRP, GPIO_HOST_PWR_KEY_PIN);
-	delay_1ms(400);
-	GPIO_ResetBits(GPIO_HOST_PWR_KEY_GRP, GPIO_HOST_PWR_KEY_PIN);
+//	GPIO_SetBits(GPIO_HOST_PWR_KEY_GRP, GPIO_HOST_PWR_KEY_PIN);
+//	delay_1ms(400);
+//	GPIO_ResetBits(GPIO_HOST_PWR_KEY_GRP, GPIO_HOST_PWR_KEY_PIN);
 
 	g_notify_app_awake_cntr = 5;
 }
@@ -724,3 +725,11 @@ void batt_main(void)
 	}
 }
 
+void host_pwrkey_main(void)
+{
+	if (0==g_4g_pwrkey_cnt)
+		return;
+
+	--g_4g_pwrkey_cnt;
+	
+}
