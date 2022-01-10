@@ -1405,11 +1405,13 @@ void radio_main(void)
 		// deinit the radio device
 		radio_dev_deinit();
 		g_radio_info.state = RADIO_STATE_UNKNOWN;
+		GPIO_ResetBits(GPIO_RADIO_PWR_GRP, GPIO_RADIO_PWR_PIN);
 		return;
 	}
 	if (RADIO_STATE_PWR_ON_ING == g_radio_info.state) {
 		g_radio_info.state = RADIO_STATE_INIT_ING;
 		g_radio_info.pwr_timer = 0;
+		GPIO_SetBits(GPIO_RADIO_PWR_GRP, GPIO_RADIO_PWR_PIN);
 		GPIO_SetBits(GPIO_ANT_CTRL_GRP, GPIO_ANT_CTRL_PIN);
 		return;
 	}

@@ -191,6 +191,9 @@
 #define GPIO_4G_PWRKEY_GRP		GPIOB
 #define GPIO_4G_PWRKEY_PIN		GPIO_PIN_13
 
+#define GPIO_RADIO_PWR_GRP		GPIOB
+#define GPIO_RADIO_PWR_PIN		GPIO_PIN_7
+
 
 
 ext u8 illumin_level;

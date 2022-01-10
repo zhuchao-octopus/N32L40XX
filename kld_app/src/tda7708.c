@@ -229,6 +229,7 @@ bool radio_dev_init(void)
 			} else {
 				++g_tda7708_timer;
 				if ( (g_startup_cntr<10) && (g_tda7708_timer>30) ) {
+#if 0
 					if (0==g_is_watchdog_rst) {
 						delay_1ms(3000);
 						REAL_SYS_PWR_OFF;
@@ -243,6 +244,7 @@ bool radio_dev_init(void)
 						}
 
 					}
+#endif
 				}
 			}
 			break;

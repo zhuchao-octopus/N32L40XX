@@ -277,6 +277,10 @@ static void gpio_config(void)
 	GPIO_InitPeripheral(GPIO_4G_PWRKEY_GRP, &gpio_init_output);
 	GPIO_ResetBits(GPIO_4G_PWRKEY_GRP, GPIO_4G_PWRKEY_PIN);
 
+	gpio_init_output.Pin = GPIO_RADIO_PWR_PIN;
+	GPIO_InitPeripheral(GPIO_RADIO_PWR_GRP, &gpio_init_output);
+	GPIO_ResetBits(GPIO_RADIO_PWR_GRP, GPIO_RADIO_PWR_PIN);
+
 }
 static void uart_config(void)
 {
@@ -812,6 +816,13 @@ static void mcu_stay_in_sleep(void)
 	/* OTG control */
 	gpio_init_input_float.Pin = GPIO_OTG_CTRL_PIN;
 	GPIO_InitPeripheral(GPIO_OTG_CTRL_GRP, &gpio_init_input_float);
+
+	/* Radio power control */
+	gpio_init_input_float.Pin = GPIO_RADIO_PWR_PIN;
+	GPIO_InitPeripheral(GPIO_RADIO_PWR_GRP, &gpio_init_input_float);
+
+	gpio_init_input_float.Pin = GPIO_4G_PWRKEY_PIN;
+	GPIO_InitPeripheral(GPIO_4G_PWRKEY_GRP, &gpio_init_input_float);
 
 	/* UART HOST */
 	gpio_init_input_float.Pin = GPIO_HOST_UART_TX_PIN;

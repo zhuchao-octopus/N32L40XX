@@ -73,7 +73,7 @@ void PowerInit(void)
 	g_kill_host = FALSE;
 	g_saved_batt_adc_val = 0;
 	g_mcu_in_sleep = 0;
-	g_4g_pwrkey_cnt = 0;
+	g_4g_pwrkey_cnt = T4S_100;
 }
 
 static void do_wakeup_host(void)
@@ -731,5 +731,12 @@ void host_pwrkey_main(void)
 		return;
 
 	--g_4g_pwrkey_cnt;
-	
+
+	if (g_4g_pwrkey_cnt>T3S_100) {
+		GPIO_ResetBits(GPIO_4G_PWRKEY_GRP, GPIO_4G_PWRKEY_PIN);
+	} else if (g_4g_pwrkey_cnt>1) {
+		GPIO_SetBits(GPIO_4G_PWRKEY_GRP, GPIO_4G_PWRKEY_PIN);
+	} else {
+		GPIO_ResetBits(GPIO_4G_PWRKEY_GRP, GPIO_4G_PWRKEY_PIN);
+	}
 }

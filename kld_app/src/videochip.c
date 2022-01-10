@@ -86,6 +86,7 @@ const uchar RearVideoPath[NUM_OF_SOURCE+1]=
 
 static void fms6502_write(u8 addr, u8 value)
 {
+#if 0
 	i2c_start();
 	i2c_send_byte(FMS6502_ADDR);
 	i2c_wait_ack();
@@ -94,6 +95,7 @@ static void fms6502_write(u8 addr, u8 value)
 	i2c_send_byte(value);
 	i2c_wait_ack();
 	i2c_stop();
+#endif
 }
 
 static void Select_Video_Source(uchar output_number,uchar input_number)
