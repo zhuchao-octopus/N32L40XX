@@ -271,7 +271,11 @@ static void gpio_config(void)
 	/* OTG control */
 	gpio_init_output.Pin = GPIO_OTG_CTRL_PIN;
 	GPIO_InitPeripheral(GPIO_OTG_CTRL_GRP, &gpio_init_output);
-	OTG_CTRL_DEVICE;
+	if (0==g_otg_role) {
+		OTG_CTRL_HOST;
+	} else {
+		OTG_CTRL_DEVICE;
+	}
 
 	gpio_init_output.Pin = GPIO_4G_PWRKEY_PIN;
 	GPIO_InitPeripheral(GPIO_4G_PWRKEY_GRP, &gpio_init_output);
@@ -459,6 +463,8 @@ static void mcu_init(void)
 	g_trigger_40ms = 0;
 	g_trigger_100ms = 0;
 	g_trigger_1000ms = 0;
+
+	g_otg_role = 1;
 
 	systick_config();
 

@@ -44,6 +44,8 @@ ext u8 g_startup_cntr;
 
 ext u8 g_is_watchdog_rst;
 
+ext u8 g_otg_role;
+
 
 ext  UCharField Sys_Flag1;
 #define F_IAP_Request	 		Sys_Flag1.field.B0

@@ -228,6 +228,7 @@
 	#define SUBID_SECRET_SETTING_RADIO_PARA_SET 0x06
 	#define SUBID_SECRET_SETTING_FAN_START_TEMPERATURE_SET 0x07
 	#define SUBID_SECRET_SETTING_RADIO_RAFION_SET 0x08
+	#define SUBID_SECRET_SETTING_OTG_ROLE_SET 0x0B
 
 #define MCU_RX_GROUP_DVD	0x0D
 	#define SUBID_DVD_OPS		0x01
@@ -1401,6 +1402,23 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 						ak_flash_save_info();
 					}
 					PostEvent(WINCE_MODULE, TX_TO_GUI_SECRET_SETTING_BREAK_DET_SET_INFO,g_sys_info_store.brake_mode);					
+					break;
+
+				case SUBID_SECRET_SETTING_OTG_ROLE_SET:
+					switch (*Read_Lin_Ptr)
+					{
+						case 0x00:
+							g_otg_role = 0;
+							break;
+						case 0x01:
+							g_otg_role = 1;
+							break;
+					}
+					if (0==g_otg_role) {
+						OTG_CTRL_HOST;
+					} else {
+						OTG_CTRL_DEVICE;
+					}
 					break;
 					
 				default:
