@@ -642,7 +642,7 @@ extern void PowerManage(void)           //12ms÷¥––“ª¥Œ
 					} else {
 						g_acc_wait_timer = g_acc_wait_timeout*T1S_100;
 						audio_set_mute(AUDIO_MUTE_SYSTEM, TRUE); //make a final mute to assure mute action is done
-						EnterPowerOff();
+//						EnterPowerOff();
 						delay_1ms(500);
 						nPowerState = POWER_ACCOFF_WAIT;
 					}
