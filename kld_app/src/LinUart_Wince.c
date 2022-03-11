@@ -951,9 +951,9 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					break;
 				case SUBID_APP_AUDIO_NOTIFY:
 					if (0x66 == *Read_Lin_Ptr) {
-						audio_set_android_sound_on(TRUE);
+//						audio_set_android_sound_on(TRUE);
 					} else if (0x44 == *Read_Lin_Ptr) {
-						audio_set_android_sound_on(FALSE);
+//						audio_set_android_sound_on(FALSE);
 					} else {
 						g_app_audio_det = (*Read_Lin_Ptr++!=0)?1:0;
 					}

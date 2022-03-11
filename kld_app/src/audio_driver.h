@@ -237,7 +237,7 @@ typedef struct
 	u8 bt_phone_timer;
 	u16 temp_mute_timer;	/* in ms unit */
 	AUDIO_SOURCE_SWITCH_STATE src_sw_state;
-	bool android_snd_on;
+//	bool android_snd_on;
 
 	bool bt_voice_on;
 	u8 bt_voice_vol;
@@ -330,7 +330,7 @@ void audio_set_bt_voice(bool on);
 void audio_set_navi_break(bool on);
 void audio_set_rds_ta_break(bool on);
 void audio_set_app_3rd_break(bool on);
-void audio_set_android_sound_on(bool on);
+//void audio_set_android_sound_on(bool on);
 void audio_set_eq_mode(EQ_MODE mode);
 void audio_set_eq_custom_level(EQ_FREQ freq, u8 level);
 void audio_save_eq_user_mode(u8 id);

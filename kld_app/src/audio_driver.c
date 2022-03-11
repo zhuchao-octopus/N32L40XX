@@ -138,9 +138,9 @@ static void audio_source_handler(void)
 		src = AUDIO_SRC_NONE;
 	}
 
-	if ((AUDIO_SRC_HOST == src) && (!g_audio_info.android_snd_on)) {
-		src =AUDIO_SRC_NONE;
-	}
+//	if ((AUDIO_SRC_HOST == src) && (!g_audio_info.android_snd_on)) {
+//		src =AUDIO_SRC_NONE;
+//	}
 
 	if (AUDIO_SRC_NONE != src) {
 		audio_set_mute(AUDIO_MUTE_DRIVER, FALSE);
@@ -302,7 +302,7 @@ void audio_init(void)
 #else
 	g_audio_info.sys_source = AUDIO_SRC_NONE;
 #endif
-	g_audio_info.android_snd_on = FALSE;
+//	g_audio_info.android_snd_on = FALSE;
 	g_audio_info.cur_vol = 0;
 	g_audio_info.system_vol = DEFAULT_VOLUME;
 	g_audio_info.navi_mix_vol = DEFAULT_VOLUME;
@@ -645,10 +645,10 @@ void audio_set_app_3rd_break(bool on)
 	g_audio_info.app_3rd_break_on = on;
 }
 
-void audio_set_android_sound_on(bool on)
-{
-	g_audio_info.android_snd_on = on;
-}
+//void audio_set_android_sound_on(bool on)
+//{
+//	g_audio_info.android_snd_on = on;
+//}
 
 void audio_set_eq_mode(EQ_MODE mode)
 {
