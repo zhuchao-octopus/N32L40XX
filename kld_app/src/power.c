@@ -56,7 +56,7 @@ void app_wd_main(void)
 		g_app_watchdog_cntr = 0;
 		return;
 	}
-
+#if 0
 	if (g_app_watchdog_cntr > 0) {
 		++g_app_watchdog_cntr;
 		if (g_app_watchdog_cntr >= T30S_100) {
@@ -65,6 +65,7 @@ void app_wd_main(void)
 			NVIC_SystemReset();	// force reset 
 		}
 	}
+#endif
 }
 
 void PowerInit(void)

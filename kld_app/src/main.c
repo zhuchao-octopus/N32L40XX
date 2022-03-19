@@ -611,6 +611,7 @@ static void Task1sPro()
 
 	if (g_super_watchdog_timer>0) {
 		--g_super_watchdog_timer;
+#if 0
 		if ( (g_startup_cntr>10) && (0==g_super_watchdog_timer) ) {
 			// power off & on all system
 			g_startup_cntr = 0;
@@ -645,6 +646,7 @@ static void Task1sPro()
 			radio_set_pwr_ctrl(TRUE);
 
 		}
+#endif
 	}
 }
 
