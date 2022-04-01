@@ -609,12 +609,18 @@ extern void PowerManage(void)           //12ms÷¥––“ª¥Œ
 		case POWER_ACC_OFF:
 			if(AccOffTimer==0)
 			{
-				// notify APP to enter sleep
-				PostEvent(WINCE_MODULE, TX_TO_GUI_POWER_CMD, WCE_POWER_ENTER_ACC_WAIT);
-				g_app_slept = FALSE;
-				g_host_is_sleep = TRUE;	// we assume it's asleep
-				g_power_timer = 0;
-				nPowerState=POWER_ACCOFF_CHECK_HOST;
+				if (0==g_acc_wait_timeout) {
+					// notify APP to enter sleep
+					PostEvent(WINCE_MODULE, TX_TO_GUI_POWER_CMD, WCE_POWER_ENTER_ACC_WAIT);
+					g_app_slept = FALSE;
+					g_host_is_sleep = TRUE;	// we assume it's asleep
+					g_power_timer = 0;
+					nPowerState=POWER_ACCOFF_CHECK_HOST;
+				} else {
+					g_acc_wait_timer = g_acc_wait_timeout*T1S_100;
+					g_power_timer = 0;
+					nPowerState=POWER_ACCOFF_WAIT;
+				}
 			}
 			break;
 		case POWER_ACCOFF_CHECK_HOST:
