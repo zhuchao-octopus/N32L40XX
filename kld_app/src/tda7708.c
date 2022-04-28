@@ -21,6 +21,18 @@ static u16 s_cnt = 0;
 
 static u8 g_tda7708_timer = 0;
 
+#define MAX_CHECK	10
+static u8 g_check_cntr;
+static u16 g_check_detune;
+static s16 g_check_fs;
+static u16 g_check_snr;
+static u16 g_check_mpx;
+static u16 g_check_mp;
+static u16 g_check_dev;
+static s16 g_check_adj;
+
+static u8 g_tda7708_in_seek = 0;
+
 static void tda7708_i2c_read(u8 len)
 {
 	u8 cnt;
@@ -306,17 +318,6 @@ bool radio_dev_is_set_freq_done(void)
 		return FALSE;
 	}
 
-	g_tda7708_addr[0] = 0x62;
-	g_tda7708_addr[1] = 0x01;
-	g_tda7708_addr[2] = 0x00;
-	tda7708_i2c_read(4);
-	if (g_tda7708_data[2]&(1<<0)) {
-		return FALSE;
-	}
-	if (g_tda7708_data[1]&(1<<4)) {
-		return FALSE;
-	}
-
 	if (RADIO_BAND_FM == g_tda7708_band) {
 		// reset & activate RDS buffer
 		g_tda7708_data[TDA7708_CMD_PARAM1_POS_H] = 0x00;
@@ -329,7 +330,28 @@ bool radio_dev_is_set_freq_done(void)
 		g_tda7708_data[TDA7708_CMD_PARAM3_POS_M] = 0x00;
 		g_tda7708_data[TDA7708_CMD_PARAM3_POS_L] = 0x08;
 		tda7708_i2c_cmd(CMD_CODE_TUNER_RDSBUFFER_SET, 3, 0);
+	} else {
+		g_tda7708_addr[0] = 0x62;
+		g_tda7708_addr[1] = 0x01;
+		g_tda7708_addr[2] = 0x00;
+		tda7708_i2c_read(4);
+		if (g_tda7708_data[2]&(1<<0)) {
+			return FALSE;
+		}
+		if (g_tda7708_data[1]&(1<<4)) {
+			return FALSE;
+		}
 	}
+
+	g_check_cntr = MAX_CHECK;
+	g_check_detune = 0;
+	g_check_fs = 0;
+	g_check_snr = 0;
+	g_check_mpx = 0;
+	g_check_mp = 0;
+	g_check_dev = 0;
+	g_check_adj = 0;
+
 	return TRUE;
 }
 void radio_dev_set_freq(RADIO_BAND band, u16 freq)
@@ -339,6 +361,47 @@ void radio_dev_set_freq(RADIO_BAND band, u16 freq)
 
 	if (TDA7708_STATUS_READY!=g_tda7708_status) {
 		return;
+	}
+
+	tmp = (u32)freq;
+	value = (u32)tmp*10;
+	g_tda7708_data[TDA7708_CMD_PARAM1_POS_H] = 0x00;
+	g_tda7708_data[TDA7708_CMD_PARAM1_POS_M] = 0x00;
+	g_tda7708_data[TDA7708_CMD_PARAM1_POS_L] = 0x01;
+	g_tda7708_data[TDA7708_CMD_PARAM2_POS_H] = 0x00;
+	g_tda7708_data[TDA7708_CMD_PARAM2_POS_M] = 0x00;
+	g_tda7708_data[TDA7708_CMD_PARAM2_POS_L] = 0x08;
+	g_tda7708_data[TDA7708_CMD_PARAM3_POS_H] = (value>>16)&0xFF;
+	g_tda7708_data[TDA7708_CMD_PARAM3_POS_M] = (value>>8)&0xFF;
+	g_tda7708_data[TDA7708_CMD_PARAM3_POS_L] = (value>>0)&0xFF;
+	tda7708_i2c_cmd(CMD_CODE_TUNER_SEEK_START, 3, 0);
+
+	g_tda7708_in_seek = 1;
+	
+}
+
+void radio_dev_set_freq_tune(RADIO_BAND band, u16 freq)
+{
+	u32 value;
+	u32 tmp;
+
+	if (TDA7708_STATUS_READY!=g_tda7708_status) {
+		return;
+	}
+
+	if (g_tda7708_in_seek!=0) {
+		g_tda7708_in_seek = 0;
+
+		// end seek
+		g_tda7708_data[TDA7708_CMD_PARAM1_POS_H] = 0x00;
+		g_tda7708_data[TDA7708_CMD_PARAM1_POS_M] = 0x00;
+		g_tda7708_data[TDA7708_CMD_PARAM1_POS_L] = 0x01;
+		g_tda7708_data[TDA7708_CMD_PARAM2_POS_H] = 0x00;
+		g_tda7708_data[TDA7708_CMD_PARAM2_POS_M] = 0x00;
+		g_tda7708_data[TDA7708_CMD_PARAM2_POS_L] = 0x00;
+		tda7708_i2c_cmd(CMD_CODE_TUNER_SEEK_END, 2, 0);
+
+		delay_1ms(10);
 	}
 
 	if (band != g_tda7708_band) {
@@ -367,7 +430,6 @@ void radio_dev_set_freq(RADIO_BAND band, u16 freq)
 }
 bool radio_dev_is_tune_ok(bool strict)
 {
-	u8 tmp;
 
 	if (TDA7708_STATUS_READY!=g_tda7708_status) {
 		return FALSE;
@@ -379,51 +441,102 @@ bool radio_dev_is_tune_ok(bool strict)
 
 	if ( RADIO_BAND_FM == g_tda7708_band ) {
 
-		tda7708_i2c_cmd(CMD_CODE_TUNER_GET_CHANNEL_QUALITY, 1, 3);
-		
-		// check MultiPath
-		if (g_tda7708_data[TDA7708_CMD_PARAM2_POS_H] > 0x60) {
-			return FALSE;
-		}
-		// check SNR
-		if (g_tda7708_data[TDA7708_CMD_PARAM2_POS_L] < 0x40) {
-			return FALSE;
-		}
-		// check field strength
-		if (g_tda7708_data[TDA7708_CMD_PARAM1_POS_M] > 0x7F) {
-			// -dBuV
-			return FALSE;
-		}
-		// check detune
-		if (g_tda7708_data[TDA7708_CMD_PARAM1_POS_L] > 0x1B) {
-			return FALSE;
-		}
-		// check MPX
-		if (g_tda7708_data[TDA7708_CMD_PARAM2_POS_M] > 0xC0) {
-			return FALSE;
-		}
-		// check adjchannel
-		tmp = g_tda7708_data[TDA7708_CMD_PARAM3_POS_H];
-		if ( (tmp>0x64) && (tmp<=0x7F) ) {
-			return FALSE;
-		}
-		
-		// check deviation
-//		if ((g_tda7708_data[TDA7708_CMD_PARAM3_POS_L]>>1) > 10) {
-//			return FALSE;
-//		}
-		
-		if (RDSM_LOC==g_tda7708_seek_mode) {
-			if (g_tda7708_data[TDA7708_CMD_PARAM1_POS_M] < 0x20) {
-				// +dBuV
+		if (strict) {
+			g_7708_detune = g_check_detune / MAX_CHECK;
+			g_7708_fs = g_check_fs / MAX_CHECK;
+			g_7708_snr = g_check_snr / MAX_CHECK;
+			g_7708_mpx = g_check_mpx / MAX_CHECK;
+			g_7708_mp = g_check_mp / MAX_CHECK;
+			g_7708_dev= g_check_dev / MAX_CHECK;
+			g_7708_adj = g_check_adj / MAX_CHECK;
+			
+//			PostEvent(WINCE_MODULE, TX_TO_GUI_RADIO_TEST_INFO, NONE);
+
+			// check field strength
+			if (RDSM_LOC==g_tda7708_seek_mode) {
+				if (g_7708_fs < 0x18) {
+					// +dBuV
+					return FALSE;
+				}
+			} else {
+				if (g_7708_fs < 0x0A) {
+					// +dBuV
+					return FALSE;
+				}
+			}			
+
+			// check detune
+			if (g_7708_detune > 0x14) {
+				return FALSE;
+			}
+
+			// check MultiPath
+			if (g_7708_mp > 0x60) {
+				return FALSE;
+			}
+
+			// check MPX
+			if (g_7708_mpx > 0xC0) {
+				return FALSE;
+			}
+
+			// check SNR
+			if (g_7708_snr < 0x40) {
+				return FALSE;
+			}
+
+			// check adjchannel
+			if (g_7708_adj>0x64) {
 				return FALSE;
 			}
 		} else {
-			if (g_tda7708_data[TDA7708_CMD_PARAM1_POS_M] < 0x0E) {
-				// +dBuV
+
+			tda7708_i2c_cmd(CMD_CODE_TUNER_GET_CHANNEL_QUALITY, 1, 3);
+
+			// check MultiPath
+//			if (g_tda7708_data[TDA7708_CMD_PARAM2_POS_H] > 0x60) {
+//				return FALSE;
+//			}
+			// check SNR
+			if (g_tda7708_data[TDA7708_CMD_PARAM2_POS_L] < 0x40) {
 				return FALSE;
 			}
+			// check field strength
+			if (g_tda7708_data[TDA7708_CMD_PARAM1_POS_M] > 0x7F) {
+				// -dBuV
+				return FALSE;
+			}
+			// check detune
+//			if (g_tda7708_data[TDA7708_CMD_PARAM1_POS_L] > 0xB) {
+//				return FALSE;
+//			}
+			// check MPX
+//			if (g_tda7708_data[TDA7708_CMD_PARAM2_POS_M] > 0xC0) {
+//				return FALSE;
+//			}
+			// check adjchannel
+//			tmp = g_tda7708_data[TDA7708_CMD_PARAM3_POS_H];
+//			if ( (tmp>0x64) && (tmp<=0x7F) ) {
+//				return FALSE;
+//			}
+			// check deviation
+	//		if ((g_tda7708_data[TDA7708_CMD_PARAM3_POS_L]>>1) > 10) {
+	//			return FALSE;
+	//		}
+			
+//			if (RDSM_LOC==g_tda7708_seek_mode) {
+//				if (g_tda7708_data[TDA7708_CMD_PARAM1_POS_M] < 0x18) {
+					// +dBuV
+//					return FALSE;
+//				}
+//			} else {
+				if (g_tda7708_data[TDA7708_CMD_PARAM1_POS_M] < 0x14) {
+					// +dBuV
+					return FALSE;
+				}
+//			}
 		}
+
 	} else {
 		tda7708_i2c_cmd(CMD_CODE_TUNER_GET_RECEPTION_QUALITY, 1, 3);
 
@@ -448,7 +561,34 @@ bool radio_dev_is_tune_ok(bool strict)
 bool radio_dev_is_tune_status_ready(void)
 {
 
-	return TRUE;
+	if (TDA7708_STATUS_READY!=g_tda7708_status) {
+		return FALSE;
+	}
+
+	if (RADIO_BAND_FM != g_tda7708_band) {
+		return TRUE;
+	}
+
+	g_tda7708_data[TDA7708_CMD_PARAM1_POS_H] = 0x00;
+	g_tda7708_data[TDA7708_CMD_PARAM1_POS_M] = 0x00;
+	g_tda7708_data[TDA7708_CMD_PARAM1_POS_L] = 0x01;
+
+	tda7708_i2c_cmd(CMD_CODE_TUNER_GET_SEEK_STATUS, 1, 4);
+
+	g_check_detune += g_tda7708_data[TDA7708_CMD_PARAM2_POS_L];
+	if (g_tda7708_data[TDA7708_CMD_PARAM2_POS_M]<0x80) {
+		g_check_fs += g_tda7708_data[TDA7708_CMD_PARAM2_POS_M];
+	}
+	g_check_snr += g_tda7708_data[TDA7708_CMD_PARAM3_POS_L];
+	g_check_mpx += g_tda7708_data[TDA7708_CMD_PARAM3_POS_M];
+	g_check_mp += g_tda7708_data[TDA7708_CMD_PARAM3_POS_H];
+	g_check_dev += (g_tda7708_data[TDA7708_CMD_PARAM4_POS_L]>>1);
+	if (g_tda7708_data[TDA7708_CMD_PARAM4_POS_H]<0x80) {
+		g_check_adj += g_tda7708_data[TDA7708_CMD_PARAM4_POS_H];
+	}
+
+	--g_check_cntr;
+	return (0==g_check_cntr);
 }
 u8 radio_dev_get_stereo_status(void)
 {
