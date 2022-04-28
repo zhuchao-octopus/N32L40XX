@@ -181,10 +181,10 @@ static void radio_handle_freq_set(void)
 			}
 			if (IS_IN_FM(VAR_RFSET_BAND)) {
 				CORRECT_FM_FREQ(VAR_RFSET_FREQ);
-				radio_dev_set_freq(RADIO_BAND_FM, VAR_RFSET_FREQ);
+				radio_dev_set_freq_tune(RADIO_BAND_FM, VAR_RFSET_FREQ);
 			} else {
 				CORRECT_AM_FREQ(VAR_RFSET_FREQ);
-				radio_dev_set_freq(RADIO_BAND_AM, VAR_RFSET_FREQ);
+				radio_dev_set_freq_tune(RADIO_BAND_AM, VAR_RFSET_FREQ);
 			}
 			VAR_RFSET_TIMER = T300MS_12;
 			S_RFSET_STATE(RFSET_STATE_SET_ING);
@@ -294,10 +294,18 @@ static void radio_handle_freq_seek(void)
 			rds_reset_var();
 			audio_set_mute(AUDIO_MUTE_RADIO, TRUE);
 			radio_dev_set_mute(TRUE);
-			if (IS_IN_FM(VAR_RFS_BAND)) {
-				radio_dev_set_freq(RADIO_BAND_FM, VAR_RFS_C_FREQ);
+			if (TRUE==VAR_RFS_STOPPED) {
+				if (IS_IN_FM(VAR_RFS_BAND)) {
+					radio_dev_set_freq_tune(RADIO_BAND_FM, VAR_RFS_C_FREQ);
+				} else {
+					radio_dev_set_freq_tune(RADIO_BAND_AM, VAR_RFS_C_FREQ);
+				}
 			} else {
-				radio_dev_set_freq(RADIO_BAND_AM, VAR_RFS_C_FREQ);
+				if (IS_IN_FM(VAR_RFS_BAND)) {
+					radio_dev_set_freq(RADIO_BAND_FM, VAR_RFS_C_FREQ);
+				} else {
+					radio_dev_set_freq_tune(RADIO_BAND_AM, VAR_RFS_C_FREQ);
+				}
 			}
 			VAR_RFS_TIMER = T100MS_12;
 			S_RFS_STATE(RFS_STATE_SET_FREQ_ING);
@@ -547,10 +555,10 @@ static void radio_handle_preset_seek(void)
 		case RPS_STATE_SET_FREQ:
 			if (IS_IN_FM(VAR_RPS_BAND)) {
 				CORRECT_FM_PRESET_NUM(VAR_RPS_C_ID);
-				radio_dev_set_freq(RADIO_BAND_FM, G_PRESET_FM(VAR_RPS_BAND, VAR_RPS_C_ID));
+				radio_dev_set_freq_tune(RADIO_BAND_FM, G_PRESET_FM(VAR_RPS_BAND, VAR_RPS_C_ID));
 			} else if (IS_IN_AM(VAR_RPS_BAND)) {
 				CORRECT_AM_PRESET_NUM(VAR_RPS_C_ID);
-				radio_dev_set_freq(RADIO_BAND_AM, G_PRESET_AM(VAR_RPS_BAND, VAR_RPS_C_ID));
+				radio_dev_set_freq_tune(RADIO_BAND_AM, G_PRESET_AM(VAR_RPS_BAND, VAR_RPS_C_ID));
 			}
 			VAR_RPS_TIMER = T300MS_12;
 			S_RPS_STATE(RPS_STATE_SET_FREQ_ING);
@@ -1427,9 +1435,9 @@ void radio_main(void)
 			radio_init_area(g_radio_area);
 
 			if (IS_IN_FM(G_CUR_BAND())) {
-				radio_dev_set_freq(RADIO_BAND_FM, G_CUR_FREQ());
+				radio_dev_set_freq_tune(RADIO_BAND_FM, G_CUR_FREQ());
 			} else {
-				radio_dev_set_freq(RADIO_BAND_AM, G_CUR_FREQ());
+				radio_dev_set_freq_tune(RADIO_BAND_AM, G_CUR_FREQ());
 			}
 			rds_reset_var();
 			radio_dev_rds_init();

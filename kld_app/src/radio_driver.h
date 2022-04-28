@@ -283,6 +283,13 @@ ext u8 g_radio_area;
 ext RADIO_INFO g_radio_info;	// do not write any member outside radio_driver.c, just read only.
 ext u16 g_tea668x_version;
 
+ext u8 g_7708_detune;
+ext u8 g_7708_fs;
+ext u8 g_7708_snr;
+ext u8 g_7708_mpx;
+ext u8 g_7708_mp;
+ext u8 g_7708_dev;
+ext u8 g_7708_adj;
 
 /*******************************************************
 *   interface for physical radio device
@@ -301,6 +308,8 @@ bool radio_dev_deinit(void);
 bool radio_dev_is_set_freq_done(void);
 
 void radio_dev_set_freq(RADIO_BAND band, u16 freq);
+
+void radio_dev_set_freq_tune(RADIO_BAND band, u16 freq);
 
 // return value: true, if radio device received a qualify station .
 //                   false, if the current station is not good, due to fault at 

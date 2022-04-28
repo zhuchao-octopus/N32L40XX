@@ -31,6 +31,9 @@ typedef enum
 #define TDA7708_CMD_PARAM3_POS_H		9
 #define TDA7708_CMD_PARAM3_POS_M		10
 #define TDA7708_CMD_PARAM3_POS_L		11
+#define TDA7708_CMD_PARAM4_POS_H		12
+#define TDA7708_CMD_PARAM4_POS_M		13
+#define TDA7708_CMD_PARAM4_POS_L		14
 
 
 // RDS block error count
