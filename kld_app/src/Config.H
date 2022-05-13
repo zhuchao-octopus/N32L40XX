@@ -7,6 +7,8 @@
 
 //#define KD2000
 
+//#define CUSTOM_887
+
 /*****************************
 ******************************
 	options 
@@ -117,7 +119,7 @@
 #define CONFIG_LOUDNESS_DB	6
 
 /*---- Radio ----*/
-#define TUNER_MODEL  TUNER_NXP_TEA668X
+#define TUNER_MODEL  TUNER_ST_TDA7708
 #define RADIO_DEFAULT_REGION   	RADIO_AREA_EUROPE//默认收音区域选择
 #define RDS_FUNCTION		1//RDS开关
 //#define TEA668X_V205
@@ -179,6 +181,8 @@
 
 #ifdef KD2000
 #define MCU_VERSION	"CSM4_KD2000_" MCU_DSP MCU_RADIO MCU_VERSION_BASE 
+#elif defined (CUSTOM_887)
+#define MCU_VERSION	"CSM4_6_" MCU_DSP MCU_RADIO MCU_VERSION_BASE 
 #else
 #define MCU_VERSION	"CSM4_" MCU_DSP MCU_RADIO MCU_VERSION_BASE 
 #endif
