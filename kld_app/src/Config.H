@@ -21,6 +21,7 @@
 #define TUNER_SILICONLAB_SI476X		3
 #define TUNER_NXP_TEA668X		4
 #define TUNER_ST_TDA7708		5
+#define TUNER_SILICONLAB_SI475X    6
 
 //DVD device
 #define DVD_DVS				0
@@ -125,6 +126,10 @@
 //#define TEA668X_V205
 #ifndef TEA668X_V205
 #define TEA668X_V102
+#endif
+
+#if TUNER_MODEL==TUNER_SILICONLAB_SI475X
+#define FIX_RADIO_BAND_SWITCH_POP
 #endif
 
 /*---- DVD ----*/

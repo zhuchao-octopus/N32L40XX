@@ -596,6 +596,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\tda7708.c</FilePath>
             </File>
+            <File>
+              <FileName>si475x.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\si475x.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

@@ -153,12 +153,28 @@ static void _set_cur_band_freq_by_preset_id(PRESET_BAND band, s8 id)
 	}
 }
 
+#ifdef FIX_RADIO_BAND_SWITCH_POP
+static void radio_config_fix_pop(u8 timer)
+{
+	audio_set_mute(AUDIO_MUTE_RADIO, 1);	// we will recovery at RADIO_STATE_IDLE
+	S_RFSET_STATE(RFSET_STATE_PREPARING);//RFSET_STATE_BEGIN);
+	VAR_RFSET_TIMER = timer;
+}
+#endif
 
 static void radio_handle_freq_set(void)
 {
 	u16 step;
 
 	switch(G_RFSET_STATE()) {
+#ifdef FIX_RADIO_BAND_SWITCH_POP
+		case RFSET_STATE_PREPARING:
+			--VAR_RFSET_TIMER;
+			if (0==VAR_RFSET_TIMER) {
+				S_RFSET_STATE(RFSET_STATE_BEGIN);
+			}
+			break;
+#endif
 		case RFSET_STATE_BEGIN:
 			rds_reset_var();
 			PostEvent(WINCE_MODULE, TX_TO_GUI_RDS_PS_INFO, NONE);	// notify HOST clear the PS info
@@ -729,7 +745,11 @@ void radio_event_handler(void)
 	switch(pEvt->ID) {
 		case RADIO_EVT_BAND:
 			g_radio_info.state = RADIO_STATE_FREQ_SETTING;
+#ifdef FIX_RADIO_BAND_SWITCH_POP
+			radio_config_fix_pop(T500MS_12);
+#else
 			S_RFSET_STATE(RFSET_STATE_BEGIN);
+#endif
 			S_RFSET_CMD(RFSET_CMD_SWITCH_BAND);
 
 			if (pEvt->prm<PRESET_BAND_NUMS) {
@@ -788,7 +808,11 @@ void radio_event_handler(void)
 			
 			if (G_CUR_FREQ() != tmp_freq) {
 				g_radio_info.state = RADIO_STATE_FREQ_SETTING;
+#ifdef FIX_RADIO_BAND_SWITCH_POP
+				radio_config_fix_pop(T300MS_12);
+#else
 				S_RFSET_STATE(RFSET_STATE_BEGIN);
+#endif
 				S_RFSET_CMD(RFSET_CMD_SET_TO);
 				VAR_RFSET_BAND = G_CUR_BAND();
 				VAR_RFSET_FREQ = tmp_freq;
@@ -821,7 +845,11 @@ void radio_event_handler(void)
 			}			
 			if (G_CUR_FREQ() != tmp_freq) {
 				g_radio_info.state = RADIO_STATE_FREQ_SETTING;
+#ifdef FIX_RADIO_BAND_SWITCH_POP
+				radio_config_fix_pop(T300MS_12);
+#else
 				S_RFSET_STATE(RFSET_STATE_BEGIN);
+#endif
 				S_RFSET_CMD(RFSET_CMD_SET_TO);
 				VAR_RFSET_BAND = G_CUR_BAND();
 				VAR_RFSET_FREQ = tmp_freq;
@@ -878,7 +906,11 @@ void radio_event_handler(void)
 				case 5:	// step up
 				case 6:	// step down
 					g_radio_info.state = RADIO_STATE_FREQ_SETTING;
+#ifdef FIX_RADIO_BAND_SWITCH_POP
+					radio_config_fix_pop(T300MS_12);
+#else
 					S_RFSET_STATE(RFSET_STATE_BEGIN);
+#endif
 					if (5==pEvt->prm) {
 						S_RFSET_CMD(RFSET_CMD_STEP_DN);
 					} else if (6==pEvt->prm) {
@@ -914,7 +946,11 @@ void radio_event_handler(void)
 						tmp_freq = G_PRESET_AM(G_CUR_BAND(), tmp_id);
 					}
 					g_radio_info.state = RADIO_STATE_FREQ_SETTING;
+#ifdef FIX_RADIO_BAND_SWITCH_POP
+					radio_config_fix_pop(T300MS_12);
+#else
 					S_RFSET_STATE(RFSET_STATE_BEGIN);
+#endif
 					S_RFSET_CMD(RFSET_CMD_SET_TO);
 					VAR_RFSET_BAND = G_CUR_BAND();
 					VAR_RFSET_FREQ = tmp_freq;
