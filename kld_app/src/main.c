@@ -127,7 +127,7 @@ static void gpio_config(void)
 	GPIO_InitPeripheral(GPIO_CAN_UART_TX_GRP, &gpio_init_output_af);
 	gpio_init_output_af.Pin = GPIO_CAN_UART_RX_PIN;
 	gpio_init_output_af.GPIO_Alternate = GPIO_AF4_USART2;
-	gpio_init_output_af.GPIO_Pull = GPIO_Pull_Up;
+	gpio_init_output_af.GPIO_Pull = GPIO_No_Pull;
 	GPIO_InitPeripheral(GPIO_CAN_UART_RX_GRP, &gpio_init_output_af);
 
 	
