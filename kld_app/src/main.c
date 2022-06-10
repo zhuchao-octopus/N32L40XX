@@ -58,6 +58,7 @@ static void gpio_config(void)
 {
 	GPIO_InitType gpio_init_output;
 	GPIO_InitType  gpio_init_output_af;
+	GPIO_InitType  gpio_init_output_af_od;
 	GPIO_InitType  gpio_init_input_af;
 	GPIO_InitType  gpio_init_input_pull_up;
 	GPIO_InitType  gpio_init_input_float;
@@ -69,6 +70,9 @@ static void gpio_config(void)
 	GPIO_InitStruct(&gpio_init_output_af);
 	gpio_init_output_af.GPIO_Mode = GPIO_Mode_AF_PP;
 	gpio_init_output_af.GPIO_Current = GPIO_DC_4mA;
+	GPIO_InitStruct(&gpio_init_output_af_od);
+	gpio_init_output_af_od.GPIO_Mode = GPIO_Mode_AF_OD;
+	gpio_init_output_af_od.GPIO_Current = GPIO_DC_4mA;
 	GPIO_InitStruct(&gpio_init_input_af);
 	gpio_init_input_af.GPIO_Mode = GPIO_Mode_Input;
 	gpio_init_input_af.GPIO_Current = GPIO_DC_4mA;
@@ -121,10 +125,10 @@ static void gpio_config(void)
 	GPIO_InitPeripheral(GPIO_HOST_UART_RX_GRP, &gpio_init_output_af);
 
 	/* UART CAN */
-	gpio_init_output_af.Pin = GPIO_CAN_UART_TX_PIN;
-	gpio_init_output_af.GPIO_Alternate = GPIO_AF4_USART2;
-	gpio_init_output_af.GPIO_Pull = GPIO_No_Pull;
-	GPIO_InitPeripheral(GPIO_CAN_UART_TX_GRP, &gpio_init_output_af);
+	gpio_init_output_af_od.Pin = GPIO_CAN_UART_TX_PIN;
+	gpio_init_output_af_od.GPIO_Alternate = GPIO_AF4_USART2;
+	gpio_init_output_af_od.GPIO_Pull = GPIO_No_Pull;
+	GPIO_InitPeripheral(GPIO_CAN_UART_TX_GRP, &gpio_init_output_af_od);
 	gpio_init_output_af.Pin = GPIO_CAN_UART_RX_PIN;
 	gpio_init_output_af.GPIO_Alternate = GPIO_AF4_USART2;
 	gpio_init_output_af.GPIO_Pull = GPIO_No_Pull;
