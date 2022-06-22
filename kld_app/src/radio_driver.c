@@ -426,6 +426,11 @@ static void radio_handle_freq_seek(void)
 					case RFS_CMD_AF_SEEK_LIST:
 					case RFS_CMD_AF_SEEK_PI:
 						// found the proper freq, goto FINISHED directly
+#if TUNER_MODEL==TUNER_ST_TDA7708
+						if (IS_IN_FM(VAR_RFS_BAND)) {
+							radio_dev_set_freq_tune(RADIO_BAND_FM, VAR_RFS_C_FREQ);
+						}
+#endif
 						S_RFS_STATE(RFS_STATE_FINISHED);
 						break;
 				}				
