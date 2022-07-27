@@ -3,7 +3,7 @@
 #define _RADIO_DRIVER_H_
 
 
-#define FM_PRESET_NUM		30
+#define FM_PRESET_NUM		12
 #define AM_PRESET_NUM		12
 
 typedef enum
