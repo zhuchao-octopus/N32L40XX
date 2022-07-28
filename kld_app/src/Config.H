@@ -8,6 +8,7 @@
 //#define KD2000
 
 //#define CUSTOM_887
+//#define CUSTOM_S217
 
 /*****************************
 ******************************
@@ -108,9 +109,15 @@
 //#define ASP_MODEL		ASP_BD37534		// non DSP
 #define VOLUME_CUT_WHEN_NAVI_MIX		9
 #define DFT_NAVI_AUDIO_CH	NAVI_AUDIO_LEFT_CH//导航发声时默认喇叭
+#ifdef CUSTOM_S217
+#define A_SRC_RADIO_EXTRA_GAIN_ATTEN		1
+#define A_SRC_HOST_EXTRA_GAIN_ATTEN		7
+#define A_SRC_BT_MODULE_EXTRA_GAIN_ATTEN		10
+#else
 #define A_SRC_RADIO_EXTRA_GAIN_ATTEN		0
 #define A_SRC_HOST_EXTRA_GAIN_ATTEN		4
 #define A_SRC_BT_MODULE_EXTRA_GAIN_ATTEN		-3
+#endif
 #define A_SRC_DVD_EXTRA_GAIN_ATTEN		-4
 #define A_SRC_AUXIN_EXTRA_GAIN_ATTEN		-7
 #define A_SRC_TV_EXTRA_GAIN_ATTEN		0

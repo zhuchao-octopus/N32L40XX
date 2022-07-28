@@ -174,12 +174,26 @@ static void audio_source_handler(void)
 	}
 }
 
+#ifdef CUSTOM_S217
+static u8 g_fix_bt_cntr = 0;
+#endif
 static void audio_volume_handler(void)
 {
 	u8 vol, target_vol;
 	u16 tmp;
 
 	target_vol = g_audio_info.system_vol;
+#ifdef CUSTOM_S217
+	if (FrontSource==SOURCE_BT) {
+		if (g_fix_bt_cntr>T1S_12) {
+			target_vol += 6;
+		} else {
+			g_fix_bt_cntr++;
+		}
+	} else {
+		g_fix_bt_cntr = 0;
+	}
+#endif
 	if (g_audio_info.bt_phone_on) {
 		target_vol = g_audio_info.bt_phone_vol;
 	} else if (g_audio_info.bt_voice_on) {
