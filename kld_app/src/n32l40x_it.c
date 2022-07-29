@@ -207,7 +207,9 @@ void TIM5_IRQHandler(void)
 {
 	if (TIM_GetIntStatus(TIM5, TIM_INT_CC2) == SET) {
 		TIM_ClrIntPendingBit(TIM5, TIM_INT_CC2);
+#ifndef CUSTOM_S217
 		ir_rx_handler();
+#endif
 	} else if (TIM_GetIntStatus(TIM5, TIM_INT_CC4) == SET) {
 		TIM_ClrIntPendingBit(TIM5, TIM_INT_CC4);
 		can_ir_handler();

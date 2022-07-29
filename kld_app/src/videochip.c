@@ -156,9 +156,11 @@ Description
 extern void SetFrontVideo(u8 prm)
 {
 	u8 input = NO_SOURCE;
+#ifndef CUSTOM_S217
 	if (SOURCE_FRONT_AUX == prm) {
 		GPIO_SetBits(GPIO_FCAM_PWR_GRP, GPIO_FCAM_PWR_PIN);
 	}
+#endif
 	switch (prm) {
 		case SOURCE_CAMERA:
 			input = CAMERA_CVBS_SOURCE;
@@ -181,9 +183,11 @@ extern void SetFrontVideo(u8 prm)
 			break;
 	}
 	Select_Video_Source(FRONT_CVBS_CHANNEL, input);
+#ifndef CUSTOM_S217
 	if (SOURCE_FRONT_AUX != prm) {
 		GPIO_ResetBits(GPIO_FCAM_PWR_GRP, GPIO_FCAM_PWR_PIN);
 	}
+#endif
 }
 
 /*--------------------------------------------------------------------------

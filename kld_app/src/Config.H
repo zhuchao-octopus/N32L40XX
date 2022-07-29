@@ -105,8 +105,8 @@
 ******************************
 ******************************/
 /*---- Audio ----*/
-#define ASP_MODEL		ASP_BU32107		// DSP
-//#define ASP_MODEL		ASP_BD37534		// non DSP
+//#define ASP_MODEL		ASP_BU32107		// DSP
+#define ASP_MODEL		ASP_BD37534		// non DSP
 #define VOLUME_CUT_WHEN_NAVI_MIX		9
 #define DFT_NAVI_AUDIO_CH	NAVI_AUDIO_LEFT_CH//导航发声时默认喇叭
 #ifdef CUSTOM_S217
@@ -127,7 +127,7 @@
 #define CONFIG_LOUDNESS_DB	6
 
 /*---- Radio ----*/
-#define TUNER_MODEL  TUNER_ST_TDA7708
+#define TUNER_MODEL  TUNER_NXP_TEA668X
 #define RADIO_DEFAULT_REGION   	RADIO_AREA_EUROPE//默认收音区域选择
 #define RDS_FUNCTION		1//RDS开关
 //#define TEA668X_V205
@@ -140,7 +140,9 @@
 #endif
 
 /*---- DVD ----*/
+#ifndef CUSTOM_S217
 #define DVD_FUNCTION_ENABLE
+#endif
 #define DFT_DVD_MODE		DVD_XINWA//机芯选择
 //#define NO_DISC_LED
 
@@ -195,6 +197,8 @@
 #define MCU_VERSION	"CSM4_KD2000_" MCU_DSP MCU_RADIO MCU_VERSION_BASE 
 #elif defined (CUSTOM_887)
 #define MCU_VERSION	"CSM4_6_" MCU_DSP MCU_RADIO MCU_VERSION_BASE 
+#elif defined (CUSTOM_S217)
+#define MCU_VERSION	"CSM4_S217_" MCU_DSP MCU_RADIO MCU_VERSION_BASE 
 #else
 #define MCU_VERSION	"CSM4_" MCU_DSP MCU_RADIO MCU_VERSION_BASE 
 #endif

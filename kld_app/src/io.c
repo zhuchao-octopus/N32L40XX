@@ -296,13 +296,23 @@ void SystemPowerContrl(ONOFF On_Off)
 		}
 #endif
 		GPIO_SetBits(GPIO_LCD_EN_GRP, GPIO_LCD_EN_PIN);
+#ifdef CUSTOM_S217
+		GPIO_SetBits(GPIO_FAN_PWR_GRP, GPIO_FAN_PWR_PIN);
+#endif
 	}
 	else
 	{
 		GPIO_ResetBits(GPIO_ANT_CTRL_GRP, GPIO_ANT_CTRL_PIN);
 		GPIO_ResetBits(GPIO_LCD_EN_GRP, GPIO_LCD_EN_PIN);
+#ifdef CUSTOM_S217
+		GPIO_ResetBits(GPIO_FAN_PWR_GRP, GPIO_FAN_PWR_PIN);
+#else
 		GPIO_ResetBits(GPIO_FCAM_PWR_GRP, GPIO_FCAM_PWR_PIN);
+#endif
+
+#ifdef DVD_FUNCTION_ENABLE
 		dvd_poweroff();
+#endif
 		SYSTEM_POWER_CTRL_OFF;
 		if (g_kill_host) {
 			REAL_SYS_PWR_OFF;

@@ -107,10 +107,16 @@ static void gpio_config(void)
 		GPIO_InitPeripheral(GPIO_AUDIO_PWR_GRP, &gpio_init_output);
 		GPIO_ResetBits(GPIO_AUDIO_PWR_GRP, GPIO_AUDIO_PWR_PIN);
 
+#ifdef CUSTOM_S217
+		gpio_init_output.Pin = GPIO_FAN_PWR_PIN;
+		GPIO_InitPeripheral(GPIO_FAN_PWR_GRP, &gpio_init_output);
+		GPIO_ResetBits(GPIO_FAN_PWR_GRP, GPIO_FAN_PWR_PIN);
+#else
 		/* Fcam power control */
 		gpio_init_output.Pin = GPIO_FCAM_PWR_PIN;
 		GPIO_InitPeripheral(GPIO_FCAM_PWR_GRP, &gpio_init_output);
 		GPIO_ResetBits(GPIO_FCAM_PWR_GRP, GPIO_FCAM_PWR_PIN);
+#endif
 	}
 
 

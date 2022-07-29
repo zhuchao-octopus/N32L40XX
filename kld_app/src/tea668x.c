@@ -446,6 +446,10 @@ void radio_dev_set_freq(RADIO_BAND band, u16 freq)
 
 	g_counter = Counter_4ms;
 }
+void radio_dev_set_freq_tune(RADIO_BAND band, u16 freq)
+{
+	radio_dev_set_freq(band, freq);
+}
 bool radio_dev_is_tune_ok(bool strict)
 {
 	u8 module;
