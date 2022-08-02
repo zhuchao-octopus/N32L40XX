@@ -87,7 +87,7 @@ void USART_RxTx_Init(bool enable)
 		GPIO_InitStructure.GPIO_Current = GPIO_DC_4mA;
 		GPIO_InitStructure.Pin = GPIO_CAN_UART_RX_PIN;
 		GPIO_InitStructure.GPIO_Alternate = GPIO_AF4_USART2;
-		GPIO_InitStructure.GPIO_Pull = GPIO_No_Pull;
+		GPIO_InitStructure.GPIO_Pull = GPIO_Pull_Up;
 		GPIO_InitPeripheral(GPIO_CAN_UART_RX_GRP, &GPIO_InitStructure);
 
 		USART_Init(CAN_COMM_UART, &USART_InitStructure);
@@ -103,7 +103,7 @@ void USART_RxTx_Init(bool enable)
 		GPIO_InitStructure.GPIO_Current = GPIO_DC_4mA;
 		GPIO_InitStructure.Pin = GPIO_CAN_UART_RX_PIN;
 		GPIO_InitStructure.GPIO_Alternate = GPIO_AF7_TIM5;
-		GPIO_InitStructure.GPIO_Pull = GPIO_No_Pull;
+		GPIO_InitStructure.GPIO_Pull = GPIO_Pull_Up;
 		GPIO_InitPeripheral(GPIO_CAN_UART_RX_GRP, &GPIO_InitStructure);
 
 		TIM_ConfigInt(TIMER_IR_RX, TIM_INT_CC4, ENABLE);

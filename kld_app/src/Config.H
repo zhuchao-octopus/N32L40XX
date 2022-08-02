@@ -129,7 +129,7 @@
 #define CONFIG_LOUDNESS_DB	6
 
 /*---- Radio ----*/
-#define TUNER_MODEL  TUNER_NXP_TEA668X
+#define TUNER_MODEL  TUNER_ST_TDA7708
 #define RADIO_DEFAULT_REGION   	RADIO_AREA_EUROPE//默认收音区域选择
 #define RDS_FUNCTION		1//RDS开关
 //#define TEA668X_V205
@@ -175,7 +175,7 @@
 	Version 
 ******************************
 ******************************/
-//#define MCU_FIXED_VERSION "CSN2_04282021_173906_V308"
+//#define MCU_FIXED_VERSION "CSM4_R7708_06222022_194652"
 
 #define MCU_VERSION_BASE   __DATE__ "_" __TIME__
 
@@ -191,6 +191,8 @@
 
 #if TUNER_MODEL==TUNER_ST_TDA7708
 #define MCU_RADIO		"R7708_"
+#elif TUNER_MODEL==TUNER_NXP_TEA668X
+#define MCU_RADIO		"6686_"
 #else
 #define MCU_RADIO		""
 #endif

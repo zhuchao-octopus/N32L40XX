@@ -131,13 +131,20 @@ static void gpio_config(void)
 	GPIO_InitPeripheral(GPIO_HOST_UART_RX_GRP, &gpio_init_output_af);
 
 	/* UART CAN */
+#if 1
+	gpio_init_output_af.Pin = GPIO_CAN_UART_TX_PIN;
+	gpio_init_output_af.GPIO_Alternate = GPIO_AF4_USART2;
+	gpio_init_output_af.GPIO_Pull = GPIO_Pull_Up;
+	GPIO_InitPeripheral(GPIO_CAN_UART_TX_GRP, &gpio_init_output_af);
+#else
 	gpio_init_output_af_od.Pin = GPIO_CAN_UART_TX_PIN;
 	gpio_init_output_af_od.GPIO_Alternate = GPIO_AF4_USART2;
 	gpio_init_output_af_od.GPIO_Pull = GPIO_No_Pull;
 	GPIO_InitPeripheral(GPIO_CAN_UART_TX_GRP, &gpio_init_output_af_od);
+#endif
 	gpio_init_output_af.Pin = GPIO_CAN_UART_RX_PIN;
 	gpio_init_output_af.GPIO_Alternate = GPIO_AF4_USART2;
-	gpio_init_output_af.GPIO_Pull = GPIO_No_Pull;
+	gpio_init_output_af.GPIO_Pull = GPIO_Pull_Up;
 	GPIO_InitPeripheral(GPIO_CAN_UART_RX_GRP, &gpio_init_output_af);
 
 	
