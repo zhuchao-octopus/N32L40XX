@@ -157,6 +157,9 @@ void USART2_IRQHandler(void)
 	if (USART_GetFlagStatus(CAN_COMM_UART, USART_FLAG_RXDNE) != RESET)
 	{
 		USART_ClrFlag(CAN_COMM_UART, USART_FLAG_RXDNE);
+#ifdef CAN_RX_DOUBLE_BUF
+		if ( (F_Usart_Rx_Data_Ready==0)||(F_Usart_Rx_Data_Ready_2==0) )
+#endif
 		canbox_rx(USART_ReceiveData(CAN_COMM_UART)&0xFF);
 	}
 }

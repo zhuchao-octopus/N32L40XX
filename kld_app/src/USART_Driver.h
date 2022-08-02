@@ -93,7 +93,12 @@ typedef struct
 	unsigned Usart_Tx_Full	:	1;
 	unsigned USART_Transmit_Rx_Buff_full	:	1;
 	unsigned USART_Transmit_Rx_Buff2_full	:	1;
+#ifdef CAN_RX_DOUBLE_BUF
+	unsigned Usart_Rx_Data_Ready_2  :       1;
+	unsigned :3;
+#else
 	unsigned :4;
+#endif
 }_UART_FLAG;
 typedef union 
 {
@@ -104,6 +109,9 @@ typedef union
 ext UART_FLAG Uart_Flag;
 
 #define F_Usart_Rx_Data_Ready	Uart_Flag.field.Usart_Rx_Data_Ready
+#ifdef CAN_RX_DOUBLE_BUF
+#define F_Usart_Rx_Data_Ready_2        Uart_Flag.field.Usart_Rx_Data_Ready_2
+#endif
 #define F_Usart_Tx_Full	Uart_Flag.field.Usart_Tx_Full
 #define USART_Transmit_Rx_Buff_full Uart_Flag.field.USART_Transmit_Rx_Buff_full
 #define USART_Transmit_Rx_Buff2_full Uart_Flag.field.USART_Transmit_Rx_Buff2_full
@@ -112,6 +120,10 @@ ext uchar * USART_Tx_Ptr;
 ext uchar USART_Tx_Length;
 ext uchar USART_Tx_Buff[MAX_USART_TX_BUFFER_LENGTH];
 ext uchar USART_Rx_Buff[MAX_USART_RX_BUFFER_LENGTH];
+#ifdef CAN_RX_DOUBLE_BUF
+ext uchar USART_Rx_Buff_2[MAX_USART_RX_BUFFER_LENGTH];
+ext u8 g_canbox_rx_using_buf2;
+#endif
 
 
 ext uchar USART_Transmit_Rx_Buff[MAX_USART_RX_BUFFER_LENGTH];

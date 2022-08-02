@@ -114,5 +114,9 @@ void USART_RxTx_Init(bool enable)
 
 	USART_Tx_Ptr=USART_Tx_Buff;
 	F_Usart_Rx_Data_Ready=0;
+#ifdef CAN_RX_DOUBLE_BUF
+	F_Usart_Rx_Data_Ready_2=0;
+	g_canbox_rx_using_buf2 = 0;
+#endif
 }
 

@@ -10,6 +10,8 @@
 //#define CUSTOM_887
 //#define CUSTOM_S217
 
+#define CAN_RX_DOUBLE_BUF
+
 /*****************************
 ******************************
 	options 
