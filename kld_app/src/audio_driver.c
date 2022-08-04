@@ -1,7 +1,7 @@
 
 #include "public.h"
 
-//#define AUDIO_INIT_SRC_FOR_TEST AUDIO_SRC_HOST
+#define AUDIO_INIT_SRC_FOR_TEST AUDIO_SRC_HOST
 
 
 static u8 _audio_change_volume(u8 start_vol, u8 target_vol)
