@@ -106,10 +106,12 @@ void MMI(void)	//4// 40msÊ±»ù
  		case UICC_VOLUME_DOWN:
 			audio_volume_down();
 			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 			break;  
 		case UICC_VOLUME_UP:
 			audio_volume_up();
 			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 			break;
 		case UICC_MUTE:
 			if (g_audio_info.mute & AUDIO_MUTE_USER) {

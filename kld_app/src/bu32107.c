@@ -419,7 +419,9 @@ void audio_dev_update_source(AUDIO_SOURCE src)
 	// modify input gain
 	if ( (AUDIO_SRC_BT_MODULE==src)&&(g_audio_info.bt_phone_on) ) {
 		val = 0+A_BT_PHONE_EXTRA_DB;
-	} else if ( (AUDIO_SRC_BT_MODULE==src)&&(g_audio_info.bt_voice_vol) ) {
+	} else if ( (AUDIO_SRC_BT_MODULE==src)&&(g_audio_info.bt_ring_on) ) {
+		val = 0+A_BT_PHONE_EXTRA_DB;
+	} else if ( (AUDIO_SRC_BT_MODULE==src)&&(g_audio_info.bt_voice_on) ) {
 		val = 0+A_BT_PHONE_EXTRA_DB;
 	} else {
 		val = 0;
@@ -493,7 +495,7 @@ void audio_dev_update_volume(u8 vol)
 	gain += g_audio_info.extra_input_gain[g_audio_info.cur_source];
 
 	// decrease bt phone vol, for GOC BT BC6
-	if (g_audio_info.bt_phone_on) {
+	if (g_audio_info.bt_phone_on || g_audio_info.bt_ring_on) {
 		if (1==g_bt_type) {
 			gain -= 15;
 		}
@@ -613,6 +615,8 @@ void audio_dev_update_navi_mix_vol(u8 vol)
 {
 	if (g_audio_info.bt_phone_on) {
 		bu32107_update_mix_vol(0);
+	} else if (g_audio_info.bt_ring_on) {
+		bu32107_update_mix_vol(0);
 	} else if (g_audio_info.bt_voice_on) {
 		bu32107_update_mix_vol(0);
 	} else if (g_audio_info.navi_break_on) {
@@ -702,7 +706,7 @@ void audio_dev_update_fader_balance(u8 fad, u8 bal)
 		}
 	}
 
-	if ((!g_audio_info.bt_phone_on)&&(!g_audio_info.bt_voice_on)&&(g_audio_info.navi_break_on)) {
+	if ((!g_audio_info.bt_phone_on)&&(!g_audio_info.bt_ring_on)&&(!g_audio_info.bt_voice_on)&&(g_audio_info.navi_break_on)) {
 		if (NAVI_BREAK_DIRECT==g_audio_info.navi_mix_extra_gain) {	// navi break directly
 			// mute the front speaker
 			atten[AUDIO_SPK_FL] = 97;

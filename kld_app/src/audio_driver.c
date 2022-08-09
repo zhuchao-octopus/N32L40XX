@@ -111,6 +111,8 @@ static void audio_source_handler(void)
 				src = AUDIO_SRC_BT_MODULE;
 			}
 		}
+	} else if (g_audio_info.bt_ring_on) {
+		src = AUDIO_SRC_HOST;
 	} else if (g_audio_info.bt_voice_on) {
 		src = AUDIO_SRC_BT_MODULE;
 	} else if (g_fake_pwr_off) {
@@ -182,6 +184,10 @@ static void audio_volume_handler(void)
 	target_vol = g_audio_info.system_vol;
 	if (g_audio_info.bt_phone_on) {
 		target_vol = g_audio_info.bt_phone_vol;
+	} else if (g_audio_info.bt_ring_on) {
+		target_vol = g_audio_info.bt_ring_vol;
+	} else if (g_audio_info.navi_on) {
+		target_vol = g_audio_info.navi_vol;
 	} else if (g_audio_info.bt_voice_on) {
 		target_vol = g_audio_info.bt_voice_vol;
 	} else if (g_audio_info.reverse_on) {
@@ -327,6 +333,10 @@ void audio_init(void)
 	g_audio_info.mute = 0;
 	g_audio_info.bt_phone_on = FALSE;
 	g_audio_info.bt_phone_vol = DEFAULT_VOLUME;
+	g_audio_info.bt_ring_on = FALSE;
+	g_audio_info.bt_ring_vol = DEFAULT_VOLUME;
+	g_audio_info.navi_on = FALSE;
+	g_audio_info.navi_vol = DEFAULT_VOLUME;
 	g_audio_info.carplay_phone_on = FALSE;
 	g_audio_info.navi_break_on = FALSE;
 	g_audio_info.navi_break_on_cache = FALSE;
@@ -381,6 +391,8 @@ void audio_main(void)
 		g_audio_info.bt_phone_timer = 0;
 		g_audio_info.state = AUDIO_STATE_PWR_DOWN;
 		g_audio_info.bt_phone_on = FALSE;
+		g_audio_info.bt_ring_on = FALSE;
+		g_audio_info.navi_on = FALSE;
 		g_audio_info.carplay_phone_on = FALSE;
 		g_audio_info.navi_break_on = FALSE;
 		g_audio_info.navi_break_on_cache = FALSE;
@@ -407,6 +419,8 @@ void audio_main(void)
 //			g_audio_info.overheat = FALSE;
 			g_audio_info.cur_source = g_audio_info.sys_source;
 			g_audio_info.bt_phone_on = FALSE;
+			g_audio_info.bt_ring_on = FALSE;
+			g_audio_info.navi_on = FALSE;
 			g_audio_info.carplay_phone_on = FALSE;
 			g_audio_info.bt_voice_on = FALSE;
 			g_audio_info.navi_break_on = FALSE;
@@ -464,6 +478,10 @@ void audio_set_volume(u8 vol)
 	}
 	if (g_audio_info.bt_phone_on) {
 		g_audio_info.bt_phone_vol = vol;
+	} else if (g_audio_info.bt_ring_on) {
+		g_audio_info.bt_ring_vol = vol;
+	} else if (g_audio_info.navi_on) {
+		g_audio_info.navi_vol = vol;
 	} else if (g_audio_info.bt_voice_on) {
 		g_audio_info.bt_voice_vol = vol;
 	} else {
@@ -473,12 +491,34 @@ void audio_set_volume(u8 vol)
 	}
 }
 
+void audio_set_volume_2(u8 ch, u8 vol)
+{
+	switch (ch) {
+		case 1:
+			g_audio_info.system_vol = vol;
+			break;
+		case 2:
+			g_audio_info.navi_vol = vol;
+			break;
+		case 3:
+			g_audio_info.bt_ring_vol = vol;
+			break;
+		case 4:
+			g_audio_info.bt_phone_vol = vol;
+			break;
+	}
+}
+
 u8 audio_get_volume(void)
 {
 	if ( g_audio_info.mute & AUDIO_MUTE_USER ) {
 		return 0;
 	} else if (g_audio_info.bt_phone_on) {
 		return g_audio_info.bt_phone_vol;
+	} else if (g_audio_info.bt_ring_on) {
+		return g_audio_info.bt_ring_vol;
+	} else if (g_audio_info.navi_on) {
+		return g_audio_info.navi_vol;
 	} else if (g_audio_info.bt_voice_on) {
 		return g_audio_info.bt_voice_vol;
 	} else {
@@ -494,6 +534,16 @@ void audio_volume_up(void)
 		vol = g_audio_info.bt_phone_vol + 1;
 		if (IS_VALID_VOLUME(vol)) {
 			g_audio_info.bt_phone_vol = vol;
+		}
+	} else if (g_audio_info.bt_ring_on) {
+		vol = g_audio_info.bt_ring_vol + 1;
+		if (IS_VALID_VOLUME(vol)) {
+			g_audio_info.bt_ring_vol = vol;
+		}
+	} else if (g_audio_info.navi_on) {
+		vol = g_audio_info.navi_vol + 1;
+		if (IS_VALID_VOLUME(vol)) {
+			g_audio_info.navi_vol = vol;
 		}
 	} else if (g_audio_info.bt_voice_on) {
 		vol = g_audio_info.bt_voice_vol + 1;
@@ -520,6 +570,16 @@ void audio_volume_down(void)
 		if (IS_VALID_VOLUME(vol)) {
 			g_audio_info.bt_phone_vol = vol;
 		}
+	} else if (g_audio_info.bt_ring_on) {
+		vol = g_audio_info.bt_ring_vol - 1;
+		if (IS_VALID_VOLUME(vol)) {
+			g_audio_info.bt_ring_vol = vol;
+		}
+	} else if (g_audio_info.navi_on) {
+		vol = g_audio_info.navi_vol - 1;
+		if (IS_VALID_VOLUME(vol)) {
+			g_audio_info.navi_vol = vol;
+		}
 	} else if (g_audio_info.bt_voice_on) {
 		vol = g_audio_info.bt_voice_vol - 1;
 		if (IS_VALID_VOLUME(vol)) {
@@ -534,7 +594,7 @@ void audio_volume_down(void)
 		}
 	}
 
-	if ( (!g_audio_info.bt_phone_on) && (0==g_audio_info.system_vol) ) {
+	if ( (!g_audio_info.bt_phone_on) && (!g_audio_info.bt_ring_on) && (!g_audio_info.navi_on) && (0==g_audio_info.system_vol) ) {
 		audio_set_mute(AUDIO_MUTE_USER, TRUE);
 	} else if ( (!g_audio_info.bt_voice_on) && (0==g_audio_info.system_vol) ) {
 		audio_set_mute(AUDIO_MUTE_USER, TRUE);
@@ -605,6 +665,31 @@ void audio_set_bt_phone(bool on)
 	}
 }
 
+void audio_set_bt_ring(bool on)
+{
+	if (g_audio_info.bt_ring_on != on) {
+		g_audio_info.bt_ring_on = on;
+		audio_dev_update_fader_balance(g_audio_info.fader, g_audio_info.balance);
+		g_audio_info.bt_phone_timer = T300MS_12;
+
+		// make sure volume will update according BT phone on/off
+		audio_dev_update_volume(g_audio_info.cur_vol);
+
+		// make sure adjust navi mix vol when in/out bt phone
+		audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
+
+		// force unmute when enter/exit BT phone
+		if (g_audio_info.mute & AUDIO_MUTE_USER) {
+			audio_set_mute(AUDIO_MUTE_USER, FALSE);
+			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
+		}
+
+		// let audio has chance to force unmute, when bt phone on
+		audio_set_mute((AUDIO_MUTE_FLAG)(g_audio_info.mute), TRUE);
+	}
+}
+
 void audio_set_bt_voice(bool on)
 {
 	if (g_audio_info.bt_voice_on != on) {
@@ -627,6 +712,7 @@ void audio_set_carplay_phone(bool on)
 
 void audio_set_navi_break(bool on)
 {
+	g_audio_info.navi_on = on;
 	g_audio_info.navi_break_on_cache = on;
 	if (on && (AUDIO_SRC_HOST == g_audio_info.cur_source)) {
 		// do not make mix if we are in HOST channel

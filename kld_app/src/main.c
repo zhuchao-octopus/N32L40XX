@@ -604,6 +604,7 @@ static void Task1sPro()
 			g_audio_info.pwr_timer = 0;
 			g_audio_info.bt_phone_timer = 0;
 			g_audio_info.bt_phone_on = FALSE;
+			g_audio_info.bt_ring_on = FALSE;
 			g_audio_info.carplay_phone_on = FALSE;
 			g_audio_info.navi_break_on = FALSE;
 			g_audio_info.navi_break_on_cache = FALSE;

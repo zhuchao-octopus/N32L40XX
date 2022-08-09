@@ -519,6 +519,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							}
 						}
 						audio_set_bt_phone(FALSE);
+						audio_set_bt_ring(FALSE);
 						audio_set_carplay_phone(FALSE);
 					}
 					else if(*Read_Lin_Ptr==1)
@@ -526,7 +527,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 						if (!g_audio_info.bt_phone_on && !g_audio_info.carplay_phone_on) {
 							audio_set_mute_temporary(800);
 						}
-						audio_set_bt_phone(TRUE);
+						audio_set_bt_ring(TRUE);
 					}
 					else if(*Read_Lin_Ptr==2)
 					{
@@ -538,6 +539,8 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					else if (*Read_Lin_Ptr==4)
 					{
 						audio_set_mute_temporary(360);
+						audio_set_bt_ring(FALSE);
+						audio_set_bt_phone(TRUE);
 					}
 					else if (*Read_Lin_Ptr==0x10)
 					{
@@ -879,10 +882,12 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 								audio_set_mute(AUDIO_MUTE_USER, TRUE);
 								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
 								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							} else if (1 == *Read_Lin_Ptr) {
 								audio_set_mute(AUDIO_MUTE_USER, FALSE);
 								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
 								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							}
 							break;
 						case 0x02:
@@ -893,6 +898,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							} else {
 								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
 							}
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							break;
 						case 0x03:
 							audio_volume_down();
@@ -902,6 +908,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							} else {
 								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
 							}
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							break;
 						case 0x04:
 							{
@@ -909,6 +916,10 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 								ms = (u16)(*Read_Lin_Ptr)*(u16)100;
 								audio_set_mute_temporary(ms);
 							}
+							break;
+						case 0x05:
+							audio_set_volume_2(*Read_Lin_Ptr, *(Read_Lin_Ptr+1));
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, *Read_Lin_Ptr);
 							break;
 						default:
 							break;
@@ -929,6 +940,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_EQ_INFO2, NONE);
 							break;
 						case 0x04:	
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
 							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
 							break;
@@ -1964,7 +1976,25 @@ ext void LinTxWince_Service(void)
 //			break;
 #endif
 		case TX_TO_GUI_AUDIO_ASP_INFO:
-			length = 0;
+			if (0xFF==nEvt->prm) {
+				if (g_audio_info.navi_on) {
+					tmp = 2;
+				} else if (g_audio_info.bt_ring_on) {
+					tmp = 3;
+				} else if (g_audio_info.bt_phone_on) {
+					tmp = 4;
+				} else {
+					tmp = 1;
+				}
+			} else {
+				tmp = nEvt->prm;
+			}
+			buff[0] = tmp;
+			buff[1] = g_audio_info.system_vol;
+			buff[2] = g_audio_info.navi_vol;
+			buff[3] = g_audio_info.bt_ring_vol;
+			buff[4] = g_audio_info.bt_phone_vol;
+			length = 5;
 			break;
 		case TX_TO_GUI_AUDIO_EQUALIZER_INFO:
 			buff[0] = g_audio_info.eq_mode;

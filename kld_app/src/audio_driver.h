@@ -219,6 +219,10 @@ typedef struct
 	u8 mute;
 	bool bt_phone_on;
 	u8 bt_phone_vol;
+	bool bt_ring_on;
+	u8 bt_ring_vol;
+	bool navi_on;
+	u8 navi_vol;
 	bool navi_break_on;
 	bool navi_break_on_cache;
 	/* navi_mix_extra_gain: */
@@ -318,6 +322,7 @@ void audio_init(void);
 void audio_main(void);
 void audio_set_source(SOURCE av_src);
 void audio_set_volume(u8 vol);
+void audio_set_volume_2(u8 ch, u8 vol);
 u8 audio_get_volume(void);
 void audio_volume_up(void);
 void audio_volume_down(void);
@@ -325,6 +330,7 @@ void audio_set_vol_ctrl_when_reverse(u8 val);
 void audio_set_mute(AUDIO_MUTE_FLAG flag, bool mute);
 void audio_set_mute_temporary(u16 time_ms);
 void audio_set_bt_phone(bool on);
+void audio_set_bt_ring(bool on);
 void audio_set_carplay_phone(bool on);
 void audio_set_bt_voice(bool on);
 void audio_set_navi_break(bool on);
