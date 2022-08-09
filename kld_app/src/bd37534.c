@@ -129,13 +129,6 @@ static void bd37534_update_main_vol(u8 vol)
 		}
 
 		gain += A_ALL_EXTRA_DB;
-
-		// decrease bt phone vol, for GOC BT BC6
-		if (g_audio_info.bt_phone_on) {
-			if (1==g_bt_type) {
-				gain -= 15;
-			}
-		}
 		
 		if (gain>15) {
 			gain = 15;
@@ -229,12 +222,11 @@ static void bd37534_update_output_gain(u8 fad, u8 bal, AUDIO_SOURCE src)
 	fr_atten = 0;
 	rl_atten = 0;
 	rr_atten = 0;
-	extra_atten = g_audio_info.extra_input_gain[src];
-	if ( (AUDIO_SRC_BT_MODULE==src)&&(g_audio_info.bt_phone_on) ) {
-		extra_atten += A_BT_PHONE_EXTRA_DB;
-	} else if ( (AUDIO_SRC_BT_MODULE==src)&&(g_audio_info.bt_voice_on) ) {
-		extra_atten += A_BT_PHONE_EXTRA_DB;
+	if ( (AUDIO_SRC_HOST==src) && (FrontSource == SOURCE_BT) ){
+		src = AUDIO_SRC_BT_MODULE;		
 	}
+	extra_atten = g_audio_info.extra_input_gain[src];
+
 	if (extra_atten>16) {
 		// audio_dev_update_source can only increase 16dB max, so we handle the left
 		extra_atten -= 16;
@@ -281,7 +273,7 @@ static void bd37534_update_output_gain(u8 fad, u8 bal, AUDIO_SOURCE src)
 		rr_atten += CONFIG_LOUDNESS_DB;
 	}
 
-	if ( (!g_audio_info.bt_phone_on) && (!g_audio_info.bt_voice_on) && (g_audio_info.navi_break_on) ) {
+	if ( (!g_audio_info.bt_phone_on) && (!g_audio_info.bt_ring_on) && (!g_audio_info.bt_voice_on) && (g_audio_info.navi_break_on) ) {
 		if (NAVI_BREAK_DIRECT==g_audio_info.navi_mix_extra_gain) {	// navi break directly
 			// mute the front speaker
 			fl_atten = -79;
@@ -420,11 +412,10 @@ void audio_dev_update_source(AUDIO_SOURCE src)
 	}
 	// update extra gain when switch source
 	g_reg_value[BD37534_REG_INPUT_GAIN] &= (u8)(~(0x1F<<0));
-	extra_gain = g_audio_info.extra_input_gain[src];
-	if ( (AUDIO_SRC_BT_MODULE==src)&&(g_audio_info.bt_phone_on) ) {
-		extra_gain += A_BT_PHONE_EXTRA_DB;
-	} else if ( (AUDIO_SRC_BT_MODULE==src)&&(g_audio_info.bt_voice_on) ) {
-		extra_gain += A_BT_PHONE_EXTRA_DB;
+	if ( (AUDIO_SRC_HOST==src) && (FrontSource == SOURCE_BT) ){
+		extra_gain = g_audio_info.extra_input_gain[AUDIO_SRC_BT_MODULE];
+	} else {
+		extra_gain = g_audio_info.extra_input_gain[src];
 	}
 	if (extra_gain>0) {
 		if (extra_gain>16) {
@@ -456,6 +447,8 @@ void audio_dev_update_navi_mix(bool on)
 void audio_dev_update_navi_mix_vol(u8 vol)
 {
 	if (g_audio_info.bt_phone_on) {
+		bd37534_update_mix_vol(0);
+	} else if (g_audio_info.bt_ring_on) {
 		bd37534_update_mix_vol(0);
 	} else if (g_audio_info.bt_voice_on) {
 		bd37534_update_mix_vol(0);
