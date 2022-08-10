@@ -127,9 +127,7 @@ static void bd37534_update_main_vol(u8 vol)
 				gain = g_bd37534_gains[vol];
 				break;
 		}
-
-		gain += A_ALL_EXTRA_DB;
-		
+	
 		if (gain>15) {
 			gain = 15;
 		} else if (gain<-79) {
@@ -386,7 +384,7 @@ void audio_dev_update_source(AUDIO_SOURCE src)
 		case AUDIO_SRC_HOST:
 			g_reg_value[BD37534_REG_INPUT_SELECT] = BD37534_INPUT_E2;
 			break;
-		case AUDIO_SRC_BT_MODULE:
+		case AUDIO_SRC_VTR:
 			g_reg_value[BD37534_REG_INPUT_SELECT] = BD37534_INPUT_C;
 			break;
 		case AUDIO_SRC_DVD:

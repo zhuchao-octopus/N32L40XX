@@ -23,7 +23,6 @@ static AUDIO_SOURCE _audio_select_source(SOURCE av_src)
 	switch (av_src) {
 		case SOURCE_TUNER:
 		case SOURCE_XM:
-		case SOURCE_SIRIUS:
 			src = AUDIO_SRC_RADIO;
 			break;
 		case SOURCE_DVD:
@@ -36,21 +35,23 @@ static AUDIO_SOURCE _audio_select_source(SOURCE av_src)
 			src = AUDIO_SRC_TV;
 			break;
 		case SOURCE_AUX:
-		case SOURCE_FRONT_AUX:
 			src = AUDIO_SRC_AUXIN;
+			break;
+		case SOURCE_FRONT_AUX:
+			src = AUDIO_SRC_VTR;
 			break;
 		case SOURCE_SD:
 		case SOURCE_USB:
 			src = AUDIO_SRC_HOST;
 			break;
 		case SOURCE_BT:
-			if (1==g_bt_type) {
+//			if (1==g_bt_type) {
 				src = AUDIO_SRC_HOST;
-			} else if (2==g_bt_type) {
-				src = AUDIO_SRC_HOST;
-			} else {
-				src = AUDIO_SRC_BT_MODULE;
-			}
+//			} else if (2==g_bt_type) {
+//				src = AUDIO_SRC_HOST;
+//			} else {
+//				src = AUDIO_SRC_BT_MODULE;
+//			}
 			break;
 		case SOURCE_AVOFF:
 		case NUM_OF_SOURCE:
