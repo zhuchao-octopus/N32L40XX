@@ -296,6 +296,7 @@ void SystemPowerContrl(ONOFF On_Off)
 		}
 #endif
 		GPIO_SetBits(GPIO_LCD_EN_GRP, GPIO_LCD_EN_PIN);
+		dvd_poweron();
 	}
 	else
 	{

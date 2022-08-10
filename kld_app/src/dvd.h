@@ -45,6 +45,7 @@ typedef enum
 ext DVD_INFO g_dvd_info;	// do not write any member outside dvd.c, just read only.
 
 extern void dvd_init(void);
+extern void dvd_poweron(void);
 extern void dvd_poweroff(void);
 extern void dvd_main(void);
 extern bool dvd_is_audio_ready(void);

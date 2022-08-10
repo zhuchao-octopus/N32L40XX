@@ -192,7 +192,7 @@ static void gpio_config(void)
 	gpio_init_output.Pin = GPIO_DVD_PWR_CTRL_PIN;
 	GPIO_InitPeripheral(GPIO_DVD_PWR_CTRL_GRP, &gpio_init_output);
 	GPIO_ResetBits(GPIO_DVD_PWR_CTRL_GRP, GPIO_DVD_PWR_CTRL_PIN);
-	
+#if 0
 	/* DVD disc detect */
 	gpio_init_input_pull_up.Pin = GPIO_DVD_DISC_DET_PIN;
 	GPIO_InitPeripheral(GPIO_DVD_DISC_DET_GRP, &gpio_init_input_pull_up);
@@ -208,7 +208,20 @@ static void gpio_config(void)
 	gpio_init_output.Pin = GPIO_DVD_LOAD_P_PIN;
 	GPIO_InitPeripheral(GPIO_DVD_LOAD_P_GRP, &gpio_init_output);
 	GPIO_ResetBits(GPIO_DVD_LOAD_P_GRP, GPIO_DVD_LOAD_P_PIN);
-	
+#else
+	/* DVD disc detect */
+	gpio_init_input_float.Pin = GPIO_DVD_DISC_DET_PIN;
+	GPIO_InitPeripheral(GPIO_DVD_DISC_DET_GRP, &gpio_init_input_float);
+	gpio_init_input_float.Pin = GPIO_DVD_TRAY_OUT_PIN;
+	GPIO_InitPeripheral(GPIO_DVD_TRAY_OUT_GRP, &gpio_init_input_float);
+	gpio_init_input_float.Pin = GPIO_DVD_TRAY_IN_PIN;
+	GPIO_InitPeripheral(GPIO_DVD_TRAY_IN_GRP, &gpio_init_input_float);
+	/* DVD Load P/N */
+	gpio_init_input_float.Pin = GPIO_DVD_LOAD_N_PIN;
+	GPIO_InitPeripheral(GPIO_DVD_LOAD_N_GRP, &gpio_init_input_float);
+	gpio_init_input_float.Pin = GPIO_DVD_LOAD_P_PIN;
+	GPIO_InitPeripheral(GPIO_DVD_LOAD_P_GRP, &gpio_init_input_float);
+#endif
 
 	/* SWC key pull-up control */
 	gpio_init_output.Pin = GPIO_SWC_KEY_CTL_2K2_PIN;

@@ -464,9 +464,6 @@ extern void PowerManage(void)           //12msÖ´ÐÐÒ»´Î
 		case POWER_MMI_INITIAL:
 			if(Power_Timer>=20)//T12MS_12)
 			{
-#ifdef DVD_FUNCTION_ENABLE
-				GPIO_SetBits(GPIO_DVD_RST_GRP, GPIO_DVD_RST_PIN);
-#endif
 				nPowerState=POWER_VAR_RECOVER;
 			}
 			break;
