@@ -71,13 +71,17 @@ void si475x_command(uint8_t cmd_size, uint8_t *cmd, uint8_t reply_size, uint8_t 
 {
 	// It is always a good idea to check for cts prior to sending a command to
 	// the part.
-	si475x_waitForCTS();
+	if ( (POWER_UP!=cmd[0]) && (0xFB!=cmd[0]) ) {
+		si475x_waitForCTS();
+	}
 
 	// Write the command to the part
 	si475x_i2c_write(cmd, cmd_size);
 
 	// Wait for CTS after sending the command
-	si475x_waitForCTS();
+	if ( (POWER_UP!=cmd[0]) && (0xFB!=cmd[0]) ) {
+		si475x_waitForCTS();
+	}
 
 	// If the calling function would like to have results then read them.
 	if(reply_size)
@@ -110,10 +114,10 @@ void si475x_set_property(uint16_t propNumber, uint16_t propValue)
 void si475x_powerup(RADIO_BAND band)
 {
 	/* do reset */
-//	GPIO_ResetBits(GPIO_RADIO_RST_GRP, GPIO_RADIO_RST_PIN);
-//	delay_1ms(2);
-//	GPIO_SetBits(GPIO_RADIO_RST_GRP, GPIO_RADIO_RST_PIN);
-//	delay_1ms(2);
+	GPIO_ResetBits(GPIO_RADIO_RST_GRP, GPIO_RADIO_RST_PIN);
+	delay_1ms(2);
+	GPIO_SetBits(GPIO_RADIO_RST_GRP, GPIO_RADIO_RST_PIN);
+	delay_1ms(2);
 
 	/* power up */
 	// Put the ID for the command in the first byte.

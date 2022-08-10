@@ -181,6 +181,10 @@
 #define GPIO_BEEP_GRP		GPIOB
 #define GPIO_BEEP_PIN		GPIO_PIN_8
 
+
+#define GPIO_RADIO_RST_GRP	GPIOB
+#define GPIO_RADIO_RST_PIN	GPIO_PIN_7
+
 ext u8 illumin_level;
 extern u8 g_panel_led_all_on;
 

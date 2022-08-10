@@ -113,6 +113,10 @@ static void gpio_config(void)
 		GPIO_ResetBits(GPIO_FCAM_PWR_GRP, GPIO_FCAM_PWR_PIN);
 	}
 
+	/* Radio reset GPIO */
+	gpio_init_output.Pin            = GPIO_RADIO_RST_PIN;
+	GPIO_InitPeripheral(GPIO_RADIO_RST_GRP, &gpio_init_output);
+	GPIO_ResetBits(GPIO_RADIO_RST_GRP, GPIO_RADIO_RST_PIN);
 
 	/* UART HOST */
 	gpio_init_output_af.Pin = GPIO_HOST_UART_TX_PIN;
@@ -844,6 +848,9 @@ static void mcu_stay_in_sleep(void)
 	/* MUTE control */
 	AUDIO_HW_UNMUTE;	// save power
 
+	/* Radio reset control */
+	gpio_init_input_float.Pin = GPIO_RADIO_RST_PIN;
+	GPIO_InitPeripheral(GPIO_RADIO_RST_GRP, &gpio_init_input_float);
 	/* ANT control */
 	gpio_init_input_float.Pin = GPIO_ANT_CTRL_PIN;
 //	GPIO_InitPeripheral(GPIO_ANT_CTRL_GRP, &gpio_init_input_float);
