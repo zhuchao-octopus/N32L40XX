@@ -464,12 +464,6 @@ void audio_dev_update_volume(u8 vol)
 		gain_sub += BU32107_LOUDNESS_STEP*g_audio_info.loudness;
 	}
 
-	if (2==g_bt_type) {
-		if (SOURCE_BT == FrontSource) {
-			gain -= 14;
-		}
-	}
-
 	switch (g_audio_info.output_type) {
 		case AUDIO_OUTPUT_N_15DB:
 			gain -= 15;
