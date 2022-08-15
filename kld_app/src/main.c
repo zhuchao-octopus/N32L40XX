@@ -253,10 +253,10 @@ static void gpio_config(void)
 
 
 	/* LED control */
-	gpio_init_output_af.Pin = GPIO_LED_B_PIN|GPIO_LED_G_PIN|GPIO_LED_R_PIN;
-	gpio_init_output_af.GPIO_Alternate = GPIO_AF6_TIM8;
-	gpio_init_output_af.GPIO_Pull = GPIO_No_Pull;
-	GPIO_InitPeripheral(GPIO_LED_GRP, &gpio_init_output_af);
+//	gpio_init_output_af.Pin = GPIO_LED_B_PIN|GPIO_LED_G_PIN|GPIO_LED_R_PIN;
+//	gpio_init_output_af.GPIO_Alternate = GPIO_AF6_TIM8;
+//	gpio_init_output_af.GPIO_Pull = GPIO_No_Pull;
+//	GPIO_InitPeripheral(GPIO_LED_GRP, &gpio_init_output_af);
 	gpio_init_output.Pin = GPIO_LED_EN_PIN;
 	GPIO_InitPeripheral(GPIO_LED_GRP, &gpio_init_output);
 	GPIO_ResetBits(GPIO_LED_GRP, GPIO_LED_EN_PIN);
@@ -288,6 +288,15 @@ static void gpio_config(void)
 	gpio_init_output_af.GPIO_Pull = GPIO_No_Pull;
 	GPIO_InitPeripheral(GPIO_BEEP_GRP, &gpio_init_output_af);
 
+	/* DTV power */
+	gpio_init_output.Pin = GPIO_TV_PWR_PIN;
+	GPIO_InitPeripheral(GPIO_TV_PWR_GRP, &gpio_init_output);
+	GPIO_ResetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
+
+	/* HDMI2CVBS power */
+	gpio_init_output.Pin = GPIO_HDMI_PWR_PIN;
+	GPIO_InitPeripheral(GPIO_HDMI_PWR_GRP, &gpio_init_output);
+	GPIO_ResetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
 
 }
 static void uart_config(void)
@@ -387,22 +396,22 @@ static void timer_config(void)
 	TIM_Enable(TIMER_BEEP, ENABLE);
 
 	/* LED color */
-	TIM_TimeBaseStructure.Period    = 256;
-	TIM_TimeBaseStructure.Prescaler = 999;
-	TIM_InitTimeBase(TIMER_LED, &TIM_TimeBaseStructure);
+//	TIM_TimeBaseStructure.Period    = 256;
+//	TIM_TimeBaseStructure.Prescaler = 999;
+//	TIM_InitTimeBase(TIMER_LED, &TIM_TimeBaseStructure);
 
-	TIM_OCInitStructure.Pulse       = 0;
-	TIM_InitOc1(TIMER_LED, &TIM_OCInitStructure);
-	TIM_InitOc2(TIMER_LED, &TIM_OCInitStructure);
-	TIM_InitOc3(TIMER_LED, &TIM_OCInitStructure);
+//	TIM_OCInitStructure.Pulse       = 0;
+//	TIM_InitOc1(TIMER_LED, &TIM_OCInitStructure);
+//	TIM_InitOc2(TIMER_LED, &TIM_OCInitStructure);
+//	TIM_InitOc3(TIMER_LED, &TIM_OCInitStructure);
 
-	TIM_ConfigOc1Preload(TIMER_LED, TIM_OC_PRE_LOAD_ENABLE);
-	TIM_ConfigOc2Preload(TIMER_LED, TIM_OC_PRE_LOAD_ENABLE);
-	TIM_ConfigOc3Preload(TIMER_LED, TIM_OC_PRE_LOAD_ENABLE);
-	TIM_ConfigArPreload(TIMER_LED, ENABLE);
+//	TIM_ConfigOc1Preload(TIMER_LED, TIM_OC_PRE_LOAD_ENABLE);
+//	TIM_ConfigOc2Preload(TIMER_LED, TIM_OC_PRE_LOAD_ENABLE);
+//	TIM_ConfigOc3Preload(TIMER_LED, TIM_OC_PRE_LOAD_ENABLE);
+//	TIM_ConfigArPreload(TIMER_LED, ENABLE);
 
-	TIM_EnableCtrlPwmOutputs(TIMER_LED, ENABLE);
-	TIM_Enable(TIMER_LED, ENABLE);
+//	TIM_EnableCtrlPwmOutputs(TIMER_LED, ENABLE);
+//	TIM_Enable(TIMER_LED, ENABLE);
 
 	/* IR RX */
 	NVIC_InitStructure.NVIC_IRQChannel = TIM5_IRQn;
@@ -820,6 +829,11 @@ static void mcu_stay_in_sleep(void)
 	gpio_init_input_float.GPIO_Mode = GPIO_Mode_Analog;
 	gpio_init_input_float.GPIO_Pull = GPIO_No_Pull;
 
+	gpio_init_input_float.Pin = GPIO_TV_PWR_PIN;
+	GPIO_InitPeripheral(GPIO_TV_PWR_GRP, &gpio_init_input_float);
+	gpio_init_input_float.Pin = GPIO_HDMI_PWR_PIN;
+	GPIO_InitPeripheral(GPIO_HDMI_PWR_GRP, &gpio_init_input_float);
+
 	/* UART HOST */
 	gpio_init_input_float.Pin = GPIO_HOST_UART_TX_PIN;
 	GPIO_InitPeripheral(GPIO_HOST_UART_TX_GRP, &gpio_init_input_float);
@@ -897,8 +911,8 @@ static void mcu_stay_in_sleep(void)
 	gpio_init_input_float.Pin = GPIO_AD_PANEL_KEY_DET_1_PIN|GPIO_AD_PANEL_KEY_DET_2_PIN;
 	GPIO_InitPeripheral(GPIO_AD_PANEL_KEY_DET_GRP, &gpio_init_input_float);
 	/* LED control */
-	gpio_init_input_float.Pin = GPIO_LED_B_PIN|GPIO_LED_G_PIN|GPIO_LED_R_PIN;
-	GPIO_InitPeripheral(GPIO_LED_GRP, &gpio_init_input_float);
+//	gpio_init_input_float.Pin = GPIO_LED_B_PIN|GPIO_LED_G_PIN|GPIO_LED_R_PIN;
+//	GPIO_InitPeripheral(GPIO_LED_GRP, &gpio_init_input_float);
 //	gpio_init_input_float.Pin = GPIO_LED_EN_PIN;
 //	GPIO_InitPeripheral(GPIO_LED_GRP, &gpio_init_input_float);
 
