@@ -6,7 +6,7 @@ static void dvd_pwr_handler(void)
 {
 	
 	if (g_dvd_info.dvd_pwr_up) {
-		if (g_dvd_info.pwr_timer<=T3S_12) {
+		if (g_dvd_info.pwr_timer<T3S_12) {
 			++g_dvd_info.pwr_timer;
 			if (g_dvd_info.pwr_timer==T3S_12) {
 				GPIO_SetBits(GPIO_DVD_PWR_CTRL_GRP, GPIO_DVD_PWR_CTRL_PIN);
