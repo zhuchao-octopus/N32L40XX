@@ -706,7 +706,6 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					break;
 
 				case SUBID_FCAM_PWR_CMD:
-#ifndef CUSTOM_S217
 					switch (*Read_Lin_Ptr++) {
 						case 0x00:
 							GPIO_ResetBits(GPIO_FCAM_PWR_GRP, GPIO_FCAM_PWR_PIN);
@@ -715,7 +714,6 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							GPIO_SetBits(GPIO_FCAM_PWR_GRP, GPIO_FCAM_PWR_PIN);
 							break;
 					}
-#endif
 					break;
 					
 				default:

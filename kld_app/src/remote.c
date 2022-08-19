@@ -237,7 +237,6 @@ void ir_rx_init(void)
 
 void ir_rx_handler(void)
 {
-#ifndef CUSTOM_S217
 	u32 tmp_timer;
 
 	if (!Is_Machine_Power) {
@@ -341,12 +340,10 @@ void ir_rx_handler(void)
 			break;
 			
 	}
-#endif
 }
 
 void ir_rx_main(void)
 {
-#ifndef CUSTOM_S217
 	u8 i,code;
 	u8 len;
 
@@ -410,7 +407,6 @@ void ir_rx_main(void)
 							MSB(g_ir_rx_info.key_code));
 		}
 	}
-#endif
 }
 
 

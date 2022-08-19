@@ -3,6 +3,7 @@
 
 //#define TUNE_ENCODER
 
+
 #define ENC1_AD_0	27
 #define ENC1_AD_1	40
 #define ENC1_AD_2	62
@@ -28,7 +29,6 @@ static void encoder_key_reset(void)
 }
 void encoder_key_main(void)
 {
-#ifndef CUSTOM_S217
 	u8 ad_value = 0;
 
 	if(Get_ACC_Det_Flag==0) {
@@ -82,7 +82,6 @@ void encoder_key_main(void)
 		default:
 			break;
 	}
-#endif
 }
 
 #define ENC2_AD_0	27
@@ -109,7 +108,6 @@ static void encoder2_key_reset(void)
 }
 void encoder2_key_main(void)
 {
-#ifndef CUSTOM_S217
 	u8 ad_value = 0;
 
 	if(Get_ACC_Det_Flag==0) {
@@ -160,7 +158,6 @@ void encoder2_key_main(void)
 		default:
 			break;
 	}
-#endif
 #endif
 #endif
 }
@@ -496,11 +493,9 @@ static void panel_key_do_scan(u8 adc_ch)
 				panel_key_do_send_key(index, FALSE);
 			}
 		} else if (KEY_FORCE_DVD_EJECT_TIME==g_key_handler.key_pressed_timer) {
-#ifndef CUSTOM_S217
 			if (UICC_EJECT==g_key_info_store.key[index].key_code_short) {
 				PostEvent(DVDC_MODULE, EVT_DVD_FORCE_DISC_EJECT, 0);
 			}
-#endif
 		}
 	}
 
@@ -1167,7 +1162,6 @@ void panel_key_main(void)
 		return;
 	}
 
-#ifndef CUSTOM_S217
 	panel_key_state_handler();
 
 	if ( (KEY_STATE_NONE!=g_key_handler.status)
@@ -1175,7 +1169,7 @@ void panel_key_main(void)
 		&& (KEY_STATE_INIT_2!=g_key_handler.status) ) {
 		panel_key_event_handler();
 	}
-#endif
+
 	panel_key_recovery_handler();
 	panel_key_reset_handler();
 }

@@ -133,12 +133,10 @@ static void audio_source_handler(void)
 		src = AUDIO_SRC_NONE;
 	}
 
-#ifdef DVD_FUNCTION_ENABLE
 	if ( (AUDIO_SRC_DVD == src) && (!dvd_is_audio_ready()) ) {
 		g_audio_info.src_sw_state = AUDIO_SRC_SW_STATE_READY;
 		src = AUDIO_SRC_NONE;
 	}
-#endif
 
 	if ((AUDIO_SRC_HOST == src) && (!g_audio_info.android_snd_on)) {
 		src =AUDIO_SRC_NONE;

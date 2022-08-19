@@ -78,7 +78,6 @@ void MMI(void)	//4// 40ms时基
 		}
 	}
 
-#ifdef DVD_FUNCTION_ENABLE
 	// let's control DVD
 	if ( (!g_app_in_charge) && (UICC_EJECT==keycode) ) {
 		switch (g_dvd_info.disc_state) {
@@ -99,7 +98,7 @@ void MMI(void)	//4// 40ms时基
 				break;
 		}
 	}
-#endif
+
 	beep_short_mode();
 
 	switch (keycode)
