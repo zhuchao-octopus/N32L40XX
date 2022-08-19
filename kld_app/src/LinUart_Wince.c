@@ -1084,7 +1084,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					break;
 			}
 			break;
-
+#if 0
 		case MCU_RX_GROUP_CAN_EVENT:
 			switch(Sub_ID_temp) {
 				case SUBID_CAN_COMM_SET:
@@ -1139,7 +1139,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					break;
 			}
 			break;
-			
+#endif
 		case MCU_RX_GROUP_IAP_EVENT:
 			if(Sub_ID_temp == SUBID_REFLASH_CMD)
 			{
@@ -1206,7 +1206,8 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					Rem_SendDTVTouch(*Read_Lin_Ptr, *(Read_Lin_Ptr+1));
 					break;
 				case SUBID_TV_IR_CODE:
-					ir_send_tv_code(*Read_Lin_Ptr, *(Read_Lin_Ptr+1), *(Read_Lin_Ptr+2), *(Read_Lin_Ptr+3));
+//					ir_send_tv_code(*Read_Lin_Ptr, *(Read_Lin_Ptr+1), *(Read_Lin_Ptr+2), *(Read_Lin_Ptr+3));
+					can_send_tv_code(*(Read_Lin_Ptr+2));
 					break;
 			}
 			break;

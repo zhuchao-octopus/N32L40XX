@@ -474,11 +474,11 @@ extern void PowerManage(void)           //12ms÷¥––“ª¥Œ
 				nPowerState=POWER_INIT_FINISH;		
 
 				// follow the previous CAN setting
-				if (g_canbox_use_uart) {
+//				if (g_canbox_use_uart) {
 					USART_RxTx_Init(TRUE);
-				} else {
-					USART_RxTx_Init(FALSE);
-				}
+//				} else {
+//					USART_RxTx_Init(FALSE);
+//				}
 				
 				Set_Machine_Power();
 

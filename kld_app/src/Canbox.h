@@ -77,6 +77,8 @@ void canbox_set_protocol(
 		CAN_PARITY_TYPE parity_type, 
 		CAN_ACK_TYPE ack_type);
 void canbox_rx(uint8_t data);
+void can_send_tv_code(uint8_t data);
+
 
 #endif
 

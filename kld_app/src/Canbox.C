@@ -8,6 +8,9 @@ static CAN_RX_STATE g_rx_state = CAN_RX_HEAD;
 static uchar can_packet_len = 0;
 static uchar can_data_len = 0;
 
+static uint8_t g_tv_sent = 1;
+static uint8_t g_tv_data;
+
 // some utility
 #define IS_1BYTES_HEAD	((CAN_HEAD_0==g_head_type)||(CAN_HEAD_1==g_head_type)|| \
 							(CAN_HEAD_4==g_head_type)||(CAN_HEAD_5==g_head_type))
@@ -149,6 +152,7 @@ void canbox_set_protocol(
 
 void canbox_rx(uint8_t data)
 {
+#if 0
 	switch(g_rx_state) {
 		case CAN_RX_HEAD:
 			can_packet_len = 0;
@@ -323,6 +327,7 @@ void canbox_rx(uint8_t data)
 			g_rx_state = CAN_RX_HEAD;
 			break;
 	}
+#endif
 }
 
 ext void USART_Data_Analyse(void)
@@ -411,8 +416,25 @@ ext void USART_Data_Analyse(void)
 
 	F_Usart_Rx_Data_Ready = 0;	
 }
+
 void Canbox_Main(void)
 {
+#if 1
+	if (1==g_tv_sent)
+		return;
+	g_tv_sent=1;
+
+	USART_Tx_Buff[0]=0x01;
+	USART_Tx_Buff[1]=0x88;
+	USART_Tx_Buff[2]=0x00;
+	USART_Tx_Buff[3]=0x01;
+	USART_Tx_Buff[4]=g_tv_data;
+	USART_Tx_Buff[5]=0x03;
+	USART_Tx_Buff[6]=0x00;
+	USART_Tx_Buff[7]=0x00;
+	USART_Tx_Length = 8;
+	USART_TX();
+#else
 	EVENT *nEvt;
 	nEvt=GetEvent(CAN_MODULE);
 
@@ -435,6 +457,15 @@ void Canbox_Main(void)
 		default:
 			break;
 	}
+#endif
 }
 
+void can_send_tv_code(uint8_t data)
+{
+	g_tv_sent = 0;
+	g_tv_data = data;
+	if (0x1E==g_tv_data) {
+		g_tv_data = 0x17;
+	}
+}
 

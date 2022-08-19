@@ -2,7 +2,7 @@
 #include "public.h"
 
 
-u32 g_canbox_baudrate = 38400;
+u32 g_canbox_baudrate = 115200;
 
 
 //不使用中断发送

@@ -1048,7 +1048,7 @@ int main(void)
 	PowerInit();	
 	app_wd_init();
 
-	USART_RxTx_Init(FALSE);
+	USART_RxTx_Init(TRUE);
 	
 	VariableInit();
 	delay_1ms(500);
