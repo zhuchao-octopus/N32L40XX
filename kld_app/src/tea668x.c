@@ -429,6 +429,10 @@ bool radio_dev_is_set_freq_done(void)
 {
 	return TRUE;
 }
+void radio_dev_set_freq_tune(RADIO_BAND band, u16 freq)
+{
+	radio_dev_set_freq(band, freq);
+}
 void radio_dev_set_freq(RADIO_BAND band, u16 freq)
 {
 	g_band = band;
