@@ -1216,14 +1216,14 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 			switch(Sub_ID_temp)
 			{
 				case  SUBID_RADIO_REGION	:
-					if(*Read_Lin_Ptr!= g_radio_area)
-					{
-						g_radio_area = *Read_Lin_Ptr;
-						PostEvent(TUNER_MODULE, RADIO_EVT_AREA_SET,*Read_Lin_Ptr );
-						g_sys_info_store.radio_area=g_radio_area;
-						ak_flash_save_info();
-					}
-					PostEvent(WINCE_MODULE, TX_TO_GUI_SYSTEM_RADIO_REGION_INFO, g_radio_area);
+//					if(*Read_Lin_Ptr!= g_radio_area)
+//					{
+//						g_radio_area = *Read_Lin_Ptr;
+//						PostEvent(TUNER_MODULE, RADIO_EVT_AREA_SET,*Read_Lin_Ptr );
+//						g_sys_info_store.radio_area=g_radio_area;
+//						ak_flash_save_info();
+//					}
+//					PostEvent(WINCE_MODULE, TX_TO_GUI_SYSTEM_RADIO_REGION_INFO, g_radio_area);
 					break;
 
 				case SUBID_BRIGHTNESS	:

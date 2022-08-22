@@ -1192,7 +1192,7 @@ void radio_init_area(u8 area)
 			break;
 		case RADIO_AREA_JAPAN:
 			FM_MIN_FREQ = 7600;
-			FM_MAX_FREQ = 9000;
+			FM_MAX_FREQ = 9900;
 			FM_STEP = 10;
 			AM_MIN_FREQ = 522;
 			AM_MAX_FREQ = 1629;
@@ -1298,10 +1298,11 @@ void radio_init_area(u8 area)
 		case RADIO_AREA_JAPAN_2:
 			for (i=PRESET_BAND_FM1; i<=PRESET_BAND_FM3; i++) {
 				if (0==G_PRESET_FM(i, 0)) S_PRESET_FM(i, 0, 7600);
-				if (0==G_PRESET_FM(i, 1)) S_PRESET_FM(i, 1, 7640);
-				if (0==G_PRESET_FM(i, 2)) S_PRESET_FM(i, 2, 8560);
-				if (0==G_PRESET_FM(i, 3)) S_PRESET_FM(i, 3, 8700);
-				if (0==G_PRESET_FM(i, 4)) S_PRESET_FM(i, 4, 9000);
+				if (0==G_PRESET_FM(i, 1)) S_PRESET_FM(i, 1, 7800);
+				if (0==G_PRESET_FM(i, 2)) S_PRESET_FM(i, 2, 8300);
+				if (0==G_PRESET_FM(i, 3)) S_PRESET_FM(i, 3, 8810);
+				if (0==G_PRESET_FM(i, 4)) S_PRESET_FM(i, 4, 9500);
+				if (0==G_PRESET_FM(i, 5)) S_PRESET_FM(i, 5, 9900);
 			}
 			break;
 		case RADIO_AREA_KOREA:
@@ -1378,8 +1379,9 @@ void radio_init_area(u8 area)
 				if (0==G_PRESET_AM(i, 0)) S_PRESET_AM(i, 0, 522);
 				if (0==G_PRESET_AM(i, 1)) S_PRESET_AM(i, 1, 603);
 				if (0==G_PRESET_AM(i, 2)) S_PRESET_AM(i, 2, 999);
-				if (0==G_PRESET_AM(i, 3)) S_PRESET_AM(i, 3, 1404);
+				if (0==G_PRESET_AM(i, 3)) S_PRESET_AM(i, 3, 1295);
 				if (0==G_PRESET_AM(i, 4)) S_PRESET_AM(i, 4, 1629);
+				if (0==G_PRESET_AM(i, 5)) S_PRESET_AM(i, 5, 1440);
 			}
 			break;
 

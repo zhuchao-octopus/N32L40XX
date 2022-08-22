@@ -368,7 +368,7 @@ void hal_init(void)
 		g_sys_info_store.magic_num2 = 'S';
 		g_sys_info_store.brake_mode = PARKING_LEVEL_MODEL;
 		g_sys_info_store.audio_navi_mix_extra_gain = 0x80;
-		g_sys_info_store.radio_area = RADIO_AREA_EUROPE;
+		g_sys_info_store.radio_area = RADIO_AREA_JAPAN;
 		g_sys_info_store.vol_ctrl_when_reverse = 0;
 		g_sys_info_store.beep_onoff = 1;
 		g_sys_info_store.output_type = AUDIO_OUTPUT_NORMAL;
@@ -379,7 +379,7 @@ void hal_init(void)
 		g_sys_info_store.vcom_value = 20;
 	}
 	g_audio_info.output_type = g_sys_info_store.output_type;
-	g_radio_area = g_sys_info_store.radio_area;
+	g_radio_area = RADIO_AREA_JAPAN;//g_sys_info_store.radio_area;
 	g_audio_info.navi_mix_extra_gain = g_sys_info_store.audio_navi_mix_extra_gain;
 
 }
