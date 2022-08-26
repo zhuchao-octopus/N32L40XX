@@ -11,6 +11,13 @@ void SwitchSource(SOURCE TargetSRC)
 	}
 	else
 	{
+		if ( (SOURCE_DTV==TargetSRC)||(SOURCE_TV==TargetSRC) ) {
+			GPIO_ResetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
+			GPIO_SetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
+		} else if (SOURCE_HDMI==TargetSRC) {
+			GPIO_ResetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
+			GPIO_SetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
+		}
 		PostEvent(MAIN_MODULE,EVT_SRC_FRONT_REAR_CHG,TargetSRC);
 	}
 }
@@ -114,11 +121,11 @@ void MMI(void)	//4// 40msÊ±»ù
 			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 			break;
 		case UICC_MUTE:
-			if (g_audio_info.mute & AUDIO_MUTE_USER) {
-				audio_set_mute(AUDIO_MUTE_USER, FALSE);
-			} else {
-				audio_set_mute(AUDIO_MUTE_USER, TRUE);
-			}
+//			if (g_audio_info.mute & AUDIO_MUTE_USER) {
+//				audio_set_mute(AUDIO_MUTE_USER, FALSE);
+//			} else {
+//				audio_set_mute(AUDIO_MUTE_USER, TRUE);
+//			}
 			PostEvent(WINCE_MODULE,TX_TO_GUI_SHORT_KEY_EVENT, WORD(0xFF, keycode));
 			break;
 		case UICC_NISSAN_XTRAIL_CAM_SW:

@@ -32,6 +32,7 @@ static AUDIO_SOURCE _audio_select_source(SOURCE av_src)
 		case SOURCE_TV:
 		case SOURCE_DTV:
 		case SOURCE_HDRADIO:
+		case SOURCE_HDMI:
 			src = AUDIO_SRC_TV;
 			break;
 		case SOURCE_AUX:
@@ -511,6 +512,9 @@ void audio_set_volume_2(u8 ch, u8 vol)
 		case 4:
 			g_audio_info.bt_phone_vol = vol;
 			break;
+	}
+	if (0!=vol) {
+		audio_set_mute(AUDIO_MUTE_USER, FALSE);
 	}
 }
 
