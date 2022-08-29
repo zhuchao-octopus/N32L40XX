@@ -298,7 +298,7 @@ void SystemPowerContrl(ONOFF On_Off)
 		GPIO_SetBits(GPIO_LCD_EN_GRP, GPIO_LCD_EN_PIN);
 		dvd_poweron();
 //		GPIO_SetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
-//		GPIO_SetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
+		GPIO_SetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
 	}
 	else
 	{
