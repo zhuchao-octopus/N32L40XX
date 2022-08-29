@@ -8,6 +8,12 @@ static CAN_RX_STATE g_rx_state = CAN_RX_HEAD;
 static uchar can_packet_len = 0;
 static uchar can_data_len = 0;
 
+static u8 can_passthrough = 0;
+#define CAN_RX_PT_BUF_LEN  16
+static u8 g_can_rx_pt_buf[CAN_RX_PT_BUF_LEN];
+volatile u8 *g_can_rx_pt_rd;
+volatile u8 *g_can_rx_pt_wr;
+
 static uint8_t g_tv_sent = 1;
 static uint8_t g_tv_data;
 
@@ -127,6 +133,7 @@ void canbox_init(void)
 {
 	g_rx_state = CAN_RX_HEAD;
 	F_Usart_Rx_Data_Ready = 0;
+	canbox_passthrough(1);
 }
 
 void canbox_set_protocol(
@@ -150,9 +157,28 @@ void canbox_set_protocol(
 	}
 }
 
+void canbox_passthrough(u8 en)
+{
+	can_passthrough = en;
+	g_rx_state = CAN_RX_HEAD;
+	F_Usart_Rx_Data_Ready = 0;
+	g_can_rx_pt_rd = g_can_rx_pt_buf;
+	g_can_rx_pt_wr = g_can_rx_pt_buf;
+}
+
 void canbox_rx(uint8_t data)
 {
-#if 0
+#if 1
+	if (can_passthrough) {
+		*g_can_rx_pt_wr = data;
+		g_can_rx_pt_wr++;
+		if ( (g_can_rx_pt_wr - g_can_rx_pt_buf) >= CAN_RX_PT_BUF_LEN ) {
+			g_can_rx_pt_wr = g_can_rx_pt_buf;
+		}
+		return;
+	}
+#else
+
 	switch(g_rx_state) {
 		case CAN_RX_HEAD:
 			can_packet_len = 0;
@@ -335,6 +361,31 @@ ext void USART_Data_Analyse(void)
 	u16 checksum;
 	u8 idx, parity_pos;
 	u8 checksum_ok;
+	u8 data[1];
+
+	if (can_passthrough) {
+		if (g_can_rx_pt_wr == g_can_rx_pt_rd) {
+			// rx data buffer empty
+			return;
+		}
+		if (0!=USART_Transmit_Rx_Buff_full) {
+			return;
+		}
+		if (g_can_rx_pt_wr != g_can_rx_pt_rd) {
+			data[0] = *g_can_rx_pt_rd;
+			g_can_rx_pt_rd++;
+			if ( (g_can_rx_pt_rd - g_can_rx_pt_buf) >= CAN_RX_PT_BUF_LEN ) {
+				g_can_rx_pt_rd = g_can_rx_pt_buf;
+			}
+			// Transmit the whole packet to HOST
+			ak_memcpy(USART_Transmit_Rx_Buff, data, 1);
+			USART_Transmit_Rx_Buff_full = 1;
+			PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,1);
+		}
+		return;
+	}
+
+
 	if (0==F_Usart_Rx_Data_Ready)
 		return;
 	if (0!=USART_Transmit_Rx_Buff_full)
@@ -419,7 +470,7 @@ ext void USART_Data_Analyse(void)
 
 void Canbox_Main(void)
 {
-#if 1
+#if 0
 	if (1==g_tv_sent)
 		return;
 	g_tv_sent=1;

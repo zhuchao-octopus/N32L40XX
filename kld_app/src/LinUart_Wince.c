@@ -1084,9 +1084,10 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					break;
 			}
 			break;
-#if 0
+#if 1
 		case MCU_RX_GROUP_CAN_EVENT:
 			switch(Sub_ID_temp) {
+#if 0
 				case SUBID_CAN_COMM_SET:
 					switch (*Read_Lin_Ptr) {
 						case 0:
@@ -1114,6 +1115,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							break;
 					}
 					break;
+#endif
 				case SUBID_CAN_PROTOCOL_SET:
 					canbox_set_protocol(
 						(CAN_HEAD_TYPE)(*(Read_Lin_Ptr+0)), 

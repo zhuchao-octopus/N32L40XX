@@ -79,6 +79,8 @@ void canbox_set_protocol(
 void canbox_rx(uint8_t data);
 void can_send_tv_code(uint8_t data);
 
+void canbox_passthrough(u8 en);
+
 
 #endif
 
