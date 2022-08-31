@@ -6,7 +6,7 @@ void SwitchSource(SOURCE TargetSRC)
 {
 	if(TargetSRC > NUM_OF_SOURCE)
 		TargetSRC = NUM_OF_SOURCE;
-	if(TargetSRC==SOURCE_NAVI || TargetSRC==SOURCE_CAMERA||TargetSRC==SOURCE_FRONT_AUX)
+	if(TargetSRC==SOURCE_NAVI || TargetSRC==SOURCE_CAMERA)
 	{
 	}
 	else

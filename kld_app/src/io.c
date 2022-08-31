@@ -216,7 +216,7 @@ void Parking_Pro(void)
 	if (Park_Sampling_Counter==0)
 	{
 		//多次采样确认
-		if (port)
+		if (!port)
 		{
 			F_PARKING=1; //已刹车
 		}
@@ -227,7 +227,7 @@ void Parking_Pro(void)
 		PostEvent(WINCE_MODULE, TX_TO_GUI_CAR_PARKING_STATUS,F_PARKING);
 	}
 
-	if ((port&&F_PARKING==1) ||(!port&&F_PARKING==0) )
+	if ((!port&&F_PARKING==1) ||(port&&F_PARKING==0) )
 	{
 		//端口电平与标志位一致 :=1
 		Park_Sampling_Counter=N_SAMPLING_PARK;
