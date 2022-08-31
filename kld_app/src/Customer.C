@@ -19,6 +19,7 @@ void SwitchSource(SOURCE TargetSRC)
 			GPIO_SetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
 		}
 		PostEvent(MAIN_MODULE,EVT_SRC_FRONT_REAR_CHG,TargetSRC);
+		PostEvent(VIDEO_MODULE,EVT_VID_REAR_2_SOURCE_SET,TargetSRC);
 	}
 }
 

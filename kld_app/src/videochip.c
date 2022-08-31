@@ -298,7 +298,7 @@ void Video_Main(void)
 			break;
 		case EVT_VID_REAR_L_SOURCE_SET:
 			if (SOURCE_AVOFF!=tmp_Lprm) {
-				tmp_Lprm = SOURCE_SD;
+				tmp_Lprm = SOURCE_TUNER;
 			}
 			SetRearLVideo((SOURCE)tmp_Lprm);
 			SetRearRVideo((SOURCE)tmp_Lprm);
@@ -306,8 +306,20 @@ void Video_Main(void)
 			break;
 		case EVT_VID_FRONT_SOURCE_SET:
 			SetFrontVideo(tmp_Lprm);
-			SetRearLVideo((SOURCE)tmp_Lprm);
-			SetRearRVideo((SOURCE)tmp_Lprm);
+			break;
+		case EVT_VID_REAR_2_SOURCE_SET:
+			if (SOURCE_AVOFF!=g_rear1_source) {
+				switch (tmp_Lprm) {
+					case SOURCE_HDMI:
+						tmp_Lprm = SOURCE_FRONT_AUX;
+						break;
+					case SOURCE_FRONT_AUX:
+						tmp_Lprm = SOURCE_AUX;
+						break;
+				}
+				SetRearLVideo((SOURCE)tmp_Lprm);
+				SetRearRVideo((SOURCE)tmp_Lprm);
+			}
 			break;
 		default:
 			break;
