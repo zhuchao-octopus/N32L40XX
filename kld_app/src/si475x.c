@@ -237,7 +237,7 @@ void si475x_powerup(RADIO_BAND band)
 		si475x_set_property(AM_VALID_SNR_THRESHOLD, 5);
 		si475x_set_property(AM_VALID_RSSI_THRESHOLD, 10);
 
-		si475x_set_property(AM_SEEK_FREQUENCY_SPACING, 10); // Set spacing to 10kHz
+		si475x_set_property(AM_SEEK_FREQUENCY_SPACING, 9); // Set spacing to 9kHz
 		si475x_set_property(AM_SEEK_BAND_BOTTOM, 520); // Set the band bottom to 520kHz
 		si475x_set_property(AM_SEEK_BAND_TOP, 1710);   // Set the band top to 1710kHz
 	}
@@ -376,7 +376,7 @@ bool radio_dev_is_tune_ok(bool strict)
 		g_si475x_cmd[0] = AM_RSQ_STATUS;
 		g_si475x_cmd[1] = 0x05;	// intack & attune
 		si475x_command(2, g_si475x_cmd, 13, g_si475x_rsp);
-		return (g_si475x_rsp[1] & 0x01);
+		return (g_si475x_rsp[2] & 0x01);
 	}
 }
 bool radio_dev_is_tune_status_ready(void)
