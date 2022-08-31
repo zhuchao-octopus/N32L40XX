@@ -74,7 +74,7 @@ const uchar RearVideoPath[NUM_OF_SOURCE+1]=
 	NO_SOURCE,//DVD_CVBS_SOURCE,		/*IPOD video*/
 	NAV_CVBS_SOURCE,	/*USB*/
 	NAV_CVBS_SOURCE,		/*CAMERA*/
-	NAV_CVBS_SOURCE,		/*AUX 2 */
+	AUX_FRONT_CVBS_SOURCE,		/*AUX 2 */
 	NAV_CVBS_SOURCE,					/*BT*/
 	NAV_CVBS_SOURCE,			/*WB*/
 	NAV_CVBS_SOURCE,
@@ -297,11 +297,17 @@ void Video_Main(void)
 			PostEvent(WINCE_MODULE, TX_TO_GUI_REAR_R_SOURCE_INFO,  g_rear2_source);
 			break;
 		case EVT_VID_REAR_L_SOURCE_SET:
+			if (SOURCE_AVOFF!=tmp_Lprm) {
+				tmp_Lprm = SOURCE_SD;
+			}
 			SetRearLVideo((SOURCE)tmp_Lprm);
+			SetRearRVideo((SOURCE)tmp_Lprm);
 			PostEvent(WINCE_MODULE, TX_TO_GUI_REAR_L_SOURCE_INFO,  g_rear1_source);
 			break;
 		case EVT_VID_FRONT_SOURCE_SET:
 			SetFrontVideo(tmp_Lprm);
+			SetRearLVideo((SOURCE)tmp_Lprm);
+			SetRearRVideo((SOURCE)tmp_Lprm);
 			break;
 		default:
 			break;
