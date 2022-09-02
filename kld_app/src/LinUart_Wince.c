@@ -174,6 +174,7 @@
 	#define SUBID_CAN_COMM_SET		0x01
 	#define SUBID_CAN_PROTOCOL_SET	0x02
 	#define SUBID_TRANSMIT_DATA_TO_CAN	0x03
+	#define SUBID_CAN_PASSTHROUGH		0x10
 	
 #define MCU_RX_GROUP_IAP_EVENT		0x06
 	#define SUBID_REFLASH_CMD			 	0x01
@@ -1137,6 +1138,16 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 						ak_memcpy(USART_Transmit_Tx_Buff2, Read_Lin_Ptr, length);
 						g_usart_tx_len2 = length;
 						PostEvent(CAN_MODULE, CAN_EVENT_TX_DATA, 3);	// override tx buffer 2
+					}
+					break;
+				case SUBID_CAN_PASSTHROUGH:
+					switch (*Read_Lin_Ptr) {
+						case 0:
+							canbox_passthrough(0);
+							break;
+						case 1:
+							canbox_passthrough(1);
+							break;
 					}
 					break;
 			}
