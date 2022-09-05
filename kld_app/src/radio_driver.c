@@ -1380,8 +1380,8 @@ void radio_init_area(u8 area)
 				if (0==G_PRESET_AM(i, 1)) S_PRESET_AM(i, 1, 603);
 				if (0==G_PRESET_AM(i, 2)) S_PRESET_AM(i, 2, 999);
 				if (0==G_PRESET_AM(i, 3)) S_PRESET_AM(i, 3, 1295);
-				if (0==G_PRESET_AM(i, 4)) S_PRESET_AM(i, 4, 1629);
-				if (0==G_PRESET_AM(i, 5)) S_PRESET_AM(i, 5, 1440);
+				if (0==G_PRESET_AM(i, 4)) S_PRESET_AM(i, 4, 1440);
+				if (0==G_PRESET_AM(i, 5)) S_PRESET_AM(i, 5, 1629);
 			}
 			break;
 

@@ -66,6 +66,11 @@ void canbox_passthrough(u8 en)
 	F_Usart_Rx_Data_Ready = 0;
 	g_can_rx_pt_rd = g_can_rx_pt_buf;
 	g_can_rx_pt_wr = g_can_rx_pt_buf;
+	if (1==en) {
+		GPIO_ResetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
+		delay_1ms(500);
+		GPIO_SetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
+	}
 }
 
 void canbox_rx(uint8_t data)
