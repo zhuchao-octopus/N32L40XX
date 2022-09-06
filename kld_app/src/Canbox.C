@@ -9,7 +9,7 @@ static uchar can_packet_len = 0;
 static uchar can_data_len = 0;
 
 static u8 can_passthrough = 0;
-#define CAN_RX_PT_BUF_LEN  16
+#define CAN_RX_PT_BUF_LEN  64
 static u8 g_can_rx_pt_buf[CAN_RX_PT_BUF_LEN];
 volatile u8 *g_can_rx_pt_rd;
 volatile u8 *g_can_rx_pt_wr;
@@ -172,10 +172,14 @@ ext void USART_Data_Analyse(void)
 			if ( (g_can_rx_pt_rd - g_can_rx_pt_buf) >= CAN_RX_PT_BUF_LEN ) {
 				g_can_rx_pt_rd = g_can_rx_pt_buf;
 			}
-			// Transmit the whole packet to HOST
-			ak_memcpy(USART_Transmit_Rx_Buff, data, 1);
-			USART_Transmit_Rx_Buff_full = 1;
-			PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,1);
+			if ((0==data[0]) || (0x0A==data[0]) || (0x0D==data[0])) {
+				// Transmit the whole packet to HOST
+				ak_memcpy(USART_Transmit_Rx_Buff, g_can_rx_pt_buf, (g_can_rx_pt_rd-g_can_rx_pt_buf));
+				USART_Transmit_Rx_Buff_full = 1;
+				PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,(g_can_rx_pt_rd-g_can_rx_pt_buf));
+				g_can_rx_pt_rd = g_can_rx_pt_buf;
+				g_can_rx_pt_wr = g_can_rx_pt_buf;
+			}
 		}
 		return;
 	}
