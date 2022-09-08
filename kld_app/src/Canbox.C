@@ -156,7 +156,9 @@ void canbox_rx(uint8_t data)
 
 ext void USART_Data_Analyse(void)
 {
-	u8 data[1];
+	u8 data;
+	u8 finish = 0;
+	static u16 state = 0;
 
 	if (can_passthrough) {
 		if (g_can_rx_pt_wr == g_can_rx_pt_rd) {
@@ -166,21 +168,153 @@ ext void USART_Data_Analyse(void)
 		if (0!=USART_Transmit_Rx_Buff_full) {
 			return;
 		}
-		if (g_can_rx_pt_wr != g_can_rx_pt_rd) {
-			data[0] = *g_can_rx_pt_rd;
+		while (g_can_rx_pt_wr != g_can_rx_pt_rd) {
+			data = *g_can_rx_pt_rd;
 			g_can_rx_pt_rd++;
 			if ( (g_can_rx_pt_rd - g_can_rx_pt_buf) >= CAN_RX_PT_BUF_LEN ) {
 				g_can_rx_pt_rd = g_can_rx_pt_buf;
 			}
-			if ((0==data[0]) || (0x0A==data[0]) || (0x0D==data[0])) {
-				// Transmit the whole packet to HOST
-				ak_memcpy(USART_Transmit_Rx_Buff, g_can_rx_pt_buf, (g_can_rx_pt_rd-g_can_rx_pt_buf));
-				USART_Transmit_Rx_Buff_full = 1;
-				PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,(g_can_rx_pt_rd-g_can_rx_pt_buf));
-				g_can_rx_pt_rd = g_can_rx_pt_buf;
-				g_can_rx_pt_wr = g_can_rx_pt_buf;
+			if (0==state) {
+				switch (data) {
+					case 'B':
+						state = 0x100;
+						break;
+					case 'A':
+						state = 0x200;
+						break;
+					case 'N':
+						state = 0x300;
+						break;
+					case 'e':
+						state = 0x400;
+						break;
+				}
+				continue;
+			}
+			switch (state & 0xF00) {
+				case 0x100:
+					switch (state & 0xFF) {
+						case 0:
+							if ('O'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 1:
+							if ('O'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 2:
+							if ('T'==data) {
+								state++;
+								finish = 1;
+							} else {
+								state=0;
+							}
+							break;
+					}
+					break;
+				case 0x200:
+					switch (state & 0xFF) {
+						case 0:
+							if ('C'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 1:
+							if ('K'==data) {
+								state++;
+								finish = 1;
+							} else {
+								state=0;
+							}
+							break;
+					}
+					break;
+				case 0x300:
+					switch (state & 0xFF) {
+						case 0:
+							if ('A'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 1:
+							if ('K'==data) {
+								state++;
+								finish = 1;
+							} else {
+								state=0;
+							}
+							break;
+					}
+					break;
+				case 0x400:
+					switch (state & 0xFF) {
+						case 0:
+							if ('r'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 1:
+							if ('r'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 2:
+							if ('o'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 3:
+							if ('r'==data) {
+								state++;
+								finish = 1;
+							} else {
+								state=0;
+							}
+							break;
+					}
+					break;
+			}
+			if (0!=finish) {
+				break;
 			}
 		}
+		if (0!=finish) {
+			// Transmit the whole packet to HOST
+			switch (state & 0xF00) {
+				case 0x100:
+					ak_memcpy(USART_Transmit_Rx_Buff, "BOOT", 4);
+					PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,4);
+					break;
+				case 0x200:
+					ak_memcpy(USART_Transmit_Rx_Buff, "ACK", 3);
+					PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,3);
+					break;
+				case 0x300:
+					ak_memcpy(USART_Transmit_Rx_Buff, "NAK", 3);
+					PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,3);
+					break;
+			}
+			state=0;
+		}
+		USART_Transmit_Rx_Buff_full = 1;
+		g_can_rx_pt_rd = g_can_rx_pt_buf;
+		g_can_rx_pt_wr = g_can_rx_pt_buf;
 		return;
 	}
 
