@@ -85,7 +85,7 @@ typedef enum {                             /*Parameters for Status Register*/
 
 
 #define MAX_USART_RX_BUFFER_LENGTH		80
-#define MAX_USART_TX_BUFFER_LENGTH		144
+#define MAX_USART_TX_BUFFER_LENGTH		250
 
 typedef struct 
 {

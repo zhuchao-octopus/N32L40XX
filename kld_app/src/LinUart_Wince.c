@@ -237,7 +237,7 @@
 #define MCU_RX_AUTH_EVENT	0x0F
 	#define SUBID_AUTH_REQ_SIGN		0x00
 
-#define MAX_LIN_RX_LENGTH	144
+#define MAX_LIN_RX_LENGTH	250
 static LIN_RX_STATE  Lin_Rx_State;
 volatile uchar *PtrToLinBuffRx;
 uchar * Lin_Tx_Ptr;

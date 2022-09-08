@@ -188,6 +188,15 @@ ext void USART_Data_Analyse(void)
 					case 'e':
 						state = 0x400;
 						break;
+					case 'p':
+						state = 0x500;
+						break;
+					case 'v':
+						state = 0x600;
+						break;
+					case 's':
+						state = 0x700;
+						break;
 				}
 				continue;
 			}
@@ -289,6 +298,106 @@ ext void USART_Data_Analyse(void)
 							break;
 					}
 					break;
+				case 0x500:
+					switch (state & 0xFF) {
+						case 0:
+							if ('r'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 1:
+							if ('o'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 2:
+							if ('g'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 3:
+							if ('r'==data) {
+								state++;
+								finish = 1;
+							} else {
+								state=0;
+							}
+							break;
+					}
+					break;
+				case 0x600:
+					switch (state & 0xFF) {
+						case 0:
+							if ('e'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 1:
+							if ('r'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 2:
+							if ('i'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 3:
+							if ('f'==data) {
+								state++;
+								finish = 1;
+							} else {
+								state=0;
+							}
+							break;
+					}
+					break;
+				case 0x700:
+					switch (state & 0xFF) {
+						case 0:
+							if ('u'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 1:
+							if ('c'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 2:
+							if ('c'==data) {
+								state++;
+							} else {
+								state=0;
+							}
+							break;
+						case 3:
+							if ('e'==data) {
+								state++;
+								finish = 1;
+							} else {
+								state=0;
+							}
+							break;
+					}
+					break;
+
 			}
 			if (0!=finish) {
 				break;
@@ -308,6 +417,22 @@ ext void USART_Data_Analyse(void)
 				case 0x300:
 					ak_memcpy(USART_Transmit_Rx_Buff, "NAK", 3);
 					PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,3);
+					break;
+				case 0x400:
+					ak_memcpy(USART_Transmit_Rx_Buff, "error", 5);
+					PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,5);
+					break;
+				case 0x500:
+					ak_memcpy(USART_Transmit_Rx_Buff, "program", 7);
+					PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,7);
+					break;
+				case 0x600:
+					ak_memcpy(USART_Transmit_Rx_Buff, "verify", 6);
+					PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,6);
+					break;
+				case 0x700:
+					ak_memcpy(USART_Transmit_Rx_Buff, "succeed", 7);
+					PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,7);
 					break;
 			}
 			state=0;
