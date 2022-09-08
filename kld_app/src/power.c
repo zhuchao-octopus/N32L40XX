@@ -696,6 +696,7 @@ extern void PowerManage(void)           //12ms÷¥––“ª¥Œ
 
 void batt_main(void)
 {
+#if 0
 	u8 delta;
 
 	if (POWER_NORMAL_RUN != nPowerState) {
@@ -719,5 +720,6 @@ void batt_main(void)
 		--g_batt_notify_cntr;
 		PostEvent(WINCE_MODULE, TX_TO_GUI_POWER_CMD, WCE_POWER_BATT_ADC_VAL);
 	}
+#endif
 }
 

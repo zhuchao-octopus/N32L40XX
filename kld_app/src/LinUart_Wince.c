@@ -532,7 +532,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 					}
 					else if(*Read_Lin_Ptr==2)
 					{
-						SwitchSource(SOURCE_BT);
+//						SwitchSource(SOURCE_BT);
 					}
 					else if(*Read_Lin_Ptr==3)
 					{
