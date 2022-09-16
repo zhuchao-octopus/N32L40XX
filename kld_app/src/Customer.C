@@ -12,14 +12,17 @@ void SwitchSource(SOURCE TargetSRC)
 	else
 	{
 		if ( (SOURCE_DTV==TargetSRC)||(SOURCE_TV==TargetSRC) ) {
+			audio_set_mute_temporary(2000);
 			GPIO_ResetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
 //			GPIO_SetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
 		} else if (SOURCE_HDMI==TargetSRC) {
+			audio_set_mute_temporary(2000);
+			delay_1ms(500);
 //			GPIO_ResetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
 			GPIO_SetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
 		}
 		PostEvent(MAIN_MODULE,EVT_SRC_FRONT_REAR_CHG,TargetSRC);
-		PostEvent(VIDEO_MODULE,EVT_VID_REAR_2_SOURCE_SET,TargetSRC);
+//		PostEvent(VIDEO_MODULE,EVT_VID_REAR_2_SOURCE_SET,TargetSRC);
 	}
 }
 

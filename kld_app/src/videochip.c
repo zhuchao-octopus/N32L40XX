@@ -239,6 +239,7 @@ void Video_Main(void)
 {
 	EVENT *nEvt;
 	uchar tmp_Lprm;
+	static u8 s_front_ch=SOURCE_CAMERA;
 
 	if(!Is_Machine_Power) {
 		g_wait_panel_pwr_timer = 0;
@@ -259,11 +260,9 @@ void Video_Main(void)
 	nEvt=GetEvent(VIDEO_MODULE);
 	tmp_Lprm=LSB(nEvt->prm);
 
-	// set front video as soon as possible, in case the separate
-	// model machine need backcar camera.
 	if (g_fms6502_need_config) {
 		if (g_fms6502_config_timer < T50MS_12) {
-			SetFrontVideo(SOURCE_CAMERA);
+			SetFrontVideo(s_front_ch);
 		}
 	}
 
@@ -277,6 +276,7 @@ void Video_Main(void)
 		}
 		if (EVT_VID_FRONT_SOURCE_SET == (nEvt->ID)) {
 			SetFrontVideo(tmp_Lprm);
+			s_front_ch = tmp_Lprm;
 		}
 		return;
 	} else {
@@ -297,30 +297,31 @@ void Video_Main(void)
 			PostEvent(WINCE_MODULE, TX_TO_GUI_REAR_R_SOURCE_INFO,  g_rear2_source);
 			break;
 		case EVT_VID_REAR_L_SOURCE_SET:
-			if (SOURCE_AVOFF!=tmp_Lprm) {
-				tmp_Lprm = SOURCE_TUNER;
-			}
+//			if (SOURCE_AVOFF!=tmp_Lprm) {
+//				tmp_Lprm = SOURCE_TUNER;
+//			}
 			SetRearLVideo((SOURCE)tmp_Lprm);
 			SetRearRVideo((SOURCE)tmp_Lprm);
 			PostEvent(WINCE_MODULE, TX_TO_GUI_REAR_L_SOURCE_INFO,  g_rear1_source);
 			break;
 		case EVT_VID_FRONT_SOURCE_SET:
 			SetFrontVideo(tmp_Lprm);
+			s_front_ch = tmp_Lprm;
 			break;
-		case EVT_VID_REAR_2_SOURCE_SET:
-			if (SOURCE_AVOFF!=g_rear1_source) {
-				switch (tmp_Lprm) {
-					case SOURCE_HDMI:
-						tmp_Lprm = SOURCE_FRONT_AUX;
-						break;
-					case SOURCE_FRONT_AUX:
-						tmp_Lprm = SOURCE_AUX;
-						break;
-				}
-				SetRearLVideo((SOURCE)tmp_Lprm);
-				SetRearRVideo((SOURCE)tmp_Lprm);
-			}
-			break;
+//		case EVT_VID_REAR_2_SOURCE_SET:
+//			if (SOURCE_AVOFF!=g_rear1_source) {
+//				switch (tmp_Lprm) {
+//					case SOURCE_HDMI:
+//						tmp_Lprm = SOURCE_FRONT_AUX;
+//						break;
+//					case SOURCE_FRONT_AUX:
+//						tmp_Lprm = SOURCE_AUX;
+//						break;
+//				}
+//				SetRearLVideo((SOURCE)tmp_Lprm);
+//				SetRearRVideo((SOURCE)tmp_Lprm);
+//			}
+//			break;
 		default:
 			break;
 	}

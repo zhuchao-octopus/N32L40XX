@@ -117,7 +117,7 @@
 #define A_NAVI_MIX_EXTRA_DB	9
 #define A_BT_PHONE_EXTRA_DB	12
 #define A_ALL_EXTRA_DB			3
-#define CONFIG_LOUDNESS_DB	6
+#define CONFIG_LOUDNESS_DB	12
 
 /*---- Radio ----*/
 #define TUNER_MODEL  TUNER_SILICONLAB_SI475X

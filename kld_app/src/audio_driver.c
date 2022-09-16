@@ -539,32 +539,35 @@ void audio_volume_up(void)
 {
 	u8 vol;
 
-	if (g_audio_info.bt_phone_on) {
-		vol = g_audio_info.bt_phone_vol + 1;
-		if (IS_VALID_VOLUME(vol)) {
-			g_audio_info.bt_phone_vol = vol;
-		}
-	} else if (g_audio_info.bt_ring_on) {
-		vol = g_audio_info.bt_ring_vol + 1;
-		if (IS_VALID_VOLUME(vol)) {
-			g_audio_info.bt_ring_vol = vol;
-		}
-	} else if (g_audio_info.navi_on) {
-		vol = g_audio_info.navi_vol + 1;
-		if (IS_VALID_VOLUME(vol)) {
-			g_audio_info.navi_vol = vol;
-		}
-	} else if (g_audio_info.bt_voice_on) {
-		vol = g_audio_info.bt_voice_vol + 1;
-		if (IS_VALID_VOLUME(vol)) {
-			g_audio_info.bt_voice_vol = vol;
-		}
-	} else {
-		vol = g_audio_info.system_vol + 1;
-		if (IS_VALID_VOLUME(vol)) {
-			g_audio_info.system_vol = vol;
-			g_audio_info.navi_mix_vol = vol;
-			audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
+	if ( 0== (g_audio_info.mute & AUDIO_MUTE_USER) ) {
+
+		if (g_audio_info.bt_phone_on) {
+			vol = g_audio_info.bt_phone_vol + 1;
+			if (IS_VALID_VOLUME(vol)) {
+				g_audio_info.bt_phone_vol = vol;
+			}
+		} else if (g_audio_info.bt_ring_on) {
+			vol = g_audio_info.bt_ring_vol + 1;
+			if (IS_VALID_VOLUME(vol)) {
+				g_audio_info.bt_ring_vol = vol;
+			}
+		} else if (g_audio_info.navi_on) {
+			vol = g_audio_info.navi_vol + 1;
+			if (IS_VALID_VOLUME(vol)) {
+				g_audio_info.navi_vol = vol;
+			}
+		} else if (g_audio_info.bt_voice_on) {
+			vol = g_audio_info.bt_voice_vol + 1;
+			if (IS_VALID_VOLUME(vol)) {
+				g_audio_info.bt_voice_vol = vol;
+			}
+		} else {
+			vol = g_audio_info.system_vol + 1;
+			if (IS_VALID_VOLUME(vol)) {
+				g_audio_info.system_vol = vol;
+				g_audio_info.navi_mix_vol = vol;
+				audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
+			}
 		}
 	}
 	audio_set_mute(AUDIO_MUTE_USER, FALSE);
@@ -574,32 +577,34 @@ void audio_volume_down(void)
 {
 	u8 vol;
 
-	if (g_audio_info.bt_phone_on) {
-		vol = g_audio_info.bt_phone_vol - 1;
-		if (IS_VALID_VOLUME(vol)) {
-			g_audio_info.bt_phone_vol = vol;
-		}
-	} else if (g_audio_info.bt_ring_on) {
-		vol = g_audio_info.bt_ring_vol - 1;
-		if (IS_VALID_VOLUME(vol)) {
-			g_audio_info.bt_ring_vol = vol;
-		}
-	} else if (g_audio_info.navi_on) {
-		vol = g_audio_info.navi_vol - 1;
-		if (IS_VALID_VOLUME(vol)) {
-			g_audio_info.navi_vol = vol;
-		}
-	} else if (g_audio_info.bt_voice_on) {
-		vol = g_audio_info.bt_voice_vol - 1;
-		if (IS_VALID_VOLUME(vol)) {
-			g_audio_info.bt_voice_vol = vol;
-		}
-	} else {
-		vol = g_audio_info.system_vol - 1;
-		if (IS_VALID_VOLUME(vol)) {
-			g_audio_info.system_vol = vol;
-			g_audio_info.navi_mix_vol = vol;
-			audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
+	if ( 0== (g_audio_info.mute & AUDIO_MUTE_USER) ) {
+		if (g_audio_info.bt_phone_on) {
+			vol = g_audio_info.bt_phone_vol - 1;
+			if (IS_VALID_VOLUME(vol)) {
+				g_audio_info.bt_phone_vol = vol;
+			}
+		} else if (g_audio_info.bt_ring_on) {
+			vol = g_audio_info.bt_ring_vol - 1;
+			if (IS_VALID_VOLUME(vol)) {
+				g_audio_info.bt_ring_vol = vol;
+			}
+		} else if (g_audio_info.navi_on) {
+			vol = g_audio_info.navi_vol - 1;
+			if (IS_VALID_VOLUME(vol)) {
+				g_audio_info.navi_vol = vol;
+			}
+		} else if (g_audio_info.bt_voice_on) {
+			vol = g_audio_info.bt_voice_vol - 1;
+			if (IS_VALID_VOLUME(vol)) {
+				g_audio_info.bt_voice_vol = vol;
+			}
+		} else {
+			vol = g_audio_info.system_vol - 1;
+			if (IS_VALID_VOLUME(vol)) {
+				g_audio_info.system_vol = vol;
+				g_audio_info.navi_mix_vol = vol;
+				audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
+			}
 		}
 	}
 

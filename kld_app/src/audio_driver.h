@@ -3,7 +3,7 @@
 #define _AUDIO_DRIVER_H_
 
 #define MIN_VOLUME            0
-#define MAX_VOLUME            30
+#define MAX_VOLUME            40
 #define DEFAULT_VOLUME        10
 
 #define MIN_LOUDNESS           0

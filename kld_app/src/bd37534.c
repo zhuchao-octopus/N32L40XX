@@ -23,65 +23,12 @@ static const s8 g_bd37534_gains[] = {
 	-79,	/* volume 0 */
 	-65, -58, -53, -48, -44,	/* volume 1~5 */
 	-41, -38, -35, -32, -30,	/* volume 6~10 */
-	-28, -26, -25, -24, -23,	/* volume 11~15 */
-	-22, -21, -20, -18, -16,		/* volume 16~20 */
-	-14, -12, -10, -8, -6,		/* volume 21~25 */
-	-4, -2, 0, 2, 4		/* volume 26~30 */
-};
-
-// output type 1: max output is 3dB lower than normal
-static const s8 g_bd37534_gains_n3dB[] = {
-	-79,	/* volume 0 */
-	-54, -51, -48, -45, -42,	/* volume 1~5 */
-	-40, -38, -36, -34, -32,	/* volume 6~10 */
-	-30, -28, -26, -24, -22,	/* volume 11~15 */
-	-21, -19, -17, -16, -14,		/* volume 16~20 */
-	-12, -11, -9, -7, -6,		/* volume 21~25 */
-	-4, -2, -1, 0, 1		/* volume 26~30 */
-};
-
-// output type 2: max output is 6dB lower than normal
-static const s8 g_bd37534_gains_n6dB[] = {
-	-79,	/* volume 0 */
-	-57, -54, -51, -48, -45,	/* volume 1~5 */
-	-43, -41, -39, -37, -35,	/* volume 6~10 */
-	-33, -31, -29, -27, -25,	/* volume 11~15 */
-	-24, -22, -20, -19, -17,		/* volume 16~20 */
-	-15, -14, -12, -10, -9,		/* volume 21~25 */
-	-7, -5, -4, -3, -2		/* volume 26~30 */
-};
-
-// output type 3: max output is 9dB lower than normal
-static const s8 g_bd37534_gains_n9dB[] = {
-	-79,	/* volume 0 */
-	-58, -56, -54, -51, -48,	/* volume 1~5 */
-	-46, -44, -42, -40, -38,	/* volume 6~10 */
-	-36, -34, -32, -30, -28,	/* volume 11~15 */
-	-27, -25, -23, -22, -20,		/* volume 16~20 */
-	-18, -17, -15, -13, -12,		/* volume 21~25 */
-	-10, -8, -7, -6, -5		/* volume 26~30 */
-};
-
-// output type 4: max output is 12dB lower than normal
-static const s8 g_bd37534_gains_n12dB[] = {
-	-79,	/* volume 0 */
-	-58, -57, -55, -54, -51,	/* volume 1~5 */
-	-49, -47, -45, -43, -41,	/* volume 6~10 */
-	-39, -37, -35, -33, -31,	/* volume 11~15 */
-	-30, -28, -26, -25, -23,		/* volume 16~20 */
-	-21, -20, -18, -16, -15,		/* volume 21~25 */
-	-13, -11, -10, -9, -8		/* volume 26~30 */
-};
-
-// output type 5: max output is 15dB lower than normal
-static const s8 g_bd37534_gains_n15dB[] = {
-	-79,	/* volume 0 */
-	-58, -57, -56, -55, -54,	/* volume 1~5 */
-	-52, -50, -48, -46, -44,	/* volume 6~10 */
-	-42, -40, -38, -36, -34,	/* volume 11~15 */
-	-33, -31, -29, -28, -26,		/* volume 16~20 */
-	-24, -23, -21, -19, -18,		/* volume 21~25 */
-	-16, -14, -13, -12, -11		/* volume 26~30 */
+	-28, -26, -24, -23, -22,	/* volume 11~15 */
+	-21, -20, -19, -18, -17,		/* volume 16~20 */
+	-16, -15, -14, -13, -12,		/* volume 21~25 */
+	-11, -10, -9, -8, -7,		/* volume 26~30 */
+	-6, -5, -4, -3, -2,		/* volume 31~35 */
+	-1, 0, 1, 2, 4		/* volume 36~40 */
 };
 
 static void bd37534_write(u8 addr, u8 value)
@@ -99,34 +46,14 @@ static void bd37534_write(u8 addr, u8 value)
 static void bd37534_update_main_vol(u8 vol)
 {
 	s8 gain;
-#if MAX_VOLUME == 30
+#if MAX_VOLUME == 40
 	if (vol>MAX_VOLUME) {
 		return;
 	}
 	if (0==vol) {
 		g_reg_value[BD37534_REG_VOLUME_GAIN] = 0xFF;
 	} else {
-		switch (g_audio_info.output_type) {
-			case AUDIO_OUTPUT_N_15DB:
-				gain = g_bd37534_gains_n15dB[vol];
-				break;
-			case AUDIO_OUTPUT_N_12DB:
-				gain = g_bd37534_gains_n12dB[vol];
-				break;
-			case AUDIO_OUTPUT_N_9DB:
-				gain = g_bd37534_gains_n9dB[vol];
-				break;
-			case AUDIO_OUTPUT_N_6DB:
-				gain = g_bd37534_gains_n6dB[vol];
-				break;
-			case AUDIO_OUTPUT_N_3DB:
-				gain = g_bd37534_gains_n3dB[vol];
-				break;
-			case AUDIO_OUTPUT_NORMAL:
-			default:
-				gain = g_bd37534_gains[vol];
-				break;
-		}
+		gain = g_bd37534_gains[vol];
 	
 		if (gain>15) {
 			gain = 15;
@@ -147,7 +74,7 @@ static void bd37534_update_mix_vol(u8 vol)
 	s8 gain;
 	u16 tmp;
 
-#if MAX_VOLUME == 30
+#if MAX_VOLUME == 40
 	if (vol>MAX_VOLUME) {
 		return;
 	}
@@ -164,27 +91,7 @@ static void bd37534_update_mix_vol(u8 vol)
 	if (0==vol) {
 		g_reg_value[BD37534_REG_MIXING] = 0xFF;
 	} else {
-		switch (g_audio_info.output_type) {
-			case AUDIO_OUTPUT_N_15DB:
-				gain = g_bd37534_gains_n15dB[vol];
-				break;
-			case AUDIO_OUTPUT_N_12DB:
-				gain = g_bd37534_gains_n12dB[vol];
-				break;
-			case AUDIO_OUTPUT_N_9DB:
-				gain = g_bd37534_gains_n9dB[vol];
-				break;
-			case AUDIO_OUTPUT_N_6DB:
-				gain = g_bd37534_gains_n6dB[vol];
-				break;
-			case AUDIO_OUTPUT_N_3DB:
-				gain = g_bd37534_gains_n3dB[vol];
-				break;
-			case AUDIO_OUTPUT_NORMAL:
-			default:
-				gain = g_bd37534_gains[vol];
-				break;
-		}
+		gain = g_bd37534_gains[vol];
 		gain += A_NAVI_MIX_EXTRA_DB;
 
 		if (NAVI_BREAK_DIRECT!=g_audio_info.navi_mix_extra_gain) {

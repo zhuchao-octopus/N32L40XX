@@ -8,7 +8,8 @@ static void dvd_pwr_handler(void)
 	if (g_dvd_info.dvd_pwr_up) {
 		if (g_dvd_info.pwr_timer<T3S_12) {
 			++g_dvd_info.pwr_timer;
-			if (g_dvd_info.pwr_timer==T3S_12) {
+			audio_set_mute_temporary(1000);
+			if (g_dvd_info.pwr_timer>T2S5_12) {
 				GPIO_SetBits(GPIO_DVD_PWR_CTRL_GRP, GPIO_DVD_PWR_CTRL_PIN);
 				GPIO_SetBits(GPIO_DVD_RST_GRP, GPIO_DVD_RST_PIN);
 			} else if (g_dvd_info.pwr_timer>T1S_12) {
