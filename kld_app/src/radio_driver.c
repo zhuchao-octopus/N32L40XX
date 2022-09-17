@@ -1468,7 +1468,7 @@ void radio_main(void)
 		if (!IS_PANEL_PWR_ON) {
 			return;
 		}
-		if (g_radio_info.pwr_timer < T1S_12) {
+		if (g_radio_info.pwr_timer < T3S_12) {
 			++g_radio_info.pwr_timer;
 			return;
 		}

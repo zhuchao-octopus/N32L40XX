@@ -659,7 +659,7 @@ extern void PowerManage(void)           //12ms÷¥––“ª¥Œ
 			break;
 		case POWER_ACCOFF_WAIT:
 			if (0==g_acc_wait_timer) {
-				g_brightness = -1;
+//				g_brightness = -1;
 				nPowerState = POWER_ACCOFF2;
 			}
 			break;
