@@ -16,8 +16,10 @@ void SwitchSource(SOURCE TargetSRC)
 			GPIO_ResetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
 //			GPIO_SetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
 		} else if (SOURCE_HDMI==TargetSRC) {
-			audio_set_mute_temporary(2000);
-			delay_1ms(500);
+			if (Bit_RESET==GPIO_ReadOutputDataBit(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN)) {
+				audio_set_mute_temporary(7000);
+				delay_1ms(500);
+			}
 //			GPIO_ResetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
 			GPIO_SetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
 		}

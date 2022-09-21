@@ -28,7 +28,7 @@ static const s8 g_bd37534_gains[] = {
 	-16, -15, -14, -13, -12,		/* volume 21~25 */
 	-11, -10, -9, -8, -7,		/* volume 26~30 */
 	-6, -5, -4, -3, -2,		/* volume 31~35 */
-	-1, 0, 1, 2, 4		/* volume 36~40 */
+	-1, 0, 3, 6, 10		/* volume 36~40 */
 };
 
 static void bd37534_write(u8 addr, u8 value)
@@ -129,6 +129,8 @@ static void bd37534_update_output_gain(u8 fad, u8 bal, AUDIO_SOURCE src)
 	rr_atten = 0;
 	if ( (AUDIO_SRC_HOST==src) && (FrontSource == SOURCE_BT) ){
 		src = AUDIO_SRC_BT_MODULE;		
+	} else if (FrontSource == SOURCE_HDMI){
+		src = AUDIO_SRC_TV;		
 	}
 	extra_atten = g_audio_info.extra_input_gain[src];
 
@@ -313,6 +315,8 @@ void audio_dev_update_source(AUDIO_SOURCE src)
 	g_reg_value[BD37534_REG_INPUT_GAIN] &= (u8)(~(0x1F<<0));
 	if ( (AUDIO_SRC_HOST==src) && (FrontSource == SOURCE_BT) ){
 		extra_gain = g_audio_info.extra_input_gain[AUDIO_SRC_BT_MODULE];
+	} else if (FrontSource == SOURCE_HDMI){
+		extra_gain = g_audio_info.extra_input_gain[AUDIO_SRC_TV];
 	} else {
 		extra_gain = g_audio_info.extra_input_gain[src];
 	}

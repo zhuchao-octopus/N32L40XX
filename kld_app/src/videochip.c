@@ -56,13 +56,13 @@ static u8 g_wait_panel_pwr_timer = 0;
 
 static bool g_fms6502_need_config = FALSE;
 static u16 g_fms6502_config_timer = 0;
-static SOURCE g_rear1_source = SOURCE_SD;
-static SOURCE g_rear2_source = SOURCE_SD;
+static SOURCE g_rear1_source = SOURCE_AVOFF;
+static SOURCE g_rear2_source = SOURCE_AVOFF;
 static bool g_fms6502_shutdown = FALSE;
 
 const uchar RearVideoPath[NUM_OF_SOURCE+1]=
 {
-	NAV_CVBS_SOURCE,	/*TUNER*/
+	NO_SOURCE,	/*TUNER*/
 	DVD_CVBS_SOURCE,	/*DVD*/
 	DVD_CVBS_SOURCE,		/*DVDC*/
 	DTV_CVBS_SOURCE,		/*TV*/
