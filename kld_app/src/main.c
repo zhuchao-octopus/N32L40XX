@@ -598,6 +598,7 @@ static void Task40msPro()
 {
 	g_trigger_40ms=0;		
 	MMI();
+	hdmi_main();
 	Parking_Pro();
 	ABRT_Driver();
 }

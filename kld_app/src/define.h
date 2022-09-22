@@ -162,6 +162,7 @@ typedef enum
 #define T2S_40		50
 #define T3S_40		75
 #define T5S_40  		125
+#define T7S_40		175
 #define T8S_40		200
 #define T10S_40		250
 

@@ -2,6 +2,14 @@
 #include "public.h"
 
 
+#define HDMI_STATE_PWR_OFF	0
+#define HDMI_STATE_PWR_OFFING	1
+#define HDMI_STATE_PWR_ONING	2
+#define HDMI_STATE_PWR_ON	3
+static u8 g_hdmi_pwr_up;
+static u16 g_hdmi_pwr_timer;
+static u8 g_hdmi_state;
+
 void SwitchSource(SOURCE TargetSRC)
 {
 	if(TargetSRC > NUM_OF_SOURCE)
@@ -12,19 +20,69 @@ void SwitchSource(SOURCE TargetSRC)
 	else
 	{
 		if ( (SOURCE_DTV==TargetSRC)||(SOURCE_TV==TargetSRC) ) {
-			audio_set_mute_temporary(2000);
-			GPIO_ResetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
-//			GPIO_SetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
+			g_hdmi_pwr_up = 0;
 		} else if (SOURCE_HDMI==TargetSRC) {
-			if (Bit_RESET==GPIO_ReadOutputDataBit(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN)) {
-				audio_set_mute_temporary(7000);
-				delay_1ms(500);
-			}
-//			GPIO_ResetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
-			GPIO_SetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
+			g_hdmi_pwr_up = 1;
 		}
 		PostEvent(MAIN_MODULE,EVT_SRC_FRONT_REAR_CHG,TargetSRC);
 //		PostEvent(VIDEO_MODULE,EVT_VID_REAR_2_SOURCE_SET,TargetSRC);
+	}
+}
+
+void hdmi_main(void)
+{
+	if(!Is_Machine_Power) {
+		g_hdmi_pwr_up = 0;
+		g_hdmi_state = HDMI_STATE_PWR_OFF;
+		g_hdmi_pwr_timer = 0;
+		return;
+	}
+
+	switch (g_hdmi_state) {
+		case HDMI_STATE_PWR_OFF:
+			if (1==g_hdmi_pwr_up) {
+				g_hdmi_state = HDMI_STATE_PWR_ONING;
+				g_hdmi_pwr_timer = T8S_40;
+			}
+			break;
+		case HDMI_STATE_PWR_OFFING:
+			if (1==g_hdmi_pwr_up) {
+				g_hdmi_state = HDMI_STATE_PWR_ONING;
+				g_hdmi_pwr_timer = T8S_40;
+			}
+			audio_set_mute_temporary(1000);
+			if (g_hdmi_pwr_timer>0) {
+				--g_hdmi_pwr_timer;
+				if (T1S_40==g_hdmi_pwr_timer) {
+					GPIO_ResetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
+				}
+				
+			} else {
+				g_hdmi_state = HDMI_STATE_PWR_OFF;
+			}
+			break;
+		case HDMI_STATE_PWR_ONING:
+			if (0==g_hdmi_pwr_up) {
+				g_hdmi_state = HDMI_STATE_PWR_OFFING;
+				g_hdmi_pwr_timer = T2S_40;
+			}
+			audio_set_mute_temporary(1000);
+			if (g_hdmi_pwr_timer>0) {
+				--g_hdmi_pwr_timer;
+				if (T7S_40==g_hdmi_pwr_timer) {
+					GPIO_SetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
+				}
+				
+			} else {
+				g_hdmi_state = HDMI_STATE_PWR_ON;
+			}
+			break;
+		case HDMI_STATE_PWR_ON:
+			if (0==g_hdmi_pwr_up) {
+				g_hdmi_state = HDMI_STATE_PWR_OFFING;
+				g_hdmi_pwr_timer = T2S_40;
+			}
+			break;
 	}
 }
 
@@ -76,8 +134,9 @@ void MMI(void)	//4// 40msÊ±»ù
 
 	CtrlRadio(keycode);
 
-	if(!Is_Machine_Power)
+	if(!Is_Machine_Power) {
 		return;
+	}
 
 	if (g_fake_pwr_off) {
 		if ( (UICC_FAKE_POWER_OFF != keycode) &&

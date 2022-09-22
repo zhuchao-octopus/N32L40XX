@@ -41,6 +41,7 @@ typedef enum
 #define MAX_BRIGHTNESS_LEVEL	21
 
 extern void MMI(void);
+extern void hdmi_main(void);
 
 /* Interface functions ------------------------------------------------------ */
 

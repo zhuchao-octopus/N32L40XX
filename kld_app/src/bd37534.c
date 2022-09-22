@@ -23,12 +23,12 @@ static const s8 g_bd37534_gains[] = {
 	-79,	/* volume 0 */
 	-65, -58, -53, -48, -44,	/* volume 1~5 */
 	-41, -38, -35, -32, -30,	/* volume 6~10 */
-	-28, -26, -24, -23, -22,	/* volume 11~15 */
-	-21, -20, -19, -18, -17,		/* volume 16~20 */
-	-16, -15, -14, -13, -12,		/* volume 21~25 */
-	-11, -10, -9, -8, -7,		/* volume 26~30 */
-	-6, -5, -4, -3, -2,		/* volume 31~35 */
-	-1, 0, 3, 6, 10		/* volume 36~40 */
+	-29, -28, -27, -26, -25,	/* volume 11~15 */
+	-24, -23, -22, -21, -20,		/* volume 16~20 */
+	-19, -18, -17, -16, -15,		/* volume 21~25 */
+	-14, -13, -12, -11, -10,		/* volume 26~30 */
+	-9, -8, -7, -6, -5,		/* volume 31~35 */
+	-4, -2, 0, 2, 4		/* volume 36~40 */
 };
 
 static void bd37534_write(u8 addr, u8 value)
@@ -129,10 +129,12 @@ static void bd37534_update_output_gain(u8 fad, u8 bal, AUDIO_SOURCE src)
 	rr_atten = 0;
 	if ( (AUDIO_SRC_HOST==src) && (FrontSource == SOURCE_BT) ){
 		src = AUDIO_SRC_BT_MODULE;		
-	} else if (FrontSource == SOURCE_HDMI){
-		src = AUDIO_SRC_TV;		
 	}
-	extra_atten = g_audio_info.extra_input_gain[src];
+	if (FrontSource == SOURCE_HDMI){
+		extra_atten = g_audio_info.extra_input_gain[AUDIO_SRC_HDMI];
+	} else {
+		extra_atten = g_audio_info.extra_input_gain[src];
+	}
 
 	if (extra_atten>16) {
 		// audio_dev_update_source can only increase 16dB max, so we handle the left
@@ -316,7 +318,7 @@ void audio_dev_update_source(AUDIO_SOURCE src)
 	if ( (AUDIO_SRC_HOST==src) && (FrontSource == SOURCE_BT) ){
 		extra_gain = g_audio_info.extra_input_gain[AUDIO_SRC_BT_MODULE];
 	} else if (FrontSource == SOURCE_HDMI){
-		extra_gain = g_audio_info.extra_input_gain[AUDIO_SRC_TV];
+		extra_gain = g_audio_info.extra_input_gain[AUDIO_SRC_HDMI];
 	} else {
 		extra_gain = g_audio_info.extra_input_gain[src];
 	}
