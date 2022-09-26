@@ -988,13 +988,13 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 				case SUBID_AUDIO_CH_VOL_ADJ:
 					switch (*Read_Lin_Ptr++) {
 						case 1:
-							g_audio_info.extra_input_gain_factory[AUDIO_SRC_HOST] = (s8)(*Read_Lin_Ptr++ - 10);
-							g_audio_info.extra_input_gain_factory[AUDIO_SRC_RADIO] = (s8)(*Read_Lin_Ptr++ - 10);
-							g_audio_info.extra_input_gain_factory[AUDIO_SRC_DVD] = (s8)(*Read_Lin_Ptr++ - 10);
-							g_audio_info.extra_input_gain_factory[AUDIO_SRC_BT_MODULE] = (s8)(*Read_Lin_Ptr++ - 10);
-							g_audio_info.extra_input_gain_factory[AUDIO_SRC_AUXIN] = (s8)(*Read_Lin_Ptr++ - 10);
-							g_audio_info.extra_input_gain_factory[AUDIO_SRC_TV] = (s8)(*Read_Lin_Ptr++ - 10);
-							PostEvent(AUDIO_MODULE, AUDIO_EVT_ADJ_CH_VOL, NONE);
+//							g_audio_info.extra_input_gain_factory[AUDIO_SRC_HOST] = (s8)(*Read_Lin_Ptr++ - 10);
+//							g_audio_info.extra_input_gain_factory[AUDIO_SRC_RADIO] = (s8)(*Read_Lin_Ptr++ - 10);
+//							g_audio_info.extra_input_gain_factory[AUDIO_SRC_DVD] = (s8)(*Read_Lin_Ptr++ - 10);
+//							g_audio_info.extra_input_gain_factory[AUDIO_SRC_BT_MODULE] = (s8)(*Read_Lin_Ptr++ - 10);
+//							g_audio_info.extra_input_gain_factory[AUDIO_SRC_AUXIN] = (s8)(*Read_Lin_Ptr++ - 10);
+//							g_audio_info.extra_input_gain_factory[AUDIO_SRC_TV] = (s8)(*Read_Lin_Ptr++ - 10);
+//							PostEvent(AUDIO_MODULE, AUDIO_EVT_ADJ_CH_VOL, NONE);
 							break;
 						case 2:
 							g_audio_info.extra_input_gain_user[AUDIO_SRC_HOST] = (s8)(*Read_Lin_Ptr++ - 4)*2;

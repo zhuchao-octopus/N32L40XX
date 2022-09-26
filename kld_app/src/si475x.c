@@ -240,6 +240,17 @@ void si475x_powerup(RADIO_BAND band)
 		si475x_set_property(AM_SEEK_FREQUENCY_SPACING, 9); // Set spacing to 9kHz
 		si475x_set_property(AM_SEEK_BAND_BOTTOM, 520); // Set the band bottom to 520kHz
 		si475x_set_property(AM_SEEK_BAND_TOP, 1710);   // Set the band top to 1710kHz
+
+		
+		si475x_set_property(0x0501,0x4272);
+		si475x_set_property(0x070E,0x5904);
+		si475x_set_property(0x1100,0x020A);
+		si475x_set_property(0x1101,0x06AE);
+		si475x_set_property(0x1102,0x0009);
+		si475x_set_property(0x1306,0x0001);
+		si475x_set_property(0x2000,0x007E);
+		si475x_set_property(0x2109,0x1200);
+		si475x_set_property(0x2300,0x0100);
 	}
 
 	// Turn off the mute

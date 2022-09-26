@@ -322,7 +322,7 @@ void audio_init(void)
 	g_audio_info.extra_input_gain_factory[AUDIO_SRC_AUXIN] = A_SRC_AUXIN_EXTRA_GAIN_ATTEN;
 	g_audio_info.extra_input_gain_factory[AUDIO_SRC_TV] = A_SRC_TV_EXTRA_GAIN_ATTEN;
 	g_audio_info.extra_input_gain_factory[AUDIO_SRC_HDMI] = 0;
-	g_audio_info.extra_input_gain_factory[AUDIO_SRC_VTR] = 0;
+	g_audio_info.extra_input_gain_factory[AUDIO_SRC_VTR] = A_SRC_VTR_EXTRA_GAIN_ATTEN;
 	g_audio_info.extra_input_gain_user[AUDIO_SRC_NONE] = 0;
 	g_audio_info.extra_input_gain_user[AUDIO_SRC_RADIO] = 0;
 	g_audio_info.extra_input_gain_user[AUDIO_SRC_HOST] = 0;

@@ -933,6 +933,9 @@ static void mcu_stay_in_sleep(void)
 	gpio_init_input_float.Pin = GPIO_I2C_SDA_PIN;
 	GPIO_InitPeripheral(GPIO_I2C_GRP, &gpio_init_input_float);
 
+	gpio_init_input_float.Pin = GPIO_MUTE_PIN;
+	GPIO_InitPeripheral(GPIO_MUTE_GRP, &gpio_init_input_float);
+
 	/* Uart */
 	USART_Enable(HOST_COMM_UART, DISABLE);
 	USART_Enable(CAN_COMM_UART, DISABLE);
