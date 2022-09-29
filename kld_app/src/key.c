@@ -487,7 +487,11 @@ static void panel_key_do_scan(u8 adc_ch)
 	} else {
 		// do long press
 		if (KEY_LONG_PRESS_TIME==g_key_handler.key_pressed_timer) {
-			if (NO_KEY != g_key_info_store.key[index].key_code_long) {
+			if (UICC_NEXT==g_key_info_store.key[index].key_code_short) {
+				PostEvent(MMI_MODULE, UICC_FASTF, WORD(1, index));
+			} else if (UICC_PREV==g_key_info_store.key[index].key_code_short) {
+				PostEvent(MMI_MODULE, UICC_FASTR, WORD(1, index));
+			} else if (NO_KEY != g_key_info_store.key[index].key_code_long) {
 				panel_key_do_send_key(index, TRUE);
 			} else {
 				panel_key_do_send_key(index, FALSE);
@@ -731,8 +735,8 @@ static void panel_key_recovery_handler(void)
 			GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
 		} else if (NO_KEY == g_key_info_store.key[g_key_handler.last_idx].key_code_short) {
 			GPIO_SetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
-		} else if ( (UICC_FAKE_POWER_OFF == g_key_info_store.key[g_key_handler.last_idx].key_code_short) ||
-				(UICC_FAKE_POWER_OFF == g_key_info_store.key[g_key_handler.last_idx].key_code_long) ) {
+		} else if ( (UICC_EJECT == g_key_info_store.key[g_key_handler.last_idx].key_code_short) ||
+				(UICC_EJECT == g_key_info_store.key[g_key_handler.last_idx].key_code_long) ) {
 			GPIO_ResetBits(GPIO_HOST_REC_KEY_GRP, GPIO_HOST_REC_KEY_PIN);
 		}
 	} else if (T3S_12 == g_key_handler.recovery_key_timer) {

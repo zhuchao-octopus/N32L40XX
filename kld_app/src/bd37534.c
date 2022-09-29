@@ -178,9 +178,11 @@ static void bd37534_update_output_gain(u8 fad, u8 bal, AUDIO_SOURCE src)
 
 	if ( (!g_audio_info.bt_phone_on) && (!g_audio_info.bt_ring_on) && (!g_audio_info.bt_voice_on) && (g_audio_info.navi_break_on) ) {
 		if (NAVI_BREAK_DIRECT==g_audio_info.navi_mix_extra_gain) {	// navi break directly
-			// mute the front speaker
+			// mute all speakers
 			fl_atten = -79;
 			fr_atten = -79;
+			rl_atten = -79;
+			rr_atten = -79;
 		} else {	// navi mix
 			// cut down the front speaker
 			fl_atten -= VOLUME_CUT_WHEN_NAVI_MIX;
@@ -305,7 +307,9 @@ void audio_dev_update_source(AUDIO_SOURCE src)
 			g_reg_value[BD37534_REG_INPUT_SELECT] = BD37534_INPUT_SHORT;
 			break;
 	}
-	bd37534_write(g_reg_addr[BD37534_REG_INPUT_SELECT], g_reg_value[BD37534_REG_INPUT_SELECT]);
+	if (BD37534_INPUT_SHORT != g_reg_value[BD37534_REG_INPUT_SELECT]) {
+		bd37534_write(g_reg_addr[BD37534_REG_INPUT_SELECT], g_reg_value[BD37534_REG_INPUT_SELECT]);
+	}
 
 	// update input mute
 	if (BD37534_INPUT_SHORT == g_reg_value[BD37534_REG_INPUT_SELECT]) {
