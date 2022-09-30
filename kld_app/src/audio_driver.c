@@ -151,17 +151,17 @@ static void audio_source_handler(void)
 	}
 	
 	if (src != g_audio_info.cur_source) {
-//		if (AUDIO_SRC_HOST == g_audio_info.cur_source) {
-//			// we are exiting HOST channel, do navi mix on if need
-//			if (g_audio_info.navi_break_on_cache) {
-//				_audio_do_set_navi_break(TRUE);
-//			}
-//		} else if (AUDIO_SRC_HOST == src) {
-//			// we are entering HOST channel, do naiv mix off if it's already on
-//			if (g_audio_info.navi_break_on_cache) {
-//				_audio_do_set_navi_break(FALSE);
-//			}
-//		}
+		if (AUDIO_SRC_HOST == g_audio_info.cur_source) {
+			// we are exiting HOST channel, do navi mix on if need
+			if (g_audio_info.navi_break_on_cache) {
+				_audio_do_set_navi_break(TRUE);
+			}
+		} else if (AUDIO_SRC_HOST == src) {
+			// we are entering HOST channel, do naiv mix off if it's already on
+			if (g_audio_info.navi_break_on_cache) {
+				_audio_do_set_navi_break(FALSE);
+			}
+		}
 		
 		g_audio_info.cur_source = src;
 		if (g_audio_info.app_3rd_break_on) {
@@ -267,21 +267,6 @@ static void audio_temp_mute_handler(void)
 
 static void audio_ext_force_mute_handler(void)
 {
-	if ( (g_audio_info.mute & AUDIO_MUTE_EXT_FORCE) && (Bit_SET==GPIO_ReadInputDataBit(GPIO_TEL_MUTE_DET_GRP, GPIO_TEL_MUTE_DET_PIN)) ){
-		++g_audio_info.ext_force_mute_timer;
-		if (g_audio_info.ext_force_mute_timer >= T500MS_12) {
-			g_audio_info.ext_force_mute_timer = 0;
-			audio_set_mute(AUDIO_MUTE_EXT_FORCE, FALSE);
-		}
-	} else if ( (!(g_audio_info.mute & AUDIO_MUTE_EXT_FORCE)) && (Bit_RESET==GPIO_ReadInputDataBit(GPIO_TEL_MUTE_DET_GRP, GPIO_TEL_MUTE_DET_PIN)) ){
-		++g_audio_info.ext_force_mute_timer;
-		if (g_audio_info.ext_force_mute_timer >= T500MS_12) {
-			g_audio_info.ext_force_mute_timer = 0;
-			audio_set_mute(AUDIO_MUTE_EXT_FORCE, TRUE);
-		}
-	} else {
-		g_audio_info.ext_force_mute_timer = 0;
-	}
 }
 
 static void audio_sa_handler(void)
@@ -345,6 +330,7 @@ void audio_init(void)
 	g_audio_info.navi_vol = DEFAULT_VOLUME;
 	g_audio_info.carplay_phone_on = FALSE;
 	g_audio_info.navi_break_on = FALSE;
+	g_audio_info.navi_fix_first_pop = TRUE;
 	g_audio_info.navi_break_on_cache = FALSE;
 	g_audio_info.app_3rd_break_on = FALSE;
 	g_audio_info.rds_ta_break_on = FALSE;
@@ -401,6 +387,7 @@ void audio_main(void)
 		g_audio_info.navi_on = FALSE;
 		g_audio_info.carplay_phone_on = FALSE;
 		g_audio_info.navi_break_on = FALSE;
+		g_audio_info.navi_fix_first_pop = TRUE;
 		g_audio_info.navi_break_on_cache = FALSE;
 		g_audio_info.reverse_on = FALSE;
 		g_audio_info.bt_voice_on = FALSE;
@@ -430,6 +417,7 @@ void audio_main(void)
 			g_audio_info.carplay_phone_on = FALSE;
 			g_audio_info.bt_voice_on = FALSE;
 			g_audio_info.navi_break_on = FALSE;
+			g_audio_info.navi_fix_first_pop = TRUE;
 			g_audio_info.navi_break_on_cache = FALSE;
 			g_audio_info.sa_en = FALSE;
 			g_audio_info.sa_timer = 0;
@@ -634,7 +622,7 @@ void audio_set_mute(AUDIO_MUTE_FLAG flag, bool mute)
 		return;
 	}
 
-	if (g_audio_info.navi_on) {
+	if (g_audio_info.navi_on && !(g_audio_info.mute&AUDIO_MUTE_TEMP)) {
 		AUDIO_HW_UNMUTE;
 	} else if (0 == g_audio_info.mute) {
 		AUDIO_HW_UNMUTE;
@@ -645,8 +633,14 @@ void audio_set_mute(AUDIO_MUTE_FLAG flag, bool mute)
 
 void audio_set_mute_temporary(u16 time_ms)
 {
-	// our audio_main is in the 12ms task
-	g_audio_info.temp_mute_timer = time_ms/12;
+	u16 tmp;
+
+	tmp = time_ms/12;
+	if (tmp > g_audio_info.temp_mute_timer) {
+		// our audio_main is in the 12ms task
+		g_audio_info.temp_mute_timer = tmp;		
+	}
+
 	if (0!=g_audio_info.temp_mute_timer) {
 		audio_set_mute(AUDIO_MUTE_TEMP, TRUE);
 	} else {
@@ -732,10 +726,10 @@ void audio_set_navi_break(bool on)
 	// let mute do it's logic when navi
 	audio_set_mute((AUDIO_MUTE_FLAG)(g_audio_info.mute), TRUE);
 	
-//	if (on && (AUDIO_SRC_HOST == g_audio_info.cur_source)) {
+	if (on && (AUDIO_SRC_HOST == g_audio_info.cur_source)) {
 		// do not make mix if we are in HOST channel
-//		return;
-//	}
+		return;
+	}
 	_audio_do_set_navi_break(on);
 }
 

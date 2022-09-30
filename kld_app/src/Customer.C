@@ -176,14 +176,18 @@ void MMI(void)	//4// 40msÊ±»ù
 	switch (keycode)
 	{	
  		case UICC_VOLUME_DOWN:
-			audio_volume_down();
-			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
-			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
+//			audio_volume_down();
+//			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+//			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
+//			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, 0xFF);
+			PostEvent(WINCE_MODULE,TX_TO_GUI_SHORT_KEY_EVENT, WORD(0xFF, keycode));
 			break;  
 		case UICC_VOLUME_UP:
-			audio_volume_up();
-			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
-			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
+//			audio_volume_up();
+//			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+//			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
+//			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, 0xFF);
+			PostEvent(WINCE_MODULE,TX_TO_GUI_SHORT_KEY_EVENT, WORD(0xFF, keycode));
 			break;
 		case UICC_MUTE:
 //			if (g_audio_info.mute & AUDIO_MUTE_USER) {

@@ -2006,11 +2006,7 @@ ext void LinTxWince_Service(void)
 				tmp = nEvt->prm;
 			}
 			buff[0] = tmp;
-			if (g_audio_info.mute & AUDIO_MUTE_USER) {
-				buff[1] = 0;
-			} else {
-				buff[1] = g_audio_info.system_vol;
-			}
+			buff[1] = g_audio_info.system_vol;
 			buff[2] = g_audio_info.navi_mix_vol;
 			buff[3] = g_audio_info.bt_ring_vol;
 			buff[4] = g_audio_info.bt_phone_vol;

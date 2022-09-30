@@ -79,6 +79,11 @@ static void bd37534_update_mix_vol(u8 vol)
 		return;
 	}
 
+	if ( (vol>0) && g_audio_info.navi_fix_first_pop ) {
+		audio_set_mute_temporary(800);
+		g_audio_info.navi_fix_first_pop = FALSE;
+	}
+
 	if (g_audio_info.reverse_on) {
 		if (0==g_sys_info_store.vol_ctrl_when_reverse) {
 			vol = 0;
@@ -229,8 +234,8 @@ bool audio_dev_init(void)
 	g_reg_value[BD37534_REG_INIT_SET_3] = 0x09;
 
 	// BD37534_REG_INPUT_SELECT:
-	// input selector: input short
-	g_reg_value[BD37534_REG_INPUT_SELECT] = 0x09;
+	// input selector: input E2 for HOST
+	g_reg_value[BD37534_REG_INPUT_SELECT] = BD37534_INPUT_E2;
 	
 	// BD37534_REG_INPUT_GAIN:
 	// input gain: mute, 0dB

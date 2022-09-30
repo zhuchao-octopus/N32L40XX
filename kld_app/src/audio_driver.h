@@ -225,6 +225,7 @@ typedef struct
 	u8 bt_ring_vol;
 	bool navi_on;
 	u8 navi_vol;
+	bool navi_fix_first_pop;
 	bool navi_break_on;
 	bool navi_break_on_cache;
 	/* navi_mix_extra_gain: */
