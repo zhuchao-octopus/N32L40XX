@@ -158,9 +158,9 @@ static void audio_source_handler(void)
 			}
 		} else if (AUDIO_SRC_HOST == src) {
 			// we are entering HOST channel, do naiv mix off if it's already on
-			if (g_audio_info.navi_break_on_cache) {
-				_audio_do_set_navi_break(FALSE);
-			}
+//			if (g_audio_info.navi_break_on_cache) {
+//				_audio_do_set_navi_break(FALSE);
+//			}
 		}
 		
 		g_audio_info.cur_source = src;
@@ -175,6 +175,15 @@ static void audio_source_handler(void)
 		audio_dev_update_eq();
 		audio_dev_update_loudness(g_audio_info.loudness);
 		g_audio_info.src_sw_state = AUDIO_SRC_SW_STATE_NONE;
+	}
+
+	if (g_audio_info.navi_timer>1) {
+		--g_audio_info.navi_timer;
+		if (1==g_audio_info.navi_timer) {
+			if (g_audio_info.navi_break_on_cache) {
+				_audio_do_set_navi_break(TRUE);
+			}
+		}
 	}
 }
 
@@ -328,6 +337,7 @@ void audio_init(void)
 	g_audio_info.bt_ring_vol = DEFAULT_VOLUME;
 	g_audio_info.navi_on = FALSE;
 	g_audio_info.navi_vol = DEFAULT_VOLUME;
+	g_audio_info.navi_timer = 0;
 	g_audio_info.carplay_phone_on = FALSE;
 	g_audio_info.navi_break_on = FALSE;
 	g_audio_info.navi_fix_first_pop = TRUE;
@@ -385,6 +395,7 @@ void audio_main(void)
 		g_audio_info.bt_phone_on = FALSE;
 		g_audio_info.bt_ring_on = FALSE;
 		g_audio_info.navi_on = FALSE;
+		g_audio_info.navi_timer = 0;
 		g_audio_info.carplay_phone_on = FALSE;
 		g_audio_info.navi_break_on = FALSE;
 		g_audio_info.navi_fix_first_pop = TRUE;
@@ -414,6 +425,7 @@ void audio_main(void)
 			g_audio_info.bt_phone_on = FALSE;
 			g_audio_info.bt_ring_on = FALSE;
 			g_audio_info.navi_on = FALSE;
+			g_audio_info.navi_timer = 0;
 			g_audio_info.carplay_phone_on = FALSE;
 			g_audio_info.bt_voice_on = FALSE;
 			g_audio_info.navi_break_on = FALSE;
@@ -725,9 +737,16 @@ void audio_set_navi_break(bool on)
 
 	// let mute do it's logic when navi
 	audio_set_mute((AUDIO_MUTE_FLAG)(g_audio_info.mute), TRUE);
+
+	if (!on) {
+		g_audio_info.navi_timer = 0;
+	}
 	
 	if (on && (AUDIO_SRC_HOST == g_audio_info.cur_source)) {
 		// do not make mix if we are in HOST channel
+		if (0==g_audio_info.navi_timer) {
+			g_audio_info.navi_timer = T120MS_12;
+		}
 		return;
 	}
 	_audio_do_set_navi_break(on);
