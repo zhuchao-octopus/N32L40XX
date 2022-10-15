@@ -226,7 +226,6 @@ static void panel_key_set_default_value(void)
 
 static void panel_key_reset(void)
 {
-	u8 cnt;
 	g_key_handler.status = KEY_STATE_NONE;
 	g_key_handler.last_idx = MAX_PANEL_KEY_NUM;
 	g_key_handler.key_pressed_timer = 0;
@@ -247,17 +246,6 @@ static void panel_key_reset(void)
 	do_swc_pu(g_key_handler.study_swc_pu_type);
 	g_key_handler.panel_adc_ch_inv = FALSE;
 
-	g_key_info_store.magic_num0 = 'K';
-	g_key_info_store.magic_num1 = 'E';
-	g_key_info_store.magic_num2 = 'Y';
-	g_key_info_store.key_num = 0;
-	for (cnt=0; cnt<MAX_PANEL_KEY_NUM; cnt++) {
-		g_key_info_store.key[cnt].adc_channel = 0;
-		g_key_info_store.key[cnt].adc_value = IDLE_ADC_VALUE;
-		g_key_info_store.key[cnt].key_code_short = NO_KEY;
-		g_key_info_store.key[cnt].key_code_long = NO_KEY;
-		g_key_info_store.key[cnt].swc_pu_type = KEY_STUDY_SWC_PU_LARGE;
-	}
 }
 
 static u8 panel_key_get_adc_idle_value(u8 adc_ch, KEY_STUDY_SWC_PU_TYPE pu)
@@ -343,10 +331,11 @@ static void panel_key_clear(KEY_STUDY_DEVS dev)
 static void panel_key_load_keymap(void)
 {
 	bool do_recovery;
+	u8 cnt;
 
 	do_recovery = FALSE;
 	
-	ak_memcpy((uint8_t *)&g_key_info_store, (uint8_t *)FLASH_ADDR_KEY_STORE, sizeof(KEY_INFO_STORE));
+//	ak_memcpy((uint8_t *)&g_key_info_store, (uint8_t *)FLASH_ADDR_KEY_STORE, sizeof(KEY_INFO_STORE));
 
 	if ( ('K' != g_key_info_store.magic_num0) ||
 		('E' != g_key_info_store.magic_num1) ||
@@ -360,6 +349,19 @@ static void panel_key_load_keymap(void)
 
 	if (do_recovery) {
 		panel_key_reset();
+		
+		g_key_info_store.magic_num0 = 'K';
+		g_key_info_store.magic_num1 = 'E';
+		g_key_info_store.magic_num2 = 'Y';
+		g_key_info_store.key_num = 0;
+		for (cnt=0; cnt<MAX_PANEL_KEY_NUM; cnt++) {
+			g_key_info_store.key[cnt].adc_channel = 0;
+			g_key_info_store.key[cnt].adc_value = IDLE_ADC_VALUE;
+			g_key_info_store.key[cnt].key_code_short = NO_KEY;
+			g_key_info_store.key[cnt].key_code_long = NO_KEY;
+			g_key_info_store.key[cnt].swc_pu_type = KEY_STUDY_SWC_PU_LARGE;
+		}
+
 		panel_key_set_default_value();
 	} else {
 		if (g_key_handler.def_config != KEY_DEFCFG_GENERIC) {

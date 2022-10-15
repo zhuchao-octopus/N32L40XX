@@ -1040,6 +1040,8 @@ int main(void)
 #endif
 
 	g_first_love = 1;
+	g_xxx = TRUE;
+
 	mcu_init();
 
 #ifdef ENABLE_WWDG

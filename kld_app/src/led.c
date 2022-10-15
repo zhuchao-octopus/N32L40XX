@@ -16,7 +16,7 @@ static void led_power_handler(void)
 			}
 		} else if (2==g_sys_info_store.led_always_on) {
 			pwr_up = TRUE;
-		} else if (1==g_sys_info_store.led_always_on) {
+		} else if (1==1) {//g_sys_info_store.led_always_on) {
 			if (g_fake_pwr_off) {
 				pwr_up = FALSE;
 			} else {

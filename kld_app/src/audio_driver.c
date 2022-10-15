@@ -513,7 +513,7 @@ void audio_set_volume_2(u8 ch, u8 vol)
 			g_audio_info.bt_phone_vol = vol;
 			break;
 	}
-	if (0!=vol) {
+	if ( (2!=ch) && (0!=vol) ) {
 		audio_set_mute(AUDIO_MUTE_USER, FALSE);
 	}
 }

@@ -690,6 +690,10 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							}
 							GPIO_SetBits(GPIO_ANT_CTRL_GRP, GPIO_ANT_CTRL_PIN);
 							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_PROCESSOR_TYPE, 1);	
+							if (g_xxx) {
+								g_xxx = FALSE;
+								dvd_poweron();
+							}
 							break;
 						case 0x01:
 							g_app_in_charge = FALSE;
@@ -881,14 +885,14 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 						case 0x01:
  							if (0 == *Read_Lin_Ptr) {
 								audio_set_mute(AUDIO_MUTE_USER, TRUE);
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+//								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
 								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
+//								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							} else if (1 == *Read_Lin_Ptr) {
 								audio_set_mute(AUDIO_MUTE_USER, FALSE);
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+//								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
 								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
+//								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							}
 							break;
 						case 0x02:

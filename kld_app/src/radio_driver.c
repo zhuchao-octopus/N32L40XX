@@ -735,7 +735,7 @@ void radio_event_handler(void)
 	}
 
 	pEvt=GetEvent(TUNER_MODULE);
-
+#if 0
 	// discard the events when we are not in radio mode
 	if (FrontSource != SOURCE_TUNER) {
 		switch (pEvt->ID) {
@@ -746,7 +746,7 @@ void radio_event_handler(void)
 				return;
 		}
 	}
-
+#endif
 	switch(pEvt->ID) {
 		case RADIO_EVT_BAND:
 			g_radio_info.state = RADIO_STATE_FREQ_SETTING;
@@ -1063,12 +1063,12 @@ void radio_status_monitor(void)
 				stereo = radio_dev_get_stereo_status();
 				if ( (0==g_radio_info.flag.field.F_RADIO_ST_MONO) &&
 					 (2==stereo) ) {
-					 g_radio_info.flag.field.F_RADIO_ST_MONO = 1;
-					 notify_radio_info = TRUE;
+//					 g_radio_info.flag.field.F_RADIO_ST_MONO = 1;
+//					 notify_radio_info = TRUE;
 				} else if ( (1==g_radio_info.flag.field.F_RADIO_ST_MONO) &&
 					(1==stereo) ) {
 					 g_radio_info.flag.field.F_RADIO_ST_MONO = 0;
-					 notify_radio_info = TRUE;
+//					 notify_radio_info = TRUE;
 				}
 			}
 		}

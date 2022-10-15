@@ -107,6 +107,8 @@ ext void app_wd_stop_dog(void);
 
 ext bool g_app_slept;
 
+ext bool g_xxx;
+
 ext u8 g_batt_adc_val;
 ext u8 g_saved_batt_adc_val;
 ext u8 g_batt_notify_cntr;
