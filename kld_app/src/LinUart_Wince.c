@@ -896,26 +896,30 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							}
 							break;
 						case 0x02:
-							audio_volume_up();
-							if (length==3) {
-								++Read_Lin_Ptr;
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, *Read_Lin_Ptr);
-							} else {
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+							if ( (SOURCE_AVOFF!=FrontSource) || (g_audio_info.bt_phone_on) || (g_audio_info.bt_ring_on) || (g_audio_info.navi_on) ) {
+								audio_volume_up();
+								if (length==3) {
+									++Read_Lin_Ptr;
+									PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, *Read_Lin_Ptr);
+								} else {
+									PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+								}
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							}
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							break;
 						case 0x03:
-							audio_volume_down();
-							if (length==3) {
-								++Read_Lin_Ptr;
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, *Read_Lin_Ptr);
-							} else {
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+							if ( (SOURCE_AVOFF!=FrontSource) || (g_audio_info.bt_phone_on) || (g_audio_info.bt_ring_on) || (g_audio_info.navi_on) ) {
+								audio_volume_down();
+								if (length==3) {
+									++Read_Lin_Ptr;
+									PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, *Read_Lin_Ptr);
+								} else {
+									PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+								}
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							}
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							break;
 						case 0x04:
 							{
@@ -925,9 +929,11 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							}
 							break;
 						case 0x05:
-							audio_set_volume_2(*Read_Lin_Ptr, *(Read_Lin_Ptr+1));
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, *Read_Lin_Ptr);
-							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
+							if ( (SOURCE_AVOFF!=FrontSource) || (1!=*Read_Lin_Ptr) ) {
+								audio_set_volume_2(*Read_Lin_Ptr, *(Read_Lin_Ptr+1));
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, *Read_Lin_Ptr);
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
+							}
 							break;
 						default:
 							break;

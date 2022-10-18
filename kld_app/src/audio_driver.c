@@ -309,14 +309,14 @@ void audio_init(void)
 	g_audio_info.system_vol = DEFAULT_VOLUME;
 	g_audio_info.navi_mix_vol = DEFAULT_VOLUME;
 	g_audio_info.extra_input_gain_factory[AUDIO_SRC_NONE] = 0;
-	g_audio_info.extra_input_gain_factory[AUDIO_SRC_RADIO] = A_SRC_RADIO_EXTRA_GAIN_ATTEN;
-	g_audio_info.extra_input_gain_factory[AUDIO_SRC_HOST] = A_SRC_HOST_EXTRA_GAIN_ATTEN;
-	g_audio_info.extra_input_gain_factory[AUDIO_SRC_BT_MODULE] = A_SRC_BT_MODULE_EXTRA_GAIN_ATTEN;
-	g_audio_info.extra_input_gain_factory[AUDIO_SRC_DVD] = A_SRC_DVD_EXTRA_GAIN_ATTEN;
-	g_audio_info.extra_input_gain_factory[AUDIO_SRC_AUXIN] = A_SRC_AUXIN_EXTRA_GAIN_ATTEN;
-	g_audio_info.extra_input_gain_factory[AUDIO_SRC_TV] = A_SRC_TV_EXTRA_GAIN_ATTEN;
-	g_audio_info.extra_input_gain_factory[AUDIO_SRC_HDMI] = 0;
-	g_audio_info.extra_input_gain_factory[AUDIO_SRC_VTR] = A_SRC_VTR_EXTRA_GAIN_ATTEN;
+	g_audio_info.extra_input_gain_factory[AUDIO_SRC_RADIO] = -6;
+	g_audio_info.extra_input_gain_factory[AUDIO_SRC_HOST] = 0;
+	g_audio_info.extra_input_gain_factory[AUDIO_SRC_BT_MODULE] = 0;
+	g_audio_info.extra_input_gain_factory[AUDIO_SRC_DVD] = -5;
+	g_audio_info.extra_input_gain_factory[AUDIO_SRC_AUXIN] = -10;
+	g_audio_info.extra_input_gain_factory[AUDIO_SRC_TV] = 0;
+	g_audio_info.extra_input_gain_factory[AUDIO_SRC_HDMI] = -2;
+	g_audio_info.extra_input_gain_factory[AUDIO_SRC_VTR] = -6;
 	g_audio_info.extra_input_gain_user[AUDIO_SRC_NONE] = 0;
 	g_audio_info.extra_input_gain_user[AUDIO_SRC_RADIO] = 0;
 	g_audio_info.extra_input_gain_user[AUDIO_SRC_HOST] = 0;
@@ -606,13 +606,13 @@ void audio_volume_down(void)
 		}
 	}
 
-	if ( (!g_audio_info.bt_phone_on) && (!g_audio_info.bt_ring_on) && (!g_audio_info.navi_on) && (0==g_audio_info.system_vol) ) {
-		audio_set_mute(AUDIO_MUTE_USER, TRUE);
-	} else if ( (!g_audio_info.bt_voice_on) && (0==g_audio_info.system_vol) ) {
-		audio_set_mute(AUDIO_MUTE_USER, TRUE);
-	} else {
+//	if ( (!g_audio_info.bt_phone_on) && (!g_audio_info.bt_ring_on) && (!g_audio_info.navi_on) && (0==g_audio_info.system_vol) ) {
+//		audio_set_mute(AUDIO_MUTE_USER, TRUE);
+//	} else if ( (!g_audio_info.bt_voice_on) && (0==g_audio_info.system_vol) ) {
+//		audio_set_mute(AUDIO_MUTE_USER, TRUE);
+//	} else {
 		audio_set_mute(AUDIO_MUTE_USER, FALSE);
-	}
+//	}
 }
 
 void audio_set_mute(AUDIO_MUTE_FLAG flag, bool mute)
@@ -663,6 +663,7 @@ void audio_set_mute_temporary(u16 time_ms)
 void audio_set_bt_phone(bool on)
 {
 	if (g_audio_info.bt_phone_on != on) {
+		audio_set_mute_temporary(800);
 		g_audio_info.bt_phone_on = on;
 		audio_dev_update_fader_balance(g_audio_info.fader, g_audio_info.balance);
 		g_audio_info.bt_phone_timer = T300MS_12;
@@ -688,6 +689,7 @@ void audio_set_bt_phone(bool on)
 void audio_set_bt_ring(bool on)
 {
 	if (g_audio_info.bt_ring_on != on) {
+		audio_set_mute_temporary(800);
 		g_audio_info.bt_ring_on = on;
 		audio_dev_update_fader_balance(g_audio_info.fader, g_audio_info.balance);
 		g_audio_info.bt_phone_timer = T300MS_12;

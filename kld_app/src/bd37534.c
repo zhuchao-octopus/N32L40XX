@@ -54,6 +54,7 @@ static void bd37534_update_main_vol(u8 vol)
 		g_reg_value[BD37534_REG_VOLUME_GAIN] = 0xFF;
 	} else {
 		gain = g_bd37534_gains[vol];
+		gain += 7;
 	
 		if (gain>15) {
 			gain = 15;

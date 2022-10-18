@@ -228,6 +228,9 @@ void si475x_powerup(RADIO_BAND band)
 		// Setup the RDS configuration to enable RDS and allow any error condition.
 		si475x_set_property(FM_RDS_CONFIG, 0x00F1);
 
+		si475x_set_property(FM_BLEND_RSSI_STEREO_SEP, 0x3E3E);
+//		si475x_set_property(0x3500, 0x2D14);
+
 	} else {
 		// Enable the STC interrupt here
 		si475x_set_property(INT_CTL_ENABLE, 0x0001);
@@ -422,11 +425,11 @@ bool radio_dev_set_seek_mode(RADIO_DEV_SEEK_MODE mode)
 
 bool radio_dev_set_st_mode(bool on)
 {
-	if (0 == on) {
-		si475x_set_property(FM_BLEND_RSSI_STEREO_SEP, 0x4040);
-	} else {
-		si475x_set_property(FM_BLEND_RSSI_STEREO_SEP, 0x2D00);
-	}
+//	if (0 == on) {
+//		si475x_set_property(FM_BLEND_RSSI_STEREO_SEP, 0x4040);
+//	} else {
+//		si475x_set_property(FM_BLEND_RSSI_STEREO_SEP, 0x1000);
+//	}
 	return TRUE;
 }
 

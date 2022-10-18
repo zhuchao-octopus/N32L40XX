@@ -149,6 +149,11 @@ void canbox_rx(uint8_t data)
 			++can_packet_len;
 			// we recevied one whole packet
 			F_Usart_Rx_Data_Ready=1;
+
+			ak_memcpy(USART_Transmit_Rx_Buff, USART_Rx_Buff, can_packet_len);
+			USART_Transmit_Rx_Buff_full = 1;
+			PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,can_packet_len);
+
 			g_rx_state = CAN_RX_HEAD;
 			break;
 	}
@@ -450,9 +455,9 @@ ext void USART_Data_Analyse(void)
 		return;
 
 	// Transmit the whole packet to HOST
-	ak_memcpy(USART_Transmit_Rx_Buff, USART_Rx_Buff, can_packet_len);
-	USART_Transmit_Rx_Buff_full = 1;
-	PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,can_packet_len);
+//	ak_memcpy(USART_Transmit_Rx_Buff, USART_Rx_Buff, can_packet_len);
+//	USART_Transmit_Rx_Buff_full = 1;
+//	PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,can_packet_len);
 
 	F_Usart_Rx_Data_Ready = 0;	
 }

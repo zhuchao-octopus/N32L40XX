@@ -143,7 +143,8 @@ static void Select_Video_Source(uchar output_number,uchar input_number)
 	{
 		fms6502_write(addr, data);
 		fms6502_write(FMS6502_CLAMP, 0xFF);
-		fms6502_write(FMS6502_GAIN, 0x00);	////all 6db Output
+		fms6502_write(FMS6502_GAIN, 0xFF);	////all 0db Output
+//		fms6502_write(FMS6502_GAIN, 0x00);	////all 6db Output
 	}
 }
 /*--------------------------------------------------------------------------
