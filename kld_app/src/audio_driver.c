@@ -474,26 +474,26 @@ void audio_set_source(SOURCE av_src)
 
 void audio_set_volume(u8 vol)
 {
-	if (!IS_VALID_VOLUME(vol)) {
-		return;
-	}
-	if (0!=vol) {
-		audio_set_mute(AUDIO_MUTE_USER, FALSE);
-	} else {
-		audio_set_mute(AUDIO_MUTE_USER, TRUE);
-	}
-	if (g_audio_info.bt_phone_on) {
-		g_audio_info.bt_phone_vol = vol;
-	} else if (g_audio_info.bt_ring_on) {
-		g_audio_info.bt_ring_vol = vol;
-	} else if (g_audio_info.navi_on) {
-		g_audio_info.navi_mix_vol = vol;
-		audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
-	} else if (g_audio_info.bt_voice_on) {
-		g_audio_info.bt_voice_vol = vol;
-	} else {
-		g_audio_info.system_vol = vol;
-	}
+//	if (!IS_VALID_VOLUME(vol)) {
+//		return;
+//	}
+//	if (0!=vol) {
+//		audio_set_mute(AUDIO_MUTE_USER, FALSE);
+//	} else {
+//		audio_set_mute(AUDIO_MUTE_USER, TRUE);
+//	}
+//	if (g_audio_info.bt_phone_on) {
+//		g_audio_info.bt_phone_vol = vol;
+//	} else if (g_audio_info.bt_ring_on) {
+//		g_audio_info.bt_ring_vol = vol;
+//	} else if (g_audio_info.navi_on) {
+//		g_audio_info.navi_mix_vol = vol;
+//		audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
+//	} else if (g_audio_info.bt_voice_on) {
+//		g_audio_info.bt_voice_vol = vol;
+//	} else {
+//		g_audio_info.system_vol = vol;
+//	}
 }
 
 void audio_set_volume_2(u8 ch, u8 vol)
@@ -513,7 +513,7 @@ void audio_set_volume_2(u8 ch, u8 vol)
 			g_audio_info.bt_phone_vol = vol;
 			break;
 	}
-	if ( (2!=ch) && (0!=vol) ) {
+	if ( (1==ch) && (0!=vol) ) {
 		audio_set_mute(AUDIO_MUTE_USER, FALSE);
 	}
 }
@@ -539,66 +539,71 @@ void audio_volume_up(void)
 {
 	u8 vol;
 
-	if ( 0== (g_audio_info.mute & AUDIO_MUTE_USER) ) {
 
-		if (g_audio_info.bt_phone_on) {
-			vol = g_audio_info.bt_phone_vol + 1;
-			if (IS_VALID_VOLUME(vol)) {
-				g_audio_info.bt_phone_vol = vol;
-			}
-		} else if (g_audio_info.bt_ring_on) {
-			vol = g_audio_info.bt_ring_vol + 1;
-			if (IS_VALID_VOLUME(vol)) {
-				g_audio_info.bt_ring_vol = vol;
-			}
-		} else if (g_audio_info.navi_on) {
-			vol = g_audio_info.navi_mix_vol + 1;
-			if (IS_VALID_VOLUME(vol)) {
-				g_audio_info.navi_mix_vol = vol;
-				audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
-			}
-		} else if (g_audio_info.bt_voice_on) {
-			vol = g_audio_info.bt_voice_vol + 1;
-			if (IS_VALID_VOLUME(vol)) {
-				g_audio_info.bt_voice_vol = vol;
-			}
-		} else {
+	if (g_audio_info.bt_phone_on) {
+		vol = g_audio_info.bt_phone_vol + 1;
+		if (IS_VALID_VOLUME(vol)) {
+			g_audio_info.bt_phone_vol = vol;
+		}
+	} else if (g_audio_info.bt_ring_on) {
+		vol = g_audio_info.bt_ring_vol + 1;
+		if (IS_VALID_VOLUME(vol)) {
+			g_audio_info.bt_ring_vol = vol;
+		}
+	} else if (g_audio_info.navi_on) {
+		vol = g_audio_info.navi_mix_vol + 1;
+		if (IS_VALID_VOLUME(vol)) {
+			g_audio_info.navi_mix_vol = vol;
+			audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
+		}
+	} else if (g_audio_info.bt_voice_on) {
+		vol = g_audio_info.bt_voice_vol + 1;
+		if (IS_VALID_VOLUME(vol)) {
+			g_audio_info.bt_voice_vol = vol;
+		}
+	} else {
+		if ( 0== (g_audio_info.mute & AUDIO_MUTE_USER) ) {
 			vol = g_audio_info.system_vol + 1;
 			if (IS_VALID_VOLUME(vol)) {
 				g_audio_info.system_vol = vol;
 			}
 		}
 	}
-	audio_set_mute(AUDIO_MUTE_USER, FALSE);
+
+	if ( (g_audio_info.bt_phone_on) || (g_audio_info.bt_ring_on) ) {
+		audio_set_mute((AUDIO_MUTE_FLAG)(g_audio_info.mute), TRUE);
+	} else {
+		audio_set_mute(AUDIO_MUTE_USER, FALSE);
+	}
 }
 
 void audio_volume_down(void)
 {
 	u8 vol;
 
-	if ( 0== (g_audio_info.mute & AUDIO_MUTE_USER) ) {
-		if (g_audio_info.bt_phone_on) {
-			vol = g_audio_info.bt_phone_vol - 1;
-			if (IS_VALID_VOLUME(vol)) {
-				g_audio_info.bt_phone_vol = vol;
-			}
-		} else if (g_audio_info.bt_ring_on) {
-			vol = g_audio_info.bt_ring_vol - 1;
-			if (IS_VALID_VOLUME(vol)) {
-				g_audio_info.bt_ring_vol = vol;
-			}
-		} else if (g_audio_info.navi_on) {
-			vol = g_audio_info.navi_mix_vol - 1;
-			if (IS_VALID_VOLUME(vol)) {
-				g_audio_info.navi_mix_vol = vol;
-				audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
-			}
-		} else if (g_audio_info.bt_voice_on) {
-			vol = g_audio_info.bt_voice_vol - 1;
-			if (IS_VALID_VOLUME(vol)) {
-				g_audio_info.bt_voice_vol = vol;
-			}
-		} else {
+	if (g_audio_info.bt_phone_on) {
+		vol = g_audio_info.bt_phone_vol - 1;
+		if (IS_VALID_VOLUME(vol)) {
+			g_audio_info.bt_phone_vol = vol;
+		}
+	} else if (g_audio_info.bt_ring_on) {
+		vol = g_audio_info.bt_ring_vol - 1;
+		if (IS_VALID_VOLUME(vol)) {
+			g_audio_info.bt_ring_vol = vol;
+		}
+	} else if (g_audio_info.navi_on) {
+		vol = g_audio_info.navi_mix_vol - 1;
+		if (IS_VALID_VOLUME(vol)) {
+			g_audio_info.navi_mix_vol = vol;
+			audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
+		}
+	} else if (g_audio_info.bt_voice_on) {
+		vol = g_audio_info.bt_voice_vol - 1;
+		if (IS_VALID_VOLUME(vol)) {
+			g_audio_info.bt_voice_vol = vol;
+		}
+	} else {
+		if ( 0== (g_audio_info.mute & AUDIO_MUTE_USER) ) {
 			vol = g_audio_info.system_vol - 1;
 			if (IS_VALID_VOLUME(vol)) {
 				g_audio_info.system_vol = vol;
@@ -606,13 +611,11 @@ void audio_volume_down(void)
 		}
 	}
 
-//	if ( (!g_audio_info.bt_phone_on) && (!g_audio_info.bt_ring_on) && (!g_audio_info.navi_on) && (0==g_audio_info.system_vol) ) {
-//		audio_set_mute(AUDIO_MUTE_USER, TRUE);
-//	} else if ( (!g_audio_info.bt_voice_on) && (0==g_audio_info.system_vol) ) {
-//		audio_set_mute(AUDIO_MUTE_USER, TRUE);
-//	} else {
+	if ( (g_audio_info.bt_phone_on) || (g_audio_info.bt_ring_on) ) {
+		audio_set_mute((AUDIO_MUTE_FLAG)(g_audio_info.mute), TRUE);
+	} else {
 		audio_set_mute(AUDIO_MUTE_USER, FALSE);
-//	}
+	}
 }
 
 void audio_set_mute(AUDIO_MUTE_FLAG flag, bool mute)
@@ -636,8 +639,14 @@ void audio_set_mute(AUDIO_MUTE_FLAG flag, bool mute)
 
 	if (g_audio_info.navi_on && !(g_audio_info.mute&AUDIO_MUTE_TEMP)) {
 		AUDIO_HW_UNMUTE;
+	} else if (g_audio_info.bt_ring_on && !(g_audio_info.mute&AUDIO_MUTE_TEMP)) {
+		AUDIO_HW_UNMUTE;
+	} else if (g_audio_info.bt_phone_on && !(g_audio_info.mute&AUDIO_MUTE_TEMP)) {
+		AUDIO_HW_UNMUTE;
 	} else if (0 == g_audio_info.mute) {
 		AUDIO_HW_UNMUTE;
+	} else if (BEEP_STATE_BEEP_ING == g_beep_info.state) {
+		// do nothing
 	} else {
 		AUDIO_HW_MUTE;
 	}
@@ -675,11 +684,11 @@ void audio_set_bt_phone(bool on)
 		audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
 
 		// force unmute when enter/exit BT phone
-		if (g_audio_info.mute & AUDIO_MUTE_USER) {
-			audio_set_mute(AUDIO_MUTE_USER, FALSE);
-			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
-			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
-		}
+//		if (g_audio_info.mute & AUDIO_MUTE_USER) {
+//			audio_set_mute(AUDIO_MUTE_USER, FALSE);
+//			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+//			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
+//		}
 
 		// let audio has chance to force unmute, when bt phone on
 		audio_set_mute((AUDIO_MUTE_FLAG)(g_audio_info.mute), TRUE);
@@ -701,11 +710,11 @@ void audio_set_bt_ring(bool on)
 		audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
 
 		// force unmute when enter/exit BT phone
-		if (g_audio_info.mute & AUDIO_MUTE_USER) {
-			audio_set_mute(AUDIO_MUTE_USER, FALSE);
-			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
-			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
-		}
+//		if (g_audio_info.mute & AUDIO_MUTE_USER) {
+//			audio_set_mute(AUDIO_MUTE_USER, FALSE);
+//			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+//			PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
+//		}
 
 		// let audio has chance to force unmute, when bt phone on
 		audio_set_mute((AUDIO_MUTE_FLAG)(g_audio_info.mute), TRUE);

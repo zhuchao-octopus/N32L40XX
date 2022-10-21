@@ -486,6 +486,14 @@ static void panel_key_do_scan(u8 adc_ch)
 		if (0==(g_key_handler.key_pressed_timer % KEY_REPEAT_PRESS_TIME)) {
 			panel_key_do_send_key(index, FALSE);
 		}
+	} else if ( (UICC_NEXT==g_key_info_store.key[index].key_code_short) && (KEY_LONG_PRESS_TIME<g_key_handler.key_pressed_timer) ) {
+		if (0==(g_key_handler.key_pressed_timer % T500MS_12)) {
+			PostEvent(MMI_MODULE, UICC_FF2, WORD(1, index));
+		}
+	} else if ( (UICC_PREV==g_key_info_store.key[index].key_code_short) && (KEY_LONG_PRESS_TIME<g_key_handler.key_pressed_timer) ) {
+		if (0==(g_key_handler.key_pressed_timer % T500MS_12)) {
+			PostEvent(MMI_MODULE, UICC_FR2, WORD(1, index));
+		}
 	} else {
 		// do long press
 		if (KEY_LONG_PRESS_TIME==g_key_handler.key_pressed_timer) {
@@ -572,18 +580,18 @@ static void panel_key_do_study_det(u8 adc_ch)
 
 			if (index < g_key_info_store.key_num) {
 				// this key already study
-				if (KEY_STUDY_ALREADY_EXIST == g_key_handler.study_status) {
-					if (g_key_handler.study_index == index) {
+//				if (KEY_STUDY_ALREADY_EXIST == g_key_handler.study_status) {
+//					if (g_key_handler.study_index == index) {
 						// user already confirmed to overwrite it
 						g_key_handler.study_status = KEY_STUDY_BEGIN;
-					} else {
+//					} else {
 						// user press other key
-						g_key_handler.study_status = KEY_STUDY_ALREADY_EXIST;
-					}
-				} else {
+//						g_key_handler.study_status = KEY_STUDY_ALREADY_EXIST;
+//					}
+//				} else {
 					// mark it
-					g_key_handler.study_status = KEY_STUDY_ALREADY_EXIST;
-				}
+//					g_key_handler.study_status = KEY_STUDY_ALREADY_EXIST;
+//				}
 			} else {
 				g_key_handler.study_status = KEY_STUDY_BEGIN;
 			}

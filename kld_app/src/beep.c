@@ -32,6 +32,7 @@ static void do_beep(void)
 		case BEEP_MODE_NONE:
 			TIM_SetCmp3(TIMER_BEEP, 0);
 			g_beep_info.state = BEEP_STATE_IDLE;
+			audio_set_mute((AUDIO_MUTE_FLAG)(g_audio_info.mute), TRUE);
 			break;
 	}
 

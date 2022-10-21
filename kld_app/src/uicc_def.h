@@ -105,6 +105,9 @@
 
 	#define UICC_RADIO_SCAN	0x7A
 	#define UICC_RADIO_PS		0x7B
+	
+	#define UICC_FF2 	0xA7
+	#define UICC_FR2	0xA8
 
 	#define UICC_NISSAN_XTRAIL_CAM_SW		0xF0
 	#define UICC_MOTOR_TOGGLE	0xF1

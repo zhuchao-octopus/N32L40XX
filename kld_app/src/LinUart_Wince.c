@@ -891,8 +891,8 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							} else if (1 == *Read_Lin_Ptr) {
 								audio_set_mute(AUDIO_MUTE_USER, FALSE);
 //								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
 //								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
+								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
 							}
 							break;
 						case 0x02:
