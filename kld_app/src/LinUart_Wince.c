@@ -690,6 +690,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							}
 							GPIO_SetBits(GPIO_ANT_CTRL_GRP, GPIO_ANT_CTRL_PIN);
 							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_PROCESSOR_TYPE, 1);	
+							PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
 							if (g_xxx) {
 								g_xxx = FALSE;
 								dvd_poweron();
@@ -897,28 +898,30 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 							break;
 						case 0x02:
 							if ( (SOURCE_AVOFF!=FrontSource) || (g_audio_info.bt_phone_on) || (g_audio_info.bt_ring_on) || (g_audio_info.navi_on) ) {
-								audio_volume_up();
-								if (length==3) {
-									++Read_Lin_Ptr;
-									PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, *Read_Lin_Ptr);
-								} else {
-									PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+								if (0!=audio_volume_up()) {
+									if (length==3) {
+										++Read_Lin_Ptr;
+										PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, *Read_Lin_Ptr);
+									} else {
+										PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+									}
+									PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
+									PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 								}
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							}
 							break;
 						case 0x03:
 							if ( (SOURCE_AVOFF!=FrontSource) || (g_audio_info.bt_phone_on) || (g_audio_info.bt_ring_on) || (g_audio_info.navi_on) ) {
-								audio_volume_down();
-								if (length==3) {
-									++Read_Lin_Ptr;
-									PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, *Read_Lin_Ptr);
-								} else {
-									PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+								if (0!=audio_volume_down()) {
+									if (length==3) {
+										++Read_Lin_Ptr;
+										PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, *Read_Lin_Ptr);
+									} else {
+										PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_VOLUME_INFO, NONE);
+									}
+									PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
+									PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 								}
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_FLAG_INFO, NONE);
-								PostEvent(WINCE_MODULE, TX_TO_GUI_AUDIO_ASP_INFO, 0xFF);
 							}
 							break;
 						case 0x04:
@@ -1264,6 +1267,8 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 						audio_set_mute(AUDIO_MUTE_SYSTEM, TRUE);
 						audio_init();
 						Init_Nochange_Section();
+						g_sys_info_store.vol_ctrl_when_reverse = 0;
+						g_sys_info_store.beep_onoff = 1;
 
 						REAL_SYS_PWR_OFF;
 						delay_1ms(1000);

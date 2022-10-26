@@ -141,6 +141,9 @@ static void bd37534_update_output_gain(u8 fad, u8 bal, AUDIO_SOURCE src)
 	} else {
 		extra_atten = g_audio_info.extra_input_gain[src];
 	}
+	if ( (g_audio_info.bt_phone_on) ) {
+		extra_atten += A_BT_PHONE_EXTRA_DB;
+	}
 
 	if (extra_atten>16) {
 		// audio_dev_update_source can only increase 16dB max, so we handle the left
@@ -332,6 +335,11 @@ void audio_dev_update_source(AUDIO_SOURCE src)
 	} else {
 		extra_gain = g_audio_info.extra_input_gain[src];
 	}
+	
+	if ( (g_audio_info.bt_phone_on) ) {
+		extra_gain += A_BT_PHONE_EXTRA_DB;
+	}
+
 	if (extra_gain>0) {
 		if (extra_gain>16) {
 			// we can only increase 16dB max

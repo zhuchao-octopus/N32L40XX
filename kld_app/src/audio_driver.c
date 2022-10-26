@@ -407,6 +407,7 @@ void audio_main(void)
 	}
 	if (AUDIO_STATE_PWR_ON_ING == g_audio_info.state) {
 		audio_set_mute(AUDIO_MUTE_DRIVER, TRUE);
+		audio_set_mute(AUDIO_MUTE_USER, FALSE);
 		g_audio_info.state = AUDIO_STATE_INIT_ING;
 		g_audio_info.pwr_timer = 0;
 		return;
@@ -535,37 +536,42 @@ u8 audio_get_volume(void)
 	}
 }
 
-void audio_volume_up(void)
+u8 audio_volume_up(void)
 {
 	u8 vol;
-
+	u8 done=0;
 
 	if (g_audio_info.bt_phone_on) {
 		vol = g_audio_info.bt_phone_vol + 1;
 		if (IS_VALID_VOLUME(vol)) {
 			g_audio_info.bt_phone_vol = vol;
+			done=1;
 		}
 	} else if (g_audio_info.bt_ring_on) {
 		vol = g_audio_info.bt_ring_vol + 1;
 		if (IS_VALID_VOLUME(vol)) {
 			g_audio_info.bt_ring_vol = vol;
+			done=1;
 		}
 	} else if (g_audio_info.navi_on) {
 		vol = g_audio_info.navi_mix_vol + 1;
 		if (IS_VALID_VOLUME(vol)) {
 			g_audio_info.navi_mix_vol = vol;
 			audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
+			done=1;
 		}
 	} else if (g_audio_info.bt_voice_on) {
 		vol = g_audio_info.bt_voice_vol + 1;
 		if (IS_VALID_VOLUME(vol)) {
 			g_audio_info.bt_voice_vol = vol;
+			done=1;
 		}
 	} else {
 		if ( 0== (g_audio_info.mute & AUDIO_MUTE_USER) ) {
 			vol = g_audio_info.system_vol + 1;
 			if (IS_VALID_VOLUME(vol)) {
 				g_audio_info.system_vol = vol;
+				done=1;
 			}
 		}
 	}
@@ -575,38 +581,46 @@ void audio_volume_up(void)
 	} else {
 		audio_set_mute(AUDIO_MUTE_USER, FALSE);
 	}
+
+	return done;
 }
 
-void audio_volume_down(void)
+u8 audio_volume_down(void)
 {
 	u8 vol;
+	u8 done=0;
 
 	if (g_audio_info.bt_phone_on) {
 		vol = g_audio_info.bt_phone_vol - 1;
 		if (IS_VALID_VOLUME(vol)) {
 			g_audio_info.bt_phone_vol = vol;
+			done=1;
 		}
 	} else if (g_audio_info.bt_ring_on) {
 		vol = g_audio_info.bt_ring_vol - 1;
 		if (IS_VALID_VOLUME(vol)) {
 			g_audio_info.bt_ring_vol = vol;
+			done=1;
 		}
 	} else if (g_audio_info.navi_on) {
 		vol = g_audio_info.navi_mix_vol - 1;
 		if (IS_VALID_VOLUME(vol)) {
 			g_audio_info.navi_mix_vol = vol;
 			audio_dev_update_navi_mix_vol(g_audio_info.navi_mix_vol);
+			done=1;
 		}
 	} else if (g_audio_info.bt_voice_on) {
 		vol = g_audio_info.bt_voice_vol - 1;
 		if (IS_VALID_VOLUME(vol)) {
 			g_audio_info.bt_voice_vol = vol;
+			done=1;
 		}
 	} else {
 		if ( 0== (g_audio_info.mute & AUDIO_MUTE_USER) ) {
 			vol = g_audio_info.system_vol - 1;
 			if (IS_VALID_VOLUME(vol)) {
 				g_audio_info.system_vol = vol;
+				done=1;
 			}
 		}
 	}
@@ -616,6 +630,8 @@ void audio_volume_down(void)
 	} else {
 		audio_set_mute(AUDIO_MUTE_USER, FALSE);
 	}
+
+	return done;
 }
 
 void audio_set_mute(AUDIO_MUTE_FLAG flag, bool mute)
