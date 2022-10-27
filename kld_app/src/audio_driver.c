@@ -576,7 +576,7 @@ u8 audio_volume_up(void)
 		}
 	}
 
-	if ( (g_audio_info.bt_phone_on) || (g_audio_info.bt_ring_on) ) {
+	if ( (g_audio_info.bt_phone_on) || (g_audio_info.bt_ring_on) || (g_audio_info.navi_on) ) {
 		audio_set_mute((AUDIO_MUTE_FLAG)(g_audio_info.mute), TRUE);
 	} else {
 		audio_set_mute(AUDIO_MUTE_USER, FALSE);
@@ -625,7 +625,7 @@ u8 audio_volume_down(void)
 		}
 	}
 
-	if ( (g_audio_info.bt_phone_on) || (g_audio_info.bt_ring_on) ) {
+	if ( (g_audio_info.bt_phone_on) || (g_audio_info.bt_ring_on) || (g_audio_info.navi_on) ) {
 		audio_set_mute((AUDIO_MUTE_FLAG)(g_audio_info.mute), TRUE);
 	} else {
 		audio_set_mute(AUDIO_MUTE_USER, FALSE);

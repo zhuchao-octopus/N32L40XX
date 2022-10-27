@@ -208,7 +208,7 @@ void si475x_powerup(RADIO_BAND band)
 		// Typically the settings used for seek are determined by the designer
 		// and not exposed to the end user. They should be adjusted here.
 		si475x_set_property(FM_VALID_SNR_THRESHOLD, 8);
-		si475x_set_property(FM_VALID_RSSI_THRESHOLD, 12);
+		si475x_set_property(FM_VALID_RSSI_THRESHOLD, 15);
 
 		// This interrupt will be used to determine when RDS is available.
 		si475x_set_property(FM_RDS_INTERRUPT_SOURCE, 0x0002); // RDS Sync Interrupt
@@ -238,7 +238,7 @@ void si475x_powerup(RADIO_BAND band)
 		// Typically the settings used for seek are determined by the designer
 		// and not exposed to the end user. They should be adjusted here.
 		si475x_set_property(AM_VALID_SNR_THRESHOLD, 5);
-		si475x_set_property(AM_VALID_RSSI_THRESHOLD, 25);
+		si475x_set_property(AM_VALID_RSSI_THRESHOLD, 15);
 
 		si475x_set_property(AM_SEEK_FREQUENCY_SPACING, 9); // Set spacing to 9kHz
 		si475x_set_property(AM_SEEK_BAND_BOTTOM, 520); // Set the band bottom to 520kHz
