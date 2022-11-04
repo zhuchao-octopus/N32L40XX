@@ -291,15 +291,15 @@ static void radio_handle_freq_seek(void)
 					S_CUR_IDX(VAR_RFS_BAND, 0);
 					g_radio_info.flag.field.F_RADIO_SEEK = TRUE;
 					g_radio_info.flag.field.F_RADIO_AMS = TRUE;
-					if (IS_IN_FM(VAR_RFS_BAND)) {
-						for(cnt=0;cnt<FM_PRESET_NUM;cnt++) {
-							S_PRESET_FM(VAR_RFS_BAND, cnt, 7600);
-						}
-					} else {
-						for(cnt=0;cnt<AM_PRESET_NUM;cnt++) {
-							S_PRESET_AM(VAR_RFS_BAND, cnt, 522);
-						}
-					}
+//					if (IS_IN_FM(VAR_RFS_BAND)) {
+//						for(cnt=0;cnt<FM_PRESET_NUM;cnt++) {
+//							S_PRESET_FM(VAR_RFS_BAND, cnt, 7600);
+//						}
+//					} else {
+//						for(cnt=0;cnt<AM_PRESET_NUM;cnt++) {
+//							S_PRESET_AM(VAR_RFS_BAND, cnt, 522);
+//						}
+//					}
 					S_RFS_STATE(RFS_STATE_SET_FREQ);
 					break;
 				case RFS_CMD_AUTO_UP:

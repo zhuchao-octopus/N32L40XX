@@ -256,7 +256,7 @@ extern void ACC_Off_Detect(void)
 			F_SystemStandBy=1;
 			return;
 		}
-		backlight_power_ctrl(FALSE);
+//		backlight_power_ctrl(FALSE);
 		audio_set_mute(AUDIO_MUTE_SYSTEM, TRUE);
 		if(PowerOffReason<=POWER_ON)
 		{
@@ -337,7 +337,7 @@ static void TFT_Power_Ctrl(void)
 			break;
 
 		case TFT_DEVICE_INIT:
-			{
+			if (Tft_PowerTimer++ >= T1S_12) {
 				Tft_PowerTimer=0;
 				TFT_Power_State++;
 			} 
@@ -399,8 +399,8 @@ extern void PowerManage(void)           //12ms执行一次
 
 			Power_Timer=0;
 			Clr_Machine_Power();
-			TFT_Power_State=TFT_POWER_OFF_START;
-			TFT_Power_Ctrl();
+//			TFT_Power_State=TFT_POWER_OFF_START;
+//			TFT_Power_Ctrl();
 			break;
 			
 		default:
@@ -604,6 +604,11 @@ extern void PowerManage(void)           //12ms执行一次
 			}
 			break;
 		case POWER_ACC_OFF:
+			if (T1S_100==AccOffTimer) {
+				backlight_power_ctrl(FALSE);
+				TFT_Power_State=TFT_POWER_OFF_START;
+				TFT_Power_Ctrl();
+			}
 			if(AccOffTimer==0)
 			{
 				// notify APP to enter sleep

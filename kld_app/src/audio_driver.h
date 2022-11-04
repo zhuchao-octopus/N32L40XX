@@ -4,7 +4,7 @@
 
 #define MIN_VOLUME            0
 #define MAX_VOLUME            40
-#define DEFAULT_VOLUME        10
+#define DEFAULT_VOLUME        12
 
 #define MIN_LOUDNESS           0
 #define MAX_LOUDNESS           4

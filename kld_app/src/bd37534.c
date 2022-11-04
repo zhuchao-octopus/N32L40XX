@@ -16,6 +16,7 @@ static u8 g_reg_addr[BD37534_REG_NUMS] =
 	0x41, 0x44, 0x47, 0x51, 0x54, 0x57, /* EQ setting */
 	0x75,	/* loudness gain */
 };
+
 static const s8 g_bd37534_atten_table[8] = {0, -3, -6, -9, -12,-16,-20,-55};
 
 // output type 0: normal volume
@@ -29,6 +30,18 @@ static const s8 g_bd37534_gains[] = {
 	-14, -13, -12, -11, -10,		/* volume 26~30 */
 	-9, -8, -7, -6, -5,		/* volume 31~35 */
 	-4, -2, 0, 2, 4		/* volume 36~40 */
+};
+
+static const s8 g_bd37534_bt_gains[] = {
+ -79, /* volume 0 */
+ -65, -58, -53, -48, -44, /* volume 1~5 */
+ -38, -33, -29, -26, -24, /* volume 6~10 */
+ -22, -20, -19, -18, -17, /* volume 11~15 */
+ -16, -15, -14, -13, -12,  /* volume 16~20 */
+ -11, -10, -9, -8, -7,  /* volume 21~25 */
+ -6, -5, -4, -3, -2,  /* volume 26~30 */
+ -1, 0, 1, 1, 2,  /* volume 31~35 */
+ 2, 3, 3, 4, 4  /* volume 36~40 */
 };
 
 static void bd37534_write(u8 addr, u8 value)
@@ -53,7 +66,11 @@ static void bd37534_update_main_vol(u8 vol)
 	if (0==vol) {
 		g_reg_value[BD37534_REG_VOLUME_GAIN] = 0xFF;
 	} else {
-		gain = g_bd37534_gains[vol];
+		if (g_audio_info.bt_phone_on) {
+			gain = g_bd37534_bt_gains[vol];
+		} else {
+			gain = g_bd37534_gains[vol];
+		}
 		gain += 7;
 	
 		if (gain>15) {

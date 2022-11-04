@@ -332,9 +332,9 @@ void audio_init(void)
 	}
 	g_audio_info.mute = 0;
 	g_audio_info.bt_phone_on = FALSE;
-	g_audio_info.bt_phone_vol = DEFAULT_VOLUME;
+	g_audio_info.bt_phone_vol = 12;
 	g_audio_info.bt_ring_on = FALSE;
-	g_audio_info.bt_ring_vol = DEFAULT_VOLUME;
+	g_audio_info.bt_ring_vol = 12;
 	g_audio_info.navi_on = FALSE;
 	g_audio_info.navi_vol = DEFAULT_VOLUME;
 	g_audio_info.navi_timer = 0;
@@ -688,7 +688,7 @@ void audio_set_mute_temporary(u16 time_ms)
 void audio_set_bt_phone(bool on)
 {
 	if (g_audio_info.bt_phone_on != on) {
-		audio_set_mute_temporary(800);
+//		audio_set_mute_temporary(800);
 		g_audio_info.bt_phone_on = on;
 		audio_dev_update_fader_balance(g_audio_info.fader, g_audio_info.balance);
 		g_audio_info.bt_phone_timer = T300MS_12;
@@ -714,7 +714,7 @@ void audio_set_bt_phone(bool on)
 void audio_set_bt_ring(bool on)
 {
 	if (g_audio_info.bt_ring_on != on) {
-		audio_set_mute_temporary(800);
+//		audio_set_mute_temporary(800);
 		g_audio_info.bt_ring_on = on;
 		audio_dev_update_fader_balance(g_audio_info.fader, g_audio_info.balance);
 		g_audio_info.bt_phone_timer = T300MS_12;

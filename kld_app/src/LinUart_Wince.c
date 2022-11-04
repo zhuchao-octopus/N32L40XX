@@ -512,6 +512,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 				case SUBID_BLUETOOTH_CMD:
 					if(*Read_Lin_Ptr==0)
 					{
+#if 0
 						if (g_audio_info.bt_phone_on) {
 							if (!g_audio_info.carplay_phone_on) {
 								audio_set_mute_temporary(360);
@@ -519,6 +520,7 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 								audio_set_mute_temporary(2000);
 							}
 						}
+#endif
 						audio_set_bt_phone(FALSE);
 						audio_set_bt_ring(FALSE);
 						audio_set_carplay_phone(FALSE);
@@ -982,8 +984,8 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 						audio_set_android_sound_on(TRUE);
 					} else if (0x44 == *Read_Lin_Ptr) {
 						audio_set_android_sound_on(FALSE);
-					} else {
-						g_app_audio_det = (*Read_Lin_Ptr++!=0)?1:0;
+//					} else {
+//						g_app_audio_det = (*Read_Lin_Ptr++!=0)?1:0;
 					}
 					break;
 				case SUBID_VOL_CTRL_WHEN_REVERSE:
