@@ -42,13 +42,13 @@ void hdmi_main(void)
 		case HDMI_STATE_PWR_OFF:
 			if (1==g_hdmi_pwr_up) {
 				g_hdmi_state = HDMI_STATE_PWR_ONING;
-				g_hdmi_pwr_timer = T8S_40;
+				g_hdmi_pwr_timer = T2S_40;
 			}
 			break;
 		case HDMI_STATE_PWR_OFFING:
 			if (1==g_hdmi_pwr_up) {
 				g_hdmi_state = HDMI_STATE_PWR_ONING;
-				g_hdmi_pwr_timer = T8S_40;
+				g_hdmi_pwr_timer = T2S_40;
 			}
 			audio_set_mute_temporary(1000);
 			if (g_hdmi_pwr_timer>0) {
@@ -69,7 +69,7 @@ void hdmi_main(void)
 			audio_set_mute_temporary(1000);
 			if (g_hdmi_pwr_timer>0) {
 				--g_hdmi_pwr_timer;
-				if (T7S_40==g_hdmi_pwr_timer) {
+				if (T1S5_40==g_hdmi_pwr_timer) {
 					GPIO_SetBits(GPIO_HDMI_PWR_GRP, GPIO_HDMI_PWR_PIN);
 				}
 				
