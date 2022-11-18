@@ -23,6 +23,7 @@ static AUDIO_SOURCE _audio_select_source(SOURCE av_src)
 	switch (av_src) {
 		case SOURCE_TUNER:
 		case SOURCE_XM:
+		case SOURCE_HDRADIO:
 			src = AUDIO_SRC_RADIO;
 			break;
 		case SOURCE_DVD:
@@ -31,7 +32,6 @@ static AUDIO_SOURCE _audio_select_source(SOURCE av_src)
 			break;
 		case SOURCE_TV:
 		case SOURCE_DTV:
-		case SOURCE_HDRADIO:
 		case SOURCE_HDMI:
 			src = AUDIO_SRC_TV;
 			break;

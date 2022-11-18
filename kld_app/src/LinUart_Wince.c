@@ -2189,7 +2189,7 @@ ext void LinTxWince_Service(void)
 		case TX_TO_GUI_MCU_VERSION:
 			{
 				u8 cnt, len;
-				char* p=MCU_VERSION;
+				char* p=MCU_VERSION; 
 				len = sizeof(MCU_VERSION);
 #ifdef MCU_FIXED_VERSION
 				if (0==nEvt->prm) {

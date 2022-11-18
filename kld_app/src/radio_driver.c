@@ -153,6 +153,9 @@ static void _set_cur_band_freq_by_preset_id(PRESET_BAND band, s8 id)
 	}
 }
 
+static u8 g_ti_state=0;
+static u8 g_ti_timer=0;
+
 #ifdef FIX_RADIO_BAND_SWITCH_POP
 static void radio_config_fix_pop(u8 timer)
 {
@@ -1501,10 +1504,53 @@ void radio_main(void)
 			g_radio_info.st_det_timer = 0;
 			g_radio_info.af_check_timer = 0;
 			g_radio_info.state = RADIO_STATE_IDLE;
+			g_ti_state = 0;
+			g_ti_timer = 0;
 		}
 		return;
 	}
 	if (RADIO_STATE_UNKNOWN == g_radio_info.state) {
+		return;
+	}
+
+	if (FrontSource == SOURCE_XM) {
+		if (1!=g_ti_state) {
+			audio_set_mute_temporary(1000);
+			g_ti_timer = T400MS_12;
+			g_ti_state = 1;
+		}
+	} else if (FrontSource == SOURCE_HDRADIO) {
+		if (2!=g_ti_state) {
+			audio_set_mute_temporary(1000);
+			g_ti_timer = T400MS_12;
+			g_ti_state = 2;
+		}
+	} else {
+		if (g_ti_state>0) {
+			audio_set_mute_temporary(1000);
+			g_ti_timer = T400MS_12;
+			g_ti_state = 0;
+		}
+	}
+
+	if (g_ti_timer>0) {
+		--g_ti_timer;
+		if (0==g_ti_timer) {
+			switch (g_ti_state) {
+				case 1:
+					radio_dev_set_freq_tune(RADIO_BAND_AM, 1620);
+					break;
+				case 2:
+					radio_dev_set_freq_tune(RADIO_BAND_AM, 1629);
+					break;
+				case 0:
+					radio_dev_set_freq_tune(G_CUR_BAND(), G_CUR_FREQ());
+					break;
+			}
+		}
+		return;
+	}
+	if ( (FrontSource == SOURCE_XM) || (FrontSource == SOURCE_HDRADIO) ) {
 		return;
 	}
 
