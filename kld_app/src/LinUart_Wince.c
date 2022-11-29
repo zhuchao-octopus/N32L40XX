@@ -1462,10 +1462,12 @@ static void Lin_Command_Check(uchar *Read_Lin_Ptr)
 				case SUBID_DVD_OPS:
 					switch (*Read_Lin_Ptr) {
 						case 1:
-							PostEvent(DVDC_MODULE, EVT_DVD_PWR_CTRL, 1);
+							//PostEvent(DVDC_MODULE, EVT_DVD_PWR_CTRL, 1);
+							dvd_poweron();
 							break;
 						case 2:
-							PostEvent(DVDC_MODULE, EVT_DVD_PWR_CTRL, 0);
+							//PostEvent(DVDC_MODULE, EVT_DVD_PWR_CTRL, 0);
+							dvd_poweroff();
 							break;
 						case 3:
 							PostEvent(DVDC_MODULE, EVT_DVD_DISC_CTRL, 1);
