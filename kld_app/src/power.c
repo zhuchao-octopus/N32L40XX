@@ -4,6 +4,7 @@
 static u16 g_app_watchdog_cntr;
 static u8 g_notify_app_awake_cntr;
 static u16 g_power_timer;
+static u16 g_power_timer2;
 
 // notify APP that we are wakeup.
 // **** NOTICE that ******
@@ -393,6 +394,7 @@ extern void PowerManage(void)           //12ms执行一次
 			else if (PowerOffReason==POWEROFF_FROM_ACC)
 			{
 				AccOffTimer=T2S_100;	//20*100ms =2s
+				g_power_timer2 = T30S_12;
 				nPowerState=POWER_ACC_OFF;
 			}
 			audio_set_mute(AUDIO_MUTE_SYSTEM, TRUE);
@@ -609,7 +611,9 @@ extern void PowerManage(void)           //12ms执行一次
 				TFT_Power_State=TFT_POWER_OFF_START;
 				TFT_Power_Ctrl();
 			}
-			if(AccOffTimer==0)
+			if ( (g_power_timer2>0) && (!g_app_in_charge) ) {
+				--g_power_timer2;
+			} else if(AccOffTimer==0)
 			{
 				// notify APP to enter sleep
 				PostEvent(WINCE_MODULE, TX_TO_GUI_POWER_CMD, WCE_POWER_ENTER_ACC_WAIT);
