@@ -72,7 +72,7 @@ void canbox_passthrough(u8 en)
 		GPIO_SetBits(GPIO_TV_PWR_GRP, GPIO_TV_PWR_PIN);
 	}
 }
-
+static u8 g_dtv_type;
 void canbox_rx(uint8_t data)
 {
 	if (can_passthrough) {
@@ -109,6 +109,7 @@ void canbox_rx(uint8_t data)
 		case CAN_RX_DATATYPE:
 			USART_Rx_Buff[can_packet_len] = data;
 			g_rx_state = CAN_RX_LEN;
+			g_dtv_type = data;
 			if (CAN_RX_DATATYPE!=g_rx_state) {
 				++can_packet_len;
 			} else {
@@ -123,6 +124,11 @@ void canbox_rx(uint8_t data)
 			}
 			USART_Rx_Buff[can_packet_len] = data;
 			can_data_len = data;
+			if (0x6B==g_dtv_type) {
+				can_data_len += 4;
+			} else if (0x05==g_dtv_type) {
+				can_data_len -= 4;
+			}
 			g_rx_state = CAN_RX_DATA;
 
 			if (CAN_RX_LEN!=g_rx_state) {
