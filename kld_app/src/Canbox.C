@@ -128,6 +128,8 @@ void canbox_rx(uint8_t data)
 				can_data_len += 4;
 			} else if (0x05==g_dtv_type) {
 				can_data_len -= 4;
+			} else if (0x20==g_dtv_type) {
+				can_data_len = 4;
 			}
 			g_rx_state = CAN_RX_DATA;
 
