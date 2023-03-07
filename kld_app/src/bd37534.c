@@ -241,11 +241,11 @@ static void bd37534_update_output_gain(u8 fad, u8 bal, AUDIO_SOURCE src)
 	}
 
 #ifndef CUSTOM_S217
-	if (2==g_bt_type) {
-		if (SOURCE_BT==FrontSource) {
-			extra_atten -= 14;
-		}
-	}
+//	if (2==g_bt_type) {
+//		if (SOURCE_BT==FrontSource) {
+//			extra_atten -= 14;
+//		}
+//	}
 #endif
 
 	if (!g_audio_info.disabled_soundfield) {

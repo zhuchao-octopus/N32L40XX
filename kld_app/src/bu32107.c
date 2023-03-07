@@ -465,11 +465,11 @@ void audio_dev_update_volume(u8 vol)
 	}
 
 #ifndef CUSTOM_S217
-	if (2==g_bt_type) {
-		if (SOURCE_BT==FrontSource) {
-			gain -= 14;
-		}
-	}
+//	if (2==g_bt_type) {
+//		if (SOURCE_BT==FrontSource) {
+//			gain -= 14;
+//		}
+//	}
 #endif
 
 	switch (g_audio_info.output_type) {
