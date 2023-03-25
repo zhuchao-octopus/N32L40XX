@@ -1174,3 +1174,37 @@ void panel_key_main(void)
 	panel_key_reset_handler();
 }
 
+void nissan_xtrail_cam_sw_main(void)
+{
+	if(Get_ACC_Det_Flag==0) {
+		g_nissan_xtrail_cam_sw_cntr=0;
+		GPIO_ResetBits(GPIO_NISSAN_XTRAIL_CAM_SW_GRP, GPIO_NISSAN_XTRAIL_CAM_SW_PIN);
+		g_nissan_xtrail_cam_sw_en = FALSE;
+		return;
+	}
+
+	if (g_nissan_xtrail_cam_sw_cntr % T100MS_12 == 1) {
+
+//		USART_Tx_Buff[0]=0x2E;
+//		USART_Tx_Buff[1]=0x20;
+//		USART_Tx_Buff[2]=0x02;
+//		USART_Tx_Buff[3]=0x65;
+//		if (g_nissan_xtrail_cam_sw_en) {
+//			USART_Tx_Buff[4]=0x01;
+//			USART_Tx_Buff[5]=0x77;
+//		} else {
+//			USART_Tx_Buff[4]=0x00;
+//			USART_Tx_Buff[5]=0x78;
+//		}
+//		USART_Tx_Length = 6;
+//		USART_TX();
+	}
+	
+	if (g_nissan_xtrail_cam_sw_cntr>0) {
+		--g_nissan_xtrail_cam_sw_cntr;
+		GPIO_SetBits(GPIO_NISSAN_XTRAIL_CAM_SW_GRP, GPIO_NISSAN_XTRAIL_CAM_SW_PIN);
+	} else {
+		GPIO_ResetBits(GPIO_NISSAN_XTRAIL_CAM_SW_GRP, GPIO_NISSAN_XTRAIL_CAM_SW_PIN);
+	}
+}
+

@@ -120,6 +120,12 @@ void MMI(void)	//4// 40msÊ±»ù
 			PostEvent(WINCE_MODULE,TX_TO_GUI_SHORT_KEY_EVENT, WORD(0xFF, keycode));
 			break;
 		case UICC_NISSAN_XTRAIL_CAM_SW:
+			g_nissan_xtrail_cam_sw_cntr = T100MS_12*3+1;
+			if (g_nissan_xtrail_cam_sw_en) {
+				g_nissan_xtrail_cam_sw_en = FALSE;
+			} else {
+				g_nissan_xtrail_cam_sw_en = TRUE;
+			}
 			break;
 		default:
 			if (pEvt->prm != 0) {

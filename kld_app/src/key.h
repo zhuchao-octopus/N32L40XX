@@ -151,6 +151,9 @@ ext KEY_HANDLER g_key_handler;
 ext KEY_INFO_STORE g_key_info_store;
 ext bool g_disabed_encoder;
 
+ext u8 g_nissan_xtrail_cam_sw_cntr;
+ext bool g_nissan_xtrail_cam_sw_en;
+
 extern void encoder_key_main(void);
 extern void encoder2_key_main(void);
 extern void panel_key_init(void);
@@ -158,6 +161,7 @@ extern void panel_key_main(void);
 extern u8 panel_key_get_all_key_codes(KEY_STUDY_DEVS dev, u8 *pbuf);
 extern u8 panel_key_get_cur_key_info(KEY_STUDY_DEVS dev, u8 index, u8 *pbuf);
 extern void panel_key_set_defconfig(u8 cfg_id);
+extern void nissan_xtrail_cam_sw_main(void);
 
 #endif	//_KEY_H_
 

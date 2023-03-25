@@ -129,7 +129,7 @@
 #define CONFIG_LOUDNESS_DB	6
 
 /*---- Radio ----*/
-#define TUNER_MODEL  TUNER_ST_TDA7708
+#define TUNER_MODEL  TUNER_NXP_TEA668X
 #define RADIO_DEFAULT_REGION   	RADIO_AREA_EUROPE//默认收音区域选择
 #define RDS_FUNCTION		1//RDS开关
 //#define TEA668X_V205

@@ -190,6 +190,11 @@ static void gpio_config(void)
 	GPIO_ResetBits(GPIO_BKL_EN_GRP, GPIO_BKL_EN_PIN);
 
 
+	/* NISSAN 360 */
+	gpio_init_output.Pin = GPIO_NISSAN_XTRAIL_CAM_SW_PIN;
+	GPIO_InitPeripheral(GPIO_NISSAN_XTRAIL_CAM_SW_GRP, &gpio_init_output);
+	GPIO_ResetBits(GPIO_NISSAN_XTRAIL_CAM_SW_GRP, GPIO_NISSAN_XTRAIL_CAM_SW_PIN);
+
 	/* DVD reset */
 	gpio_init_output.Pin = GPIO_DVD_RST_PIN;
 	GPIO_InitPeripheral(GPIO_DVD_RST_GRP, &gpio_init_output);
@@ -574,6 +579,8 @@ static void Task12msPro()
 	ir_rx_main();
 	can_ir_main();
 
+	nissan_xtrail_cam_sw_main();
+
 }
 static void Task40msPro()
 {
@@ -840,6 +847,9 @@ static void mcu_stay_in_sleep(void)
 	/* ANT control */
 	gpio_init_input_float.Pin = GPIO_ANT_CTRL_PIN;
 //	GPIO_InitPeripheral(GPIO_ANT_CTRL_GRP, &gpio_init_input_float);
+	/* NISSAN 360 */
+	gpio_init_input_float.Pin = GPIO_NISSAN_XTRAIL_CAM_SW_PIN;
+	GPIO_InitPeripheral(GPIO_NISSAN_XTRAIL_CAM_SW_GRP, &gpio_init_input_float);
 	/* DTV IR TX */
 	gpio_init_input_float.Pin = GPIO_DTV_IR_TX_PIN;
 	GPIO_InitPeripheral(GPIO_DTV_IR_TX_GRP, &gpio_init_input_float);
