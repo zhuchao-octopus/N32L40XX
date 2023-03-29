@@ -442,7 +442,9 @@ void audio_main(void)
 			g_audio_info.temp_mute_timer = 0;
 			g_audio_info.src_sw_state = AUDIO_SRC_SW_STATE_NONE;
 			g_audio_info.ext_force_mute_timer = 0;
-//			audio_set_mute(AUDIO_MUTE_DRIVER, FALSE);
+			if (g_startup_cntr>15) {
+				audio_set_mute(AUDIO_MUTE_DRIVER, FALSE);
+			}
 			audio_set_mute(AUDIO_MUTE_TEMP, FALSE);
 		}
 		return;
