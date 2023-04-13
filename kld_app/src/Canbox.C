@@ -10,6 +10,12 @@ static uchar can_packet_len = 0;
 static uchar can_packet_len_2 = 0;
 #endif
 static uchar can_data_len = 0;
+static bool can_passthrough = FALSE;
+
+#define CAN_RX_PT_BUF_LEN  16
+static u8 g_can_rx_pt_buf[CAN_RX_PT_BUF_LEN];
+volatile u8 *g_can_rx_pt_rd;
+volatile u8 *g_can_rx_pt_wr;
 
 // some utility
 #define IS_1BYTES_HEAD	((CAN_HEAD_0==g_head_type)||(CAN_HEAD_1==g_head_type)|| \
@@ -151,6 +157,7 @@ void canbox_set_protocol(
 		CAN_PARITY_TYPE parity_type, 
 		CAN_ACK_TYPE ack_type)
 {
+	can_passthrough = FALSE;
 	if ((head_type != g_head_type)||
 		(len_type != g_len_type)||
 		(parity_type != g_parity_type)||
@@ -170,8 +177,19 @@ void canbox_set_protocol(
 	}
 }
 
+void canbox_passthrough(bool en)
+{
+	can_passthrough = en;
+	g_rx_state = CAN_RX_HEAD;
+	F_Usart_Rx_Data_Ready = 0;
+	g_can_rx_pt_rd = g_can_rx_pt_buf;
+	g_can_rx_pt_wr = g_can_rx_pt_buf;
+}
+
 void canbox_rx(uint8_t data)
 {
+
+	
 #ifdef CAN_RX_DOUBLE_BUF
 	uchar *buf = USART_Rx_Buff;
 	uchar *len = &can_packet_len;
@@ -181,6 +199,17 @@ void canbox_rx(uint8_t data)
 		g_canbox_rx_using_buf2 = 1;
 	}
 #endif
+	
+		if (can_passthrough) {
+		*g_can_rx_pt_wr = data;
+		g_can_rx_pt_wr++;
+		if ( (g_can_rx_pt_wr - g_can_rx_pt_buf) >= CAN_RX_PT_BUF_LEN ) {
+			g_can_rx_pt_wr = g_can_rx_pt_buf;
+		}
+		return;
+	}
+		
+	
 	switch(g_rx_state) {
 		case CAN_RX_HEAD:
 #ifdef CAN_RX_DOUBLE_BUF
@@ -451,9 +480,42 @@ ext void USART_Data_Analyse(void)
 	u16 checksum;
 	u8 idx, parity_pos;
 	u8 checksum_ok;
-#ifdef CAN_RX_DOUBLE_BUF
+	
+	u8 data[1];
+
 	u8 *buf;
 	u8 len;
+	
+	if (can_passthrough) {
+		if (g_can_rx_pt_wr == g_can_rx_pt_rd) {
+			// rx data buffer empty
+			return;
+		}
+
+		if (0!=USART_Transmit_Rx_Buff_full) {
+			return;
+		}
+
+		if (g_can_rx_pt_wr != g_can_rx_pt_rd) {
+
+			data[0] = *g_can_rx_pt_rd;
+			g_can_rx_pt_rd++;
+			if ( (g_can_rx_pt_rd - g_can_rx_pt_buf) >= CAN_RX_PT_BUF_LEN ) {
+				g_can_rx_pt_rd = g_can_rx_pt_buf;
+			}
+
+			// Transmit the whole packet to HOST
+			memcpy(USART_Transmit_Rx_Buff, data, 1);
+			USART_Transmit_Rx_Buff_full = 1;
+			PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,1);
+
+		}
+
+		return;
+	}
+	
+#ifdef CAN_RX_DOUBLE_BUF
+
 	if ( (0==F_Usart_Rx_Data_Ready) && (0==F_Usart_Rx_Data_Ready_2) )
 #else
 	if (0==F_Usart_Rx_Data_Ready)
