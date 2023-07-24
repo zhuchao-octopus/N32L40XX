@@ -107,8 +107,8 @@
 ******************************
 ******************************/
 /*---- Audio ----*/
-//#define ASP_MODEL		ASP_BU32107		// DSP
-#define ASP_MODEL		ASP_BD37534		// non DSP
+#define ASP_MODEL		ASP_BU32107		// DSP
+//#define ASP_MODEL		ASP_BD37534		// non DSP
 #define VOLUME_CUT_WHEN_NAVI_MIX		9
 #define DFT_NAVI_AUDIO_CH	NAVI_AUDIO_LEFT_CH//导航发声时默认喇叭
 #ifdef CUSTOM_S217

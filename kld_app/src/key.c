@@ -481,8 +481,10 @@ static void panel_key_do_scan(u8 adc_ch)
 	// do repeat press for volume control
 	if ( (UICC_VOLUME_DOWN==g_key_info_store.key[index].key_code_short) ||
 		(UICC_VOLUME_UP==g_key_info_store.key[index].key_code_short) ) {
-		if (0==(g_key_handler.key_pressed_timer % KEY_REPEAT_PRESS_TIME)) {
-			panel_key_do_send_key(index, FALSE);
+		if (g_key_handler.key_pressed_timer>KEY_LONG_PRESS_TIME) {
+			if (0==(g_key_handler.key_pressed_timer % KEY_REPEAT_PRESS_TIME)) {
+				panel_key_do_send_key(index, FALSE);
+			}
 		}
 	} else {
 		// do long press
