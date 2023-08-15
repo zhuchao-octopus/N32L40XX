@@ -109,6 +109,8 @@
 	#define UICC_NISSAN_XTRAIL_CAM_SW		0xF0
 	#define UICC_MOTOR_TOGGLE	0xF1
 	#define UICC_MOTOR_FORCE_ROLL	0xF2
+
+	#define UICC_SPEECH_CARPLAY		0xF3
 #endif
 
 
