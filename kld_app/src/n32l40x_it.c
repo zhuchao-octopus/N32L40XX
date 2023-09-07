@@ -113,7 +113,7 @@ void DebugMon_Handler(void)
  */
 void SysTick_Handler(void)
 {
-	delay_decrement();
+    delay_decrement();
 }
 
 /******************************************************************************/
@@ -135,33 +135,33 @@ void EXTI0_IRQHandler(void)
 
 void USART1_IRQHandler(void)
 {
-	CLEAR_WATCHDOG;
-	if (USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_OREF) != RESET)
-	{
-		host_rx_data(USART_ReceiveData(HOST_COMM_UART)&0xFF);
-	}
-	if (USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_RXDNE) != RESET)
-	{
-		USART_ClrFlag(HOST_COMM_UART, USART_FLAG_RXDNE);
-		host_rx_data(USART_ReceiveData(HOST_COMM_UART)&0xFF);
-	}
+    CLEAR_WATCHDOG;
+    if (USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_OREF) != RESET)
+    {
+        host_rx_data(USART_ReceiveData(HOST_COMM_UART)&0xFF);
+    }
+    if (USART_GetFlagStatus(HOST_COMM_UART, USART_FLAG_RXDNE) != RESET)
+    {
+        USART_ClrFlag(HOST_COMM_UART, USART_FLAG_RXDNE);
+        host_rx_data(USART_ReceiveData(HOST_COMM_UART)&0xFF);
+    }
 }
 
 void USART2_IRQHandler(void)
 {
-	CLEAR_WATCHDOG;
-	if (USART_GetFlagStatus(CAN_COMM_UART, USART_FLAG_OREF) != RESET)
-	{
-		canbox_rx(USART_ReceiveData(CAN_COMM_UART)&0xFF);
-	}
-	if (USART_GetFlagStatus(CAN_COMM_UART, USART_FLAG_RXDNE) != RESET)
-	{
-		USART_ClrFlag(CAN_COMM_UART, USART_FLAG_RXDNE);
+    CLEAR_WATCHDOG;
+    if (USART_GetFlagStatus(CAN_COMM_UART, USART_FLAG_OREF) != RESET)
+    {
+        canbox_rx(USART_ReceiveData(CAN_COMM_UART)&0xFF);
+    }
+    if (USART_GetFlagStatus(CAN_COMM_UART, USART_FLAG_RXDNE) != RESET)
+    {
+        USART_ClrFlag(CAN_COMM_UART, USART_FLAG_RXDNE);
 #ifdef CAN_RX_DOUBLE_BUF
-		if ( (F_Usart_Rx_Data_Ready==0)||(F_Usart_Rx_Data_Ready_2==0) )
+        if ( (F_Usart_Rx_Data_Ready==0)||(F_Usart_Rx_Data_Ready_2==0) )
 #endif
-		canbox_rx(USART_ReceiveData(CAN_COMM_UART)&0xFF);
-	}
+        canbox_rx(USART_ReceiveData(CAN_COMM_UART)&0xFF);
+    }
 }
 
 
@@ -172,52 +172,52 @@ __IO uint32_t g_rtc_calib_timer_freq        = 0;
 
 void TIM9_IRQHandler(void)
 {
-	if (TIM_GetIntStatus(TIM9, TIM_INT_CC3) == SET)
-	{
-		/* Clear TIM3 Capture compare interrupt pending bit */
-		TIM_ClrIntPendingBit(TIM9, TIM_INT_CC3);
-		if (CaptureNumber == 0)
-		{
-			/* Get the Input Capture value */
-			IC3ReadValue1 = TIM_GetCap3(TIM9);
-			if (IC3ReadValue1>0) {
-				CaptureNumber = 1;
-			}
-		}
-		else if (CaptureNumber == 1)
-		{
-			/* Get the Input Capture value */
-			IC3ReadValue2 = TIM_GetCap3(TIM9);
+    if (TIM_GetIntStatus(TIM9, TIM_INT_CC3) == SET)
+    {
+        /* Clear TIM3 Capture compare interrupt pending bit */
+        TIM_ClrIntPendingBit(TIM9, TIM_INT_CC3);
+        if (CaptureNumber == 0)
+        {
+            /* Get the Input Capture value */
+            IC3ReadValue1 = TIM_GetCap3(TIM9);
+            if (IC3ReadValue1>0) {
+                CaptureNumber = 1;
+            }
+        }
+        else if (CaptureNumber == 1)
+        {
+            /* Get the Input Capture value */
+            IC3ReadValue2 = TIM_GetCap3(TIM9);
 
-			/* Capture computation */
-			if (IC3ReadValue2 > IC3ReadValue1)
-			{
-				Capture = (IC3ReadValue2 - IC3ReadValue1);
-			}
-			else
-			{
-				Capture = ((0xFFFF - IC3ReadValue1) + IC3ReadValue2);
-			}
-			/* Frequency computation */
-			g_rtc_calib_timer_freq      = (uint32_t)(SystemCoreClock / 2) / Capture;
+            /* Capture computation */
+            if (IC3ReadValue2 > IC3ReadValue1)
+            {
+                Capture = (IC3ReadValue2 - IC3ReadValue1);
+            }
+            else
+            {
+                Capture = ((0xFFFF - IC3ReadValue1) + IC3ReadValue2);
+            }
+            /* Frequency computation */
+            g_rtc_calib_timer_freq      = (uint32_t)(SystemCoreClock / 2) / Capture;
 
-			CaptureNumber = 2;
-		}
-	}
+            CaptureNumber = 2;
+        }
+    }
 }
 
 void TIM5_IRQHandler(void)
 {
-	if (TIM_GetIntStatus(TIM5, TIM_INT_CC2) == SET) {
-		TIM_ClrIntPendingBit(TIM5, TIM_INT_CC2);
-		ir_rx_handler();
-	} else if (TIM_GetIntStatus(TIM5, TIM_INT_CC4) == SET) {
-		TIM_ClrIntPendingBit(TIM5, TIM_INT_CC4);
-		can_ir_handler();
- 	} else if (TIM_GetIntStatus(TIM5, TIM_INT_CC1) == SET) {
-		TIM_ClrIntPendingBit(TIM5, TIM_INT_CC1);
-		Rem_Isr();
-	}
+    if (TIM_GetIntStatus(TIM5, TIM_INT_CC2) == SET) {
+        TIM_ClrIntPendingBit(TIM5, TIM_INT_CC2);
+        ir_rx_handler();
+    } else if (TIM_GetIntStatus(TIM5, TIM_INT_CC4) == SET) {
+        TIM_ClrIntPendingBit(TIM5, TIM_INT_CC4);
+        can_ir_handler();
+    } else if (TIM_GetIntStatus(TIM5, TIM_INT_CC1) == SET) {
+        TIM_ClrIntPendingBit(TIM5, TIM_INT_CC1);
+        Rem_Isr();
+    }
 }
 
 /**

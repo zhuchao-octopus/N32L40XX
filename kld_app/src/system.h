@@ -2,7 +2,7 @@
 #ifndef _SYSTEM_H_
 #define _SYSTEM_H_
 
-#define SYSTEM_VARIABLE_NUMBER	14
+#define SYSTEM_VARIABLE_NUMBER  14
 
 
 
@@ -20,10 +20,10 @@ extern uchar system_get_tiny_ram_size(void);
 
 typedef enum
 {
-	DISP_INV_CMD_NONE = 0,
-	DISP_INV_CMD_YES,
-	DISP_INV_CMD_NO,
-	DISP_INV_CMD_NUMS
+    DISP_INV_CMD_NONE = 0,
+    DISP_INV_CMD_YES,
+    DISP_INV_CMD_NO,
+    DISP_INV_CMD_NUMS
 }DISP_INV_CMD;
 
 ext uchar CheckHead;
@@ -46,16 +46,16 @@ ext u8 g_is_watchdog_rst;
 
 
 ext  UCharField Sys_Flag1;
-#define F_IAP_Request	 		Sys_Flag1.field.B0
-#define F_SystemOff			Sys_Flag1.field.B2
-#define F_SystemStandBy		Sys_Flag1.field.B3
-#define F_SystemInitEnd		Sys_Flag1.field.B4
+#define F_IAP_Request           Sys_Flag1.field.B0
+#define F_SystemOff         Sys_Flag1.field.B2
+#define F_SystemStandBy     Sys_Flag1.field.B3
+#define F_SystemInitEnd     Sys_Flag1.field.B4
 
 
 ext  UCharField Sys_Flag2;
 
-#define Wince_Start_Flag		Sys_Flag2.field.B1
-#define F_System_need_reset		Sys_Flag2.field.B2
+#define Wince_Start_Flag        Sys_Flag2.field.B1
+#define F_System_need_reset     Sys_Flag2.field.B2
 
 
 extern void Init_Nochange_Section(void);

@@ -4,12 +4,12 @@
 
 #include "n32l40x.h"
 
-#ifdef	ROOT
-#define	EXT 
-#define	ext 
+#ifdef  ROOT
+#define EXT 
+#define ext 
 #else
-#define	EXT	extern
-#define	ext	extern
+#define EXT extern
+#define ext extern
 #endif
 
 #include <stdio.h>
@@ -20,30 +20,30 @@
 
 
 typedef struct BitChar {
-	unsigned char B0:1;
-	unsigned char B1:1;
-	unsigned char B2:1;
-	unsigned char B3:1;
-	unsigned char B4:1;
-	unsigned char B5:1;
-	unsigned char B6:1;
-	unsigned char B7:1;
+    unsigned char B0:1;
+    unsigned char B1:1;
+    unsigned char B2:1;
+    unsigned char B3:1;
+    unsigned char B4:1;
+    unsigned char B5:1;
+    unsigned char B6:1;
+    unsigned char B7:1;
 } SBitChar;
 
 typedef union  CharField{
-	unsigned char	byte;
-	SBitChar	field;
+    unsigned char   byte;
+    SBitChar    field;
 } UCharField;
 
 typedef union  CharInt{
-	unsigned char	byte[2];// byte[1]=L, byte[0]=H in hiware
-	unsigned int Dbyte;
+    unsigned char   byte[2];// byte[1]=L, byte[0]=H in hiware
+    unsigned int Dbyte;
 } UCharInt;
 
 
 typedef union  CharLong{
-	unsigned char	byte[4];// byte[0]=H
-	unsigned long int Lbyte;
+    unsigned char   byte[4];// byte[0]=H
+    unsigned long int Lbyte;
 } UCharLong;
 #include "config.h"
 #include "define.h"

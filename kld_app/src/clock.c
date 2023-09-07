@@ -4,7 +4,7 @@
 
 void TimeManage(void)
 {
-	Generate_CheckSum();
+    Generate_CheckSum();
 }
 
 

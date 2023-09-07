@@ -17,7 +17,7 @@ const u8 g_eq_preset_level[EQ_MODE_NUMS-1][EQ_FREQ_NUMS]={
 #else
 
 const u8 g_eq_preset_level[EQ_MODE_NUMS-1][EQ_FREQ_NUMS]={
-                /*  60HZ    100HZ  120HZ   0.5KHZ  1KHZ    1.5KHZ  10KHZ   12.5KHZ 15KHZ	*/
+                /*  60HZ    100HZ  120HZ   0.5KHZ  1KHZ    1.5KHZ  10KHZ   12.5KHZ 15KHZ    */
 /*FLAT*/    {    10,      10,       10,        10,      10,       10,       10,        10,        10    },
 /*JAZZ*/    {    20,      16,       12,        10,       6,         2,       14,         17,       20    },
 /*POP*/     {     9,       11,       13,        17,      20,       17,       11,          9,         7    },
@@ -34,83 +34,83 @@ const u8 g_eq_preset_level[EQ_MODE_NUMS-1][EQ_FREQ_NUMS]={
 
 void audio_eq_init(void)
 {
-	u8 cnt;
-	g_audio_info.eq_mode = EQ_MODE_FLAT;
-	for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
-		g_audio_info.eq_visible_level[cnt] = DEFAULT_EQ_LEVEL;
-		g_audio_info.eq_custom_level[cnt] = DEFAULT_EQ_LEVEL;
-		g_audio_info.eq_custom_level_1[cnt] = DEFAULT_EQ_LEVEL;
-		g_audio_info.eq_custom_level_2[cnt] = DEFAULT_EQ_LEVEL;
-		g_audio_info.eq_custom_level_3[cnt] = DEFAULT_EQ_LEVEL;
-		g_audio_info.eq_custom_level_4[cnt] = DEFAULT_EQ_LEVEL;
-		g_audio_info.eq_custom_level_5[cnt] = DEFAULT_EQ_LEVEL;
-		g_audio_info.eq_custom_level_6[cnt] = DEFAULT_EQ_LEVEL;
-	}
+    u8 cnt;
+    g_audio_info.eq_mode = EQ_MODE_FLAT;
+    for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
+        g_audio_info.eq_visible_level[cnt] = DEFAULT_EQ_LEVEL;
+        g_audio_info.eq_custom_level[cnt] = DEFAULT_EQ_LEVEL;
+        g_audio_info.eq_custom_level_1[cnt] = DEFAULT_EQ_LEVEL;
+        g_audio_info.eq_custom_level_2[cnt] = DEFAULT_EQ_LEVEL;
+        g_audio_info.eq_custom_level_3[cnt] = DEFAULT_EQ_LEVEL;
+        g_audio_info.eq_custom_level_4[cnt] = DEFAULT_EQ_LEVEL;
+        g_audio_info.eq_custom_level_5[cnt] = DEFAULT_EQ_LEVEL;
+        g_audio_info.eq_custom_level_6[cnt] = DEFAULT_EQ_LEVEL;
+    }
 }
 
 static void _audio_eq_update_value(void)
 {
-	u8 cnt;
+    u8 cnt;
 #if ASP_MODEL==ASP_BU32107
-	if (g_audio_info.eq_mode >= EQ_MODE_CUSTOM_1) {
-		for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
-			switch (g_audio_info.eq_mode) {
-				case EQ_MODE_CUSTOM_1:
-					g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level_1[cnt];
-					break;
-				case EQ_MODE_CUSTOM_2:
-					g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level_2[cnt];
-					break;
-				case EQ_MODE_CUSTOM_3:
-					g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level_3[cnt];
-					break;
-				case EQ_MODE_CUSTOM_4:
-					g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level_4[cnt];
-					break;
-				case EQ_MODE_CUSTOM_5:
-					g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level_5[cnt];
-					break;
-				case EQ_MODE_CUSTOM_6:
-					g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level_6[cnt];
-					break;
-				default:
-					break;
-			}
-		}	
+    if (g_audio_info.eq_mode >= EQ_MODE_CUSTOM_1) {
+        for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
+            switch (g_audio_info.eq_mode) {
+                case EQ_MODE_CUSTOM_1:
+                    g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level_1[cnt];
+                    break;
+                case EQ_MODE_CUSTOM_2:
+                    g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level_2[cnt];
+                    break;
+                case EQ_MODE_CUSTOM_3:
+                    g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level_3[cnt];
+                    break;
+                case EQ_MODE_CUSTOM_4:
+                    g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level_4[cnt];
+                    break;
+                case EQ_MODE_CUSTOM_5:
+                    g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level_5[cnt];
+                    break;
+                case EQ_MODE_CUSTOM_6:
+                    g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level_6[cnt];
+                    break;
+                default:
+                    break;
+            }
+        }   
 
-		return;
-	}
+        return;
+    }
 #endif
-	if (EQ_MODE_CUSTOM == g_audio_info.eq_mode) {
-		for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
-			g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level[cnt];
-		}
-	} else {
-		for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
-			g_audio_info.eq_visible_level[cnt] = g_eq_preset_level[g_audio_info.eq_mode-1][cnt];
-		}
-	}
+    if (EQ_MODE_CUSTOM == g_audio_info.eq_mode) {
+        for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
+            g_audio_info.eq_visible_level[cnt] = g_audio_info.eq_custom_level[cnt];
+        }
+    } else {
+        for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
+            g_audio_info.eq_visible_level[cnt] = g_eq_preset_level[g_audio_info.eq_mode-1][cnt];
+        }
+    }
 }
 
 void audio_eq_update_mode(EQ_MODE mode)
 {
-	g_audio_info.eq_mode = mode;
-	_audio_eq_update_value();
+    g_audio_info.eq_mode = mode;
+    _audio_eq_update_value();
 }
 
 void audio_eq_update_level(EQ_FREQ freq, u8 level)
 {
-	u8 cnt;
+    u8 cnt;
 
-	// update the custom level from current visible level, because
-	// maybe we are adjusting custom level from the preset levels.
-	for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
-		g_audio_info.eq_custom_level[cnt] = g_audio_info.eq_visible_level[cnt];
-	}		
-	
-	g_audio_info.eq_mode = EQ_MODE_CUSTOM;
-	g_audio_info.eq_custom_level[freq] = level;
-	_audio_eq_update_value();
+    // update the custom level from current visible level, because
+    // maybe we are adjusting custom level from the preset levels.
+    for (cnt=0; cnt<EQ_FREQ_NUMS; cnt++) {
+        g_audio_info.eq_custom_level[cnt] = g_audio_info.eq_visible_level[cnt];
+    }       
+    
+    g_audio_info.eq_mode = EQ_MODE_CUSTOM;
+    g_audio_info.eq_custom_level[freq] = level;
+    _audio_eq_update_value();
 }
 
 

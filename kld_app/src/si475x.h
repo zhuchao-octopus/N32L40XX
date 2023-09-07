@@ -2,8 +2,8 @@
 #ifndef _SI475X_H_
 #define _SI475X_H_
 
-#define SI475X_I2C_ADDR_W		0xC0
-#define SI475X_I2C_ADDR_R		0xC1
+#define SI475X_I2C_ADDR_W       0xC0
+#define SI475X_I2C_ADDR_R       0xC1
 
 #define CMD_BUFFER_SIZE 16
 #define RSP_BUFFER_SIZE 16
@@ -90,14 +90,14 @@
 #define FM_SEEK_FREQUENCY_SPACING              0x1102
 #define FM_VALID_SNR_THRESHOLD                 0x2003
 #define FM_VALID_RSSI_THRESHOLD                0x2004
-#define FM_CAL_CAPACITOR					   0x8000
-#define FM_CAL_FMAX							   0x8001
-#define FM_BLEND_RSSI_STEREO_SEP		0x3501
+#define FM_CAL_CAPACITOR                       0x8000
+#define FM_CAL_FMAX                            0x8001
+#define FM_BLEND_RSSI_STEREO_SEP        0x3501
 
 // FM RDS Receive Properties
 #define FM_RDS_INTERRUPT_SOURCE               0x4000
 #define FM_RDS_INTERRUPT_FIFO_COUNT           0x4001
 #define FM_RDS_CONFIG                         0x4002
 
-#endif	// _SI475X_H_
+#endif  // _SI475X_H_
 

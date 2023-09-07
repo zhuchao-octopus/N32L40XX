@@ -2,18 +2,18 @@
 #ifndef _LED_H_
 #define _LED_H_
 
-#define LED_LEVEL_MIN	1
-#define LED_LEVEL_MAX	255
+#define LED_LEVEL_MIN   1
+#define LED_LEVEL_MAX   255
 
 typedef struct
 {
-	bool color_changed;
-	bool is_power_up;
-	u8 temp_on_timer;
-	u8 save_color_timer;
-	bool notify_reset;
-	u8 notify_timer;
-	u8 auto_color_timer;
+    bool color_changed;
+    bool is_power_up;
+    u8 temp_on_timer;
+    u8 save_color_timer;
+    bool notify_reset;
+    u8 notify_timer;
+    u8 auto_color_timer;
 }LED_INFO;
 
 ext LED_INFO g_led_info;

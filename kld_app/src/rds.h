@@ -5,7 +5,7 @@
 #define RDS_PI_VALIDATE_LIMIT  4
 #define RDS_PTY_VALIDATE_LIMIT 2
 #define PS_VALIDATE_LIMIT 2
-#define RDS_RT_VALIDATE_LIMIT	2
+#define RDS_RT_VALIDATE_LIMIT   2
 
 #define RDS_TYPE_0A     0x00  //( 0 * 2 + 0)
 #define RDS_TYPE_0B     0x01  //( 0 * 2 + 1)
@@ -40,57 +40,57 @@
 #define RDS_TYPE_15A    0x1E  //(15 * 2 + 0)
 #define RDS_TYPE_15B    0x1F  //(15 * 2 + 1)
 
-#define RDS_PS_CHAR_NR	8
-#define RDS_AF_LIST_MAX_NR	25
+#define RDS_PS_CHAR_NR  8
+#define RDS_AF_LIST_MAX_NR  25
 #define AF_COUNT_MIN 224
 #define AF_COUNT_MAX (AF_COUNT_MIN + 25)
 #define AF_FREQ_MIN 0
 #define AF_FREQ_MAX 204
 #define AF_FREQ_TO_U16F(af) (8750+((af-AF_FREQ_MIN)*10))
-#define RDS_RT_CHAR_NR	64
+#define RDS_RT_CHAR_NR  64
 
 typedef struct
 {
-	u16 block_a;
-	u16 block_b;
-	u16 block_c;
-	u16 block_d;
-	u16 pi;
-	u16 pi_tmp;
-	u8 pi_cnt;
-	u8 pty;
-	u8 pty_tmp;
-	u8 pty_cnt;
-	u8 ps[RDS_PS_CHAR_NR];
-	u8 ps_tmp0[RDS_PS_CHAR_NR];       // Temporary PS text (high probability)
-	u8 ps_tmp1[RDS_PS_CHAR_NR];       // Temporary PS text (low probability)
-	u8 ps_cnt[RDS_PS_CHAR_NR];        // Hit count of high probability PS text
-	u16 af[RDS_AF_LIST_MAX_NR];
-	u8 rt[RDS_RT_CHAR_NR];
-	u8 rt_cnt[RDS_RT_CHAR_NR];
-	
-	u8 af_nr;
-	bool tp_on;
-	bool ta_on;
-	bool ta_switch_on;
-	bool af_switch_on;
-	u8 pty_select;
-	bool rt_need_notify;
-	u8 rt_ab_flag;
-	u8 rt_update_cntr;
+    u16 block_a;
+    u16 block_b;
+    u16 block_c;
+    u16 block_d;
+    u16 pi;
+    u16 pi_tmp;
+    u8 pi_cnt;
+    u8 pty;
+    u8 pty_tmp;
+    u8 pty_cnt;
+    u8 ps[RDS_PS_CHAR_NR];
+    u8 ps_tmp0[RDS_PS_CHAR_NR];       // Temporary PS text (high probability)
+    u8 ps_tmp1[RDS_PS_CHAR_NR];       // Temporary PS text (low probability)
+    u8 ps_cnt[RDS_PS_CHAR_NR];        // Hit count of high probability PS text
+    u16 af[RDS_AF_LIST_MAX_NR];
+    u8 rt[RDS_RT_CHAR_NR];
+    u8 rt_cnt[RDS_RT_CHAR_NR];
+    
+    u8 af_nr;
+    bool tp_on;
+    bool ta_on;
+    bool ta_switch_on;
+    bool af_switch_on;
+    u8 pty_select;
+    bool rt_need_notify;
+    u8 rt_ab_flag;
+    u8 rt_update_cntr;
 }RDS_INFO;
 
 typedef struct
 {
-	u16 pi;
-	u16 af[RDS_AF_LIST_MAX_NR];
-	u8 af_nr;
+    u16 pi;
+    u16 af[RDS_AF_LIST_MAX_NR];
+    u8 af_nr;
 }RDS_AF_INFO;
 
 /***************************************
 * our varible
 **************************************/
-ext RDS_INFO g_rds_info;	// do not write any member except raw block data outside rds.c, just read only.
+ext RDS_INFO g_rds_info;    // do not write any member except raw block data outside rds.c, just read only.
 ext RDS_AF_INFO g_rds_af_info;
 
 
