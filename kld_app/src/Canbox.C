@@ -1,4 +1,5 @@
 #include"public.h"
+#include "string.h"
 
 static CAN_HEAD_TYPE g_head_type = CAN_HEAD_0;
 static CAN_LEN_TYPE g_len_type = CAN_LEN_0;
@@ -19,11 +20,13 @@ volatile u8 *g_can_rx_pt_wr;
 
 // some utility
 #define IS_1BYTES_HEAD  ((CAN_HEAD_0==g_head_type)||(CAN_HEAD_1==g_head_type)|| \
-                            (CAN_HEAD_4==g_head_type)||(CAN_HEAD_5==g_head_type))
+                         (CAN_HEAD_4==g_head_type)||(CAN_HEAD_5==g_head_type)||(CAN_HEAD_6==g_head_type))
+														
 #define IS_2BYTES_HEAD  ((CAN_HEAD_2==g_head_type)||(CAN_HEAD_3==g_head_type))
 #define IS_OFFSET1_LEN  ((CAN_LEN_1==g_len_type)||(CAN_LEN_2==g_len_type))
 #define IS_OFFSET2_LEN  ((CAN_LEN_0==g_len_type)||(CAN_LEN_4==g_len_type))
 #define IS_2BYTES_PARITY    (CAN_PARITY_1==g_parity_type)
+
 static uchar __canbox_get_datatype(uchar *pBuf, uchar len)
 {
     uchar datatype = 0xFF;
@@ -187,9 +190,7 @@ void canbox_passthrough(bool en)
 }
 
 void canbox_rx(uint8_t data)
-{
-
-    
+{  
 #ifdef CAN_RX_DOUBLE_BUF
     uchar *buf = USART_Rx_Buff;
     uchar *len = &can_packet_len;
@@ -240,7 +241,7 @@ void canbox_rx(uint8_t data)
                 case CAN_HEAD_1:
                     if (0xFD==data) {
                         g_rx_state = (IS_OFFSET1_LEN)?CAN_RX_LEN:CAN_RX_DATATYPE;
-                    }
+                    }                  
                     break;
                 case CAN_HEAD_2:
                     if (0x5A==data)
@@ -264,23 +265,31 @@ void canbox_rx(uint8_t data)
                         can_data_len = 6;
                     }
                     break;
+								case CAN_HEAD_6:
+                  if (0xA4==data) {
+                        can_data_len=0;
+                        g_rx_state = CAN_RX_FUNCTION;//(IS_OFFSET1_LEN)?CAN_RX_LEN:CAN_RX_DATATYPE;
+										  	//g_rx_state = (IS_OFFSET1_LEN)?CAN_RX_LEN:CAN_RX_DATATYPE;
+                    }
+                    break;
                 default:
                     break;
             }
+            
             if (CAN_RX_HEAD!=g_rx_state) {
-#ifdef CAN_RX_DOUBLE_BUF
-                *len = *len + 1;
-#else
-                ++can_packet_len;
-#endif
+                #ifdef CAN_RX_DOUBLE_BUF
+                     *len = *len + 1;
+                #else
+                     ++can_packet_len;
+                #endif
             }
             break;
         case CAN_RX_HEAD2:
-#ifdef CAN_RX_DOUBLE_BUF
+            #ifdef CAN_RX_DOUBLE_BUF
             buf[*len] = data;
-#else
+            #else
             USART_Rx_Buff[can_packet_len] = data;
-#endif
+            #endif
             switch(g_head_type) {
                 case CAN_HEAD_2:
                     if (0xA5==data) {
@@ -340,8 +349,21 @@ void canbox_rx(uint8_t data)
 #endif
             }
             break;
+            
         case CAN_RX_DATATYPE2:
             break;
+            
+        case CAN_RX_FUNCTION:
+          #ifdef CAN_RX_DOUBLE_BUF
+            buf[*len] = data;
+            *len = *len + 1;
+          #else
+            USART_Rx_Buff[can_packet_len] = data;
+            ++can_packet_len;
+          #endif  
+          
+          g_rx_state = CAN_RX_LEN;
+          break;    
         case CAN_RX_LEN:
             if ( (CAN_LEN_4 != g_len_type) && (data>(MAX_USART_RX_BUFFER_LENGTH-8)) ) {
                 // we will overrun buffer, ignore this packet
@@ -378,6 +400,10 @@ void canbox_rx(uint8_t data)
                     can_data_len = data&0x1F;
                     g_rx_state = CAN_RX_DATA;
                     break;
+                case CAN_LEN_5:
+                    can_data_len = data;
+                    g_rx_state = CAN_RX_LEN2;              
+                    break;
             }
             
             if (CAN_RX_LEN!=g_rx_state) {
@@ -394,6 +420,15 @@ void canbox_rx(uint8_t data)
             }
             break;
         case CAN_RX_LEN2:
+             can_data_len = data;
+             g_rx_state = CAN_RX_DATA;
+             #ifdef CAN_RX_DOUBLE_BUF
+				        buf[*len] = data;
+                *len = *len + 1;
+             #else
+				        USART_Rx_Buff[can_packet_len] = data;
+                ++can_packet_len;
+             #endif
             break;
         case CAN_RX_DATA:
 #ifdef CAN_RX_DOUBLE_BUF
@@ -508,7 +543,6 @@ ext void USART_Data_Analyse(void)
             memcpy(USART_Transmit_Rx_Buff, data, 1);
             USART_Transmit_Rx_Buff_full = 1;
             PostEvent(WINCE_MODULE, TX_TO_GUI_TRANSMIT_CAN_INFO,1);
-
         }
 
         return;
@@ -536,12 +570,17 @@ ext void USART_Data_Analyse(void)
 
     // check the parity
     if (IS_1BYTES_HEAD) {
+			if(CAN_HEAD_6==g_head_type)
+				idx = 0;
+			else
         idx = 1;
     } else if (IS_2BYTES_HEAD) {
         idx = 2;
-    } else {
+    } 
+		else {
         return;
     }
+		
     if (IS_2BYTES_PARITY) {
 #ifdef CAN_RX_DOUBLE_BUF
         parity_pos = len-2;
@@ -589,7 +628,7 @@ ext void USART_Data_Analyse(void)
 #else
             if (USART_Rx_Buff[parity_pos]==(checksum&0xFF))
 #endif
-                checksum_ok = 1;
+            checksum_ok = 1;
             break;
         case CAN_PARITY_3:
 #ifdef CAN_RX_DOUBLE_BUF
@@ -597,7 +636,7 @@ ext void USART_Data_Analyse(void)
 #else
             if (USART_Rx_Buff[parity_pos]==(((checksum&0xFF)-1)&0xFF))
 #endif
-                checksum_ok = 1;
+            checksum_ok = 1;
             break;
         case CAN_PARITY_4:
 #ifdef CAN_RX_DOUBLE_BUF
@@ -631,7 +670,9 @@ ext void USART_Data_Analyse(void)
 #endif
                 break;
         }
-    } else {
+    } 
+		else
+	  {
         switch(g_ack_type) {
             case CAN_ACK_1:
                 __canbox_send_ack1(CAN_ACK_1_CHECKSUM_ERROR);

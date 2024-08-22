@@ -277,6 +277,7 @@ static uchar buff[MAX_LIN_TX_LENGTH];
 
 static void Lin_Command_Check(uchar *Read_Lin_Ptr);
 
+extern void canbox_passthrough(bool en);
 
 void host_rx_data(uint8_t Lin_Data)
 {

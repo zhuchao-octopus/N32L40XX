@@ -10,6 +10,7 @@ typedef enum
     CAN_HEAD_3,
     CAN_HEAD_4,
     CAN_HEAD_5,
+	  CAN_HEAD_6,
     CAN_HEAD_NUM
 } CAN_HEAD_TYPE;
 
@@ -20,6 +21,7 @@ typedef enum
     CAN_LEN_2,
     CAN_LEN_3,
     CAN_LEN_4,
+    CAN_LEN_5,
     CAN_LEN_NUM
 } CAN_LEN_TYPE;
 
@@ -60,7 +62,8 @@ typedef enum
     CAN_RX_LEN2,
     CAN_RX_DATA,
     CAN_RX_PARITY,
-    CAN_RX_PARITY2
+    CAN_RX_PARITY2,
+    CAN_RX_FUNCTION
 }CAN_RX_STATE;
 
 typedef enum

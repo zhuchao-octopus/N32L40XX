@@ -90,7 +90,7 @@ void encoder_key_main(void)
 #define ENC2_AD_3   254
 #define ENC2_KEYCODE_CW UICC_STEP_UP
 #define ENC2_KEYCODE_CCW    UICC_STEP_DOWN
-static void encoder2_do_key(u8 keycode) {
+/*static void encoder2_do_key(u8 keycode) {
     if ((0==g_tune_key_info.debounce_timer)||(g_tune_key_info.last_key_code==keycode)) {
         g_tune_key_info.debounce_timer= 8;  // 32ms
         PostEvent(MMI_MODULE,keycode,0);
@@ -99,7 +99,7 @@ static void encoder2_do_key(u8 keycode) {
         g_tune_key_info.debounce_timer= 8; // 32ms
         g_tune_key_info.last_key_code= keycode;
     }
-}
+}*/
 static void encoder2_key_reset(void)
 {
     g_tune_key_info.debounce_timer = 0;
@@ -108,7 +108,7 @@ static void encoder2_key_reset(void)
 }
 void encoder2_key_main(void)
 {
-    u8 ad_value = 0;
+    //u8 ad_value = 0;
 
     if(Get_ACC_Det_Flag==0) {
         encoder2_key_reset();
