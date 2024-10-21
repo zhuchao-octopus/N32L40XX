@@ -22,6 +22,7 @@ typedef enum
     CAN_LEN_3,
     CAN_LEN_4,
     CAN_LEN_5,
+    CAN_LEN_6,
     CAN_LEN_NUM
 } CAN_LEN_TYPE;
 

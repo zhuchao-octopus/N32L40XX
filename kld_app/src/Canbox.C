@@ -292,10 +292,16 @@ void canbox_rx(uint8_t data)
             #endif
             switch(g_head_type) {
                 case CAN_HEAD_2:
-                    if (0xA5==data) {
-                        if (IS_OFFSET2_LEN) {
+                    if (0xA5==data) 
+											{
+                        if (IS_OFFSET2_LEN) 
+												{
                             g_rx_state = CAN_RX_LEN;
                         }
+												else if(CAN_LEN_6==g_len_type)
+												{
+													 g_rx_state = CAN_RX_LEN;
+												}
                     }
                     break;
                 case CAN_HEAD_3:
@@ -361,9 +367,12 @@ void canbox_rx(uint8_t data)
             USART_Rx_Buff[can_packet_len] = data;
             ++can_packet_len;
           #endif  
-          
-          g_rx_state = CAN_RX_LEN;
-          break;    
+          if (IS_1BYTES_HEAD)
+             g_rx_state = CAN_RX_LEN;
+           else 
+             g_rx_state = CAN_RX_DATA;   
+          break;  
+           
         case CAN_RX_LEN:
             if ( (CAN_LEN_4 != g_len_type) && (data>(MAX_USART_RX_BUFFER_LENGTH-8)) ) {
                 // we will overrun buffer, ignore this packet
@@ -404,6 +413,10 @@ void canbox_rx(uint8_t data)
                     can_data_len = data;
                     g_rx_state = CAN_RX_LEN2;              
                     break;
+                 case CAN_LEN_6:
+                   can_data_len = data;
+                   g_rx_state = CAN_RX_FUNCTION;
+                   break;
             }
             
             if (CAN_RX_LEN!=g_rx_state) {
@@ -515,9 +528,7 @@ ext void USART_Data_Analyse(void)
     u16 checksum;
     u8 idx, parity_pos;
     u8 checksum_ok;
-    
     u8 data[1];
-
     u8 *buf;
     u8 len;
     
